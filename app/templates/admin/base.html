@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block titulo %}Gestión · {{ cfg.NOVIA }} &amp; {{ cfg.NOVIO }}{% endblock %}</title>
+  <meta name="theme-color" content="#5E6D58">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ estatico('static/css/style.css') }}">
+  <link rel="stylesheet" href="{{ estatico('static/css/admin.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="admin">
+  {% if request.session.get('staff') %}
+  <nav class="barra">
+    <a class="barra__marca" href="/admin">{{ cfg.NOVIA }} &amp; {{ cfg.NOVIO }}</a>
+    <a href="/admin">Tablero</a>
+    <a href="/admin/invitaciones">Invitaciones</a>
+    <a href="/admin/invitaciones/nueva">Nueva</a>
+    <a href="/admin/escaner">Escáner</a>
+    <a href="/admin/export.csv">CSV</a>
+    <a class="barra__salir" href="/admin/logout">Salir</a>
+  </nav>
+  {% endif %}
+  <main class="contenido">
+    {% block contenido %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

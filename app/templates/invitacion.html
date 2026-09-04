@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block titulo %}{{ cfg.NOVIA }} &amp; {{ cfg.NOVIO }} · {{ cfg.FECHA_TEXTO }}{% endblock %}
+{% block clase_body %}invitacion{% endblock %}
+
+{% macro ramita() -%}
+<svg class="ornamento" viewBox="0 0 120 24" aria-hidden="true" focusable="false">
+  <path class="ornamento__tallo" d="M4 12h46M70 12h46"/>
+  <path class="ornamento__rombo" d="M60 5.5 66.5 12 60 18.5 53.5 12Z"/>
+  <circle class="ornamento__punto" cx="50" cy="12" r="1.6"/>
+  <circle class="ornamento__punto" cx="70" cy="12" r="1.6"/>
+</svg>
+{%- endmacro %}
+
+{% block head %}
+<noscript>
+  <style>
+    [data-reveal],[data-reveal-grupo] > *{opacity:1!important;transform:none!important}
+    .sobre{display:none!important}
+    .petalos{display:none}
+  </style>
+</noscript>
+{% endblock %}
+
+{% block contenido %}
+{% if inv %}
+<div class="sobre" id="sobre">
+  <div class="sobre__escena">
+
+    <div class="sobre__papel">
+      <p class="papel__eyebrow">Nos casamos</p>
+      <h1 class="papel__nombres">{{ cfg.NOVIA }}<em>&amp;</em>{{ cfg.NOVIO }}</h1>
+      <div class="papel__linea"></div>
+      <p class="papel__fecha">{{ cfg.FECHA_TEXTO }}</p>
+      <p class="papel__para">Invitación para<br><strong>{{ inv.nombre_grupo }}</strong></p>
+    </div>
+
+    <div class="sobre__frente"></div>
+    <div class="sobre__solapa"></div>
+
+    <button class="sobre__sello" id="abrir-sobre" aria-label="Abrir la invitación">
+      <span>{{ cfg.NOVIA[0] }}<i>&amp;</i>{{ cfg.NOVIO[0] }}</span>
+    </button>
+  </div>
+
+  <p class="sobre__pista" id="pista-sobre">Tocá el sello para abrir</p>
+</div>
+{% endif %}
+
+<div class="progreso" id="progreso" aria-hidden="true"></div>
+
+<div class="mini-barra" id="mini-barra" aria-hidden="true">
+  <span class="mini-barra__nombres">{{ cfg.NOVIA }} &amp; {{ cfg.NOVIO }}</span>
+  {% if inv %}<a class="mini-barra__cta" href="#rsvp">{{ 'Mi respuesta' if inv.estado.value != 'pendiente' else 'Confirmar' }}</a>{% endif %}
+</div>
+
+{% if staff and inv %}
+<div class="barra-staff">
+  <span>Estás viendo la invitación como invitado</span>
+  <a href="/i/{{ inv.codigo }}?puerta=1">Control de puerta</a>
+</div>
+{% endif %}
+
+<main class="pagina" id="pagina">
+
+  <header class="hero">
+    <div class="petalos" aria-hidden="true">
+      {% for n in range(9) %}<span class="petalo petalo--{{ n % 3 }}"></span>{% endfor %}
+    </div>
+
+    <div class="hero__marco" data-parallax="0.12">
+      <p class="hero__eyebrow" data-reveal>Nos casamos</p>
+      <h1 class="hero__nombres">
+        <span class="hero__nombre" data-reveal data-delay="80">{{ cfg.NOVIA }}</span>
+        <span class="amp" data-reveal data-delay="220">&amp;</span>
+        <span class="hero__nombre" data-reveal data-delay="360">{{ cfg.NOVIO }}</span>
+      </h1>
+      <div data-reveal data-delay="480">{{ ramita() }}</div>
+      <p class="hero__fecha" data-reveal data-delay="560">{{ cfg.FECHA_TEXTO }}</p>
+      <p class="hero__lugar" data-reveal data-delay="640">Mendoza, Argentina</p>
+    </div>
+    <div class="hero__scroll" aria-hidden="true"><span></span></div>
+  </header>
+
+  <section class="seccion cuenta" aria-label="Cuenta regresiva">
+    <p class="seccion__kicker" data-reveal>Falta poco</p>
+    <div class="cuenta__grilla" id="cuenta" data-fecha="{{ cfg.FECHA_ISO }}" data-reveal-grupo>
+      <div><strong data-u="dias">--</strong><span>días</span></div>
+      <div><strong data-u="horas">--</strong><span>horas</span></div>
+      <div><strong data-u="min">--</strong><span>minutos</span></div>
+      <div><strong data-u="seg">--</strong><span>segundos</span></div>
+    </div>
+  </section>
+
+  <section class="seccion lugares">
+    <h2 class="seccion__titulo" data-reveal>Dónde y cuándo</h2>
+    <div data-reveal>{{ ramita() }}</div>
+    <div class="lugares__grilla" data-reveal-grupo>
+      {% for l in [cfg.CEREMONIA, cfg.RECEPCION] %}
+      <article class="tarjeta">
+        <p class="tarjeta__hora">{{ l.hora }}</p>
+        <h3 class="tarjeta__titulo">{{ l.titulo }}</h3>
+        <p class="tarjeta__lugar">{{ l.lugar }}</p>
+        <p class="tarjeta__dir">{{ l.direccion }}</p>
+        <a class="btn btn--linea" href="{{ l.maps }}" target="_blank" rel="noopener">Cómo llegar</a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="seccion itinerario">
+    <h2 class="seccion__titulo" data-reveal>Itinerario</h2>
+    <ol class="linea-tiempo" data-reveal-grupo>
+      {% for hora, texto in cfg.ITINERARIO %}
+      <li>
+        <span class="linea-tiempo__punto" aria-hidden="true"></span>
+        <span class="linea-tiempo__hora">{{ hora }}</span>
+        <span class="linea-tiempo__texto">{{ texto }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="seccion dos-col">
+    <article data-reveal>
+      <h2 class="seccion__titulo">Dress code</h2>
+      <p class="parrafo">{{ cfg.DRESS_CODE }}</p>
+    </article>
+    <article data-reveal data-delay="140">
+      <h2 class="seccion__titulo">Regalos</h2>
+      <p class="parrafo">Su presencia es nuestro mejor regalo. Si además quieren colaborar con nuestra luna de miel:</p>
+      <p class="alias">Alias Mercado Pago<br>
+        <strong class="alias__valor" id="alias" data-copiar="{{ cfg.REGALOS_ALIAS }}">{{ cfg.REGALOS_ALIAS }}</strong>
+        <span class="alias__aviso" id="alias-aviso">copiado</span>
+      </p>
+      <a class="btn btn--linea" href="{{ cfg.REGALOS_URL }}" target="_blank" rel="noopener">Ir a Mercado Pago</a>
+    </article>
+  </section>
+
+  {% if inv %}
+  {% set respondio = inv.estado.value != 'pendiente' %}
+  {% set viene = inv.confirmados > 0 %}
+
+  <section class="seccion rsvp" id="rsvp">
+    {% if respondio and not editar %}
+
+      {# --- ya respondieron: agradecimiento --- #}
+      <h2 class="seccion__titulo" data-reveal>{{ '¡Gracias por confirmar!' if viene else 'Gracias por avisarnos' }}</h2>
+      <div data-reveal>{{ ramita() }}</div>
+
+      {% if viene %}
+        <p class="parrafo centro" data-reveal>
+          Nos hace muy felices que nos acompañen.<br>
+          <strong>Los esperamos el {{ cfg.FECHA_TEXTO|lower }}.</strong>
+        </p>
+        <ul class="confirmados" data-reveal-grupo>
+          {% for g in inv.invitados if g.asiste %}
+          <li>
+            <span class="confirmados__tilde" aria-hidden="true"></span>
+            <span>{{ g.nombre or 'Invitado' }}</span>
+            {% if g.restriccion %}<span class="confirmados__dato">{{ g.restriccion }}</span>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% if inv.confirmados < inv.cupo_total %}
+          <p class="tenue centro" data-reveal>
+            Guardamos {{ inv.confirmados }} de los {{ inv.cupo_total }} lugares que teníamos reservados para ustedes.
+          </p>
+        {% endif %}
+      {% else %}
+        <p class="parrafo centro" data-reveal>
+          Qué lástima que no puedan estar. Gracias por tomarse el momento de avisarnos:<br>
+          los vamos a extrañar y les mandamos un abrazo grande.
+        </p>
+      {% endif %}
+
+      <p class="centro" data-reveal>
+        <a class="btn btn--linea" href="/i/{{ inv.codigo }}?editar=1#rsvp">Modificar mi respuesta</a>
+      </p>
+
+    {% else %}
+
+      {# --- todavia no respondieron (o estan editando) --- #}
+      <h2 class="seccion__titulo" data-reveal>Confirmá tu asistencia</h2>
+      <div data-reveal>{{ ramita() }}</div>
+
+      <p class="parrafo centro" data-reveal>
+        Invitación para <strong>{{ inv.nombre_grupo }}</strong> ·
+        {{ inv.cupo_adultos }} adulto{{ 's' if inv.cupo_adultos != 1 }}{% if inv.cupo_ninos %} y {{ inv.cupo_ninos }} niño{{ 's' if inv.cupo_ninos != 1 }}{% endif %}<br>
+        <span class="tenue">Confirmar antes del {{ cfg.FECHA_LIMITE_RSVP }}</span>
+      </p>
+
+      <form class="formulario" method="post" action="/i/{{ inv.codigo }}/rsvp" data-reveal-grupo>
+        {% for g in inv.invitados %}
+        <fieldset class="invitado">
+          <legend>{{ 'Adulto' if g.tipo.value == 'adulto' else 'Niño/a' }} {{ loop.index }}</legend>
+          <input type="hidden" name="tipo" value="{{ g.tipo.value }}">
+          <label>Nombre y apellido
+            <input type="text" name="nombre" value="{{ g.nombre }}" placeholder="Nombre completo" required>
+          </label>
+          <label>Asistencia
+            <select name="asiste">
+              <option value="si" {{ 'selected' if g.asiste != False }}>Sí, asiste</option>
+              <option value="no" {{ 'selected' if g.asiste == False }}>No puede asistir</option>
+            </select>
+          </label>
+          <label>Restricción alimentaria (opcional)
+            <input type="text" name="restriccion" value="{{ g.restriccion or '' }}" placeholder="Celíaco, vegetariano, alergias...">
+          </label>
+        </fieldset>
+        {% endfor %}
+
+        <label>Teléfono de contacto
+          <input type="tel" name="telefono" value="{{ inv.telefono or '' }}" placeholder="+54 9 261 ...">
+        </label>
+        <label>Dejanos un mensaje (opcional)
+          <textarea name="mensaje" rows="3" placeholder="Un saludo para los novios">{{ inv.mensaje or '' }}</textarea>
+        </label>
+
+        <button class="btn btn--solido" type="submit" data-enviando="Enviando…">Enviar respuesta</button>
+      </form>
+
+    {% endif %}
+  </section>
+
+  {% if viene %}
+  <section class="seccion pase">
+    <h2 class="seccion__titulo" data-reveal>Tu código para ese día</h2>
+    <p class="parrafo centro" data-reveal>
+      Guardalo en el teléfono y mostralo al llegar al salón. Es único para <strong>{{ inv.nombre_grupo }}</strong>.
+    </p>
+    <figure class="pase__caja" data-reveal data-delay="120">
+      <img class="pase__qr" src="{{ url_qr }}" alt="Código de {{ inv.nombre_grupo }}" width="220" height="220">
+      <figcaption>
+        Código <strong>{{ inv.codigo }}</strong><br>
+        <span class="tenue">{{ inv.confirmados }} lugar{{ 'es' if inv.confirmados != 1 }} confirmado{{ 's' if inv.confirmados != 1 }}</span>
+      </figcaption>
+    </figure>
+    <p class="centro" data-reveal><a class="btn btn--linea" href="{{ url_qr }}" download="codigo-{{ inv.codigo }}.png">Descargar código</a></p>
+  </section>
+  {% endif %}
+
+  {% else %}
+  <section class="seccion rsvp">
+    <h2 class="seccion__titulo" data-reveal>Confirmá tu asistencia</h2>
+    <p class="parrafo centro" data-reveal>Cada invitado recibe un link personal para confirmar. Si no lo recibiste, escribinos.</p>
+  </section>
+  {% endif %}
+
+  <footer class="pie">
+    <div data-reveal>{{ ramita() }}</div>
+    <p class="pie__nombres" data-reveal>{{ cfg.NOVIA }} &amp; {{ cfg.NOVIO }}</p>
+    <p class="pie__hash" data-reveal data-delay="120">{{ cfg.HASHTAG }}</p>
+  </footer>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ estatico('static/js/invitacion.js') }}" defer></script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Tarjeta {{ inv.codigo }}{% endblock %}
+{% block head %}
+<style>
+  @media print{
+    .barra,.no-imprimir{display:none!important}
+    body{background:#fff}
+    .tarjeta-print{box-shadow:none;border:1px solid #ccc;margin:0}
+  }
+</style>
+{% endblock %}
+{% block contenido %}
+<p class="no-imprimir acciones">
+  <button class="btn" onclick="window.print()">Imprimir</button>
+  <a class="btn" href="/admin/invitaciones/{{ inv.id }}">Volver</a>
+</p>
+
+<article class="tarjeta-print">
+  <p class="tarjeta-print__eyebrow">Nos casamos</p>
+  <h1 class="tarjeta-print__nombres">{{ cfg.NOVIA }} <em>&amp;</em> {{ cfg.NOVIO }}</h1>
+  <p class="tarjeta-print__fecha">{{ cfg.FECHA_TEXTO }}</p>
+  <p class="tarjeta-print__grupo">{{ inv.nombre_grupo }}</p>
+  <p class="tarjeta-print__cupo">
+    {{ inv.cupo_adultos }} adulto{{ 's' if inv.cupo_adultos != 1 }}{% if inv.cupo_ninos %} · {{ inv.cupo_ninos }} niño{{ 's' if inv.cupo_ninos != 1 }}{% endif %}
+  </p>
+  <img class="tarjeta-print__qr" src="/i/{{ inv.codigo }}/qr.png" alt="QR {{ inv.codigo }}" width="240" height="240">
+  <p class="tarjeta-print__codigo">{{ inv.codigo }}</p>
+  <p class="tarjeta-print__link">{{ cfg.BASE_URL }}/i/{{ inv.codigo }}</p>
+</article>
+{% endblock %}

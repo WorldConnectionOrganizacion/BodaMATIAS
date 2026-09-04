@@ -1,0 +1,28 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Nueva invitación · Gestión{% endblock %}
+{% block contenido %}
+<div class="panel panel--angosto">
+  <h1 class="titulo">Nueva invitación</h1>
+  <form method="post" action="/admin/invitaciones/nueva" class="formulario">
+    <label>Grupo / familia
+      <input type="text" name="nombre_grupo" placeholder="Familia Pérez" required autofocus>
+    </label>
+    <div class="fila">
+      <label>Adultos <input type="number" name="cupo_adultos" value="2" min="0" max="20"></label>
+      <label>Niños <input type="number" name="cupo_ninos" value="0" min="0" max="20"></label>
+    </div>
+    <label>Teléfono (WhatsApp, con código país)
+      <input type="tel" name="telefono" placeholder="5492611234567">
+    </label>
+    <label>Email <input type="email" name="email"></label>
+
+    <label class="check">
+      <input type="checkbox" name="tarjeta_fisica" value="1">
+      <span>Tarjeta física <em>— se entrega impresa en mano</em></span>
+    </label>
+
+    <label>Notas internas <textarea name="notas" rows="2"></textarea></label>
+    <button class="btn btn--solido" type="submit">Crear invitación</button>
+  </form>
+</div>
+{% endblock %}

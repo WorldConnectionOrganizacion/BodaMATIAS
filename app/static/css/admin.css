@@ -1,0 +1,153 @@
+/* Panel de gestión: mismo lenguaje visual que la invitación, más denso. */
+body.admin{background:#F2EFE9;font-size:15px}
+.barra{
+  display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+  background:var(--sage-osc);color:var(--papel);padding:12px 20px;
+}
+.barra a{color:var(--papel);text-decoration:none;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.barra a:hover{opacity:1}
+.barra__marca{font-family:var(--serif);font-size:1.15rem;letter-spacing:.04em;text-transform:none;margin-right:auto;opacity:1}
+.barra__salir{opacity:.6}
+
+.contenido{max-width:1040px;margin:0 auto;padding:28px 20px 70px}
+.titulo{font-family:var(--serif);font-weight:400;font-size:2rem;margin:0 0 20px}
+.subtitulo{font-family:var(--serif);font-weight:400;font-size:1.2rem;margin:24px 0 10px}
+.panel{background:var(--papel);border:1px solid var(--arena);padding:22px;margin:0 0 22px}
+.panel--angosto{max-width:520px;margin-inline:auto}
+.panel--tabla{padding:0;overflow-x:auto}
+.panel--doble{display:grid;gap:32px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+
+.fila{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:0 0 16px}
+.fila label{flex:1 1 140px;margin:0}
+.fila input,.fila select{padding:10px 12px;border:1px solid var(--arena);background:var(--papel);font-family:var(--sans);font-size:.95rem}
+.fila input[type=search]{flex:2 1 220px}
+
+.metricas{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:0 0 22px}
+.metrica{background:var(--papel);border:1px solid var(--arena);padding:16px;text-align:center}
+.metrica strong{display:block;font-family:var(--serif);font-size:2.2rem;font-weight:400;line-height:1}
+.metrica span{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-suave)}
+.metrica--ok{border-color:var(--sage)}
+.metrica--acento{border-color:var(--dorado)}
+
+.tabla{width:100%;border-collapse:collapse;font-size:.92rem}
+.tabla th,.tabla td{padding:10px 14px;text-align:left;border-bottom:1px solid rgba(217,207,192,.7);vertical-align:top}
+.tabla--lista thead th{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-suave)}
+.tabla code{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em}
+.acciones-fila a{margin-right:10px;font-size:.78rem}
+
+.estado{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--arena);white-space:nowrap}
+.estado--confirmada{border-color:var(--sage-osc);color:var(--sage-osc)}
+.estado--parcial{border-color:var(--dorado);color:var(--dorado)}
+.estado--rechazada{border-color:#B4736A;color:#B4736A}
+.estado--pendiente{color:var(--tinta-suave)}
+
+.lista-simple{list-style:none;padding:0;margin:0}
+.lista-simple li{padding:8px 0;border-bottom:1px dashed var(--arena)}
+.cita{margin:0;padding:12px 16px;border-left:2px solid var(--sage);background:rgba(138,154,131,.08);font-style:italic}
+
+.qr-mini{border:1px solid var(--arena);padding:10px;background:#fff}
+.codigo-grande{font-family:var(--serif);font-size:1.9rem;letter-spacing:.28em;margin:10px 0 0}
+.enlace-copia{word-break:break-all}
+.acciones{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.btn--peligro{border-color:#B4736A;color:#B4736A}
+.btn--peligro:hover{background:#B4736A;color:#fff}
+.aviso--error{border-color:#B4736A;background:rgba(180,115,106,.1)}
+
+/* --- puerta --- */
+.pase-estado{text-align:center;padding:26px 18px;border:1px solid var(--arena);background:var(--papel);margin:0 0 20px}
+.pase-estado--ok{border-color:var(--sage-osc);background:rgba(138,154,131,.14)}
+.pase-estado--alerta{border-color:var(--dorado);background:rgba(185,156,107,.14)}
+.pase-estado--aviso{border-color:#B4736A;background:rgba(180,115,106,.12)}
+.pase-estado__titulo{font-family:var(--serif);font-size:1.9rem;margin:0}
+.pase-estado__grupo{font-size:1.1rem;margin:6px 0 0}
+.pase-estado__codigo{letter-spacing:.3em;color:var(--tinta-suave);margin:2px 0 0;font-size:.85rem}
+.lista-invitados{list-style:none;padding:0;margin:14px 0}
+.lista-invitados li{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 0;border-bottom:1px dashed var(--arena)}
+.etiqueta{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--arena);color:var(--tinta-suave)}
+.etiqueta--ok{border-color:var(--sage-osc);color:var(--sage-osc)}
+.etiqueta--no{border-color:#B4736A;color:#B4736A}
+.etiqueta--dieta{border-color:var(--dorado);color:var(--dorado)}
+.form-ingreso{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:16px 0}
+.form-ingreso label{flex:1 1 160px;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-suave)}
+.form-ingreso input{width:100%;margin-top:6px;padding:12px;border:1px solid var(--arena);font-size:1.2rem;text-align:center}
+.form-ingreso .btn--solido{width:auto;flex:1 1 180px;margin:0}
+
+#camara{width:100%;max-height:60vh;background:#000;border:1px solid var(--arena)}
+
+/* --- tarjeta imprimible --- */
+.tarjeta-print{
+  max-width:400px;margin:0 auto;background:var(--papel);border:1px solid var(--arena);
+  padding:36px 28px;text-align:center;box-shadow:var(--sombra);
+}
+.tarjeta-print__eyebrow{font-size:.68rem;letter-spacing:.4em;text-transform:uppercase;color:var(--sage-osc);margin:0 0 10px}
+.tarjeta-print__nombres{font-family:var(--serif);font-weight:400;font-size:2.3rem;margin:0}
+.tarjeta-print__nombres em{color:var(--dorado)}
+.tarjeta-print__fecha{letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;margin:6px 0 22px}
+.tarjeta-print__grupo{font-family:var(--serif);font-size:1.5rem;margin:0}
+.tarjeta-print__cupo{color:var(--tinta-suave);font-size:.85rem;margin:2px 0 18px}
+.tarjeta-print__qr{margin:0 auto;border:1px solid var(--arena);padding:8px;background:#fff}
+.tarjeta-print__codigo{font-family:var(--serif);font-size:1.6rem;letter-spacing:.3em;margin:12px 0 2px}
+.tarjeta-print__link{font-size:.72rem;color:var(--tinta-suave);word-break:break-all;margin:0}
+
+@media (max-width:760px){
+  .panel--doble{grid-template-columns:1fr}
+}
+
+/* ---------- Mobile primero: el staff también entra desde el teléfono ------- */
+.barra{
+  padding:10px max(14px,env(safe-area-inset-left));
+  overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;
+  position:sticky;top:0;z-index:20;
+}
+.barra a{white-space:nowrap;padding:6px 0}
+.contenido{padding:20px clamp(14px,4.5vw,20px) calc(60px + env(safe-area-inset-bottom))}
+.panel{padding:clamp(16px,5vw,22px)}
+.titulo{font-size:clamp(1.5rem,6vw,2rem);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.metricas{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+.fila input,.fila select,.fila button,.fila .btn{min-height:48px}
+.formulario input,.formulario select,.formulario textarea{font-size:16px}
+.qr-mini{margin:0 auto}
+.enlace-copia{text-align:center}
+
+@media (max-width:560px){
+  .metricas{grid-template-columns:repeat(2,1fr)}
+  .metrica strong{font-size:1.8rem}
+  .fila{flex-direction:column;align-items:stretch}
+  .fila label,.fila input,.fila select,
+  .fila input[type=search]{flex:0 0 auto}   /* en columna, flex-basis seria altura */
+  .fila .btn,.fila button{width:100%}
+  .tabla th,.tabla td{padding:9px 10px;font-size:.86rem}
+  .form-ingreso{flex-direction:column;align-items:stretch}
+  .form-ingreso .btn--solido{width:100%;flex:0 0 auto}   /* en columna, flex-basis seria altura */
+  .acciones .btn{width:100%}
+  .pase-estado__titulo{font-size:1.6rem}
+}
+@media (max-width:360px){
+  .metricas{grid-template-columns:1fr 1fr;gap:8px}
+  .barra__marca{font-size:1rem}
+}
+
+/* --- checkbox de tarjeta fisica --- */
+.formulario label.check{
+  display:flex;align-items:flex-start;gap:12px;text-transform:none;letter-spacing:normal;
+  font-size:.95rem;color:var(--tinta);background:var(--crema);border:1px solid var(--arena);
+  padding:14px 16px;margin:0 0 16px;cursor:pointer;
+}
+.formulario label.check input{
+  width:22px;height:22px;min-height:0;margin:2px 0 0;flex:0 0 auto;accent-color:var(--sage-osc);
+  appearance:auto;-webkit-appearance:checkbox;
+}
+.formulario label.check em{display:block;font-style:normal;font-size:.82rem;color:var(--tinta-suave)}
+
+.estado--fisica{border-color:var(--dorado);color:var(--dorado)}
+.estado--virtual{border-color:var(--arena);color:var(--tinta-suave)}
+.metrica__link{
+  display:block;margin-top:8px;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--sage-osc);
+}
+
+.base-url{
+  background:var(--papel);border:1px solid var(--arena);border-left:3px solid var(--dorado);
+  padding:12px 16px;margin:0 0 22px;font-size:.88rem;word-break:break-word;
+}
+.base-url strong{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:400}

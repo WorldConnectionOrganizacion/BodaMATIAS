@@ -1,0 +1,62 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Tablero · Gestión{% endblock %}
+{% block contenido %}
+<h1 class="titulo">Tablero</h1>
+
+<p class="base-url">
+  Los QR y los links se generan con <strong>{{ cfg.BASE_URL }}</strong>
+  <span class="tenue">— se configura en el archivo <code>.env</code>; al cambiarlo hay que reiniciar el servidor.</span>
+</p>
+
+<div class="metricas">
+  <div class="metrica"><strong>{{ stats.invitaciones }}</strong><span>invitaciones</span></div>
+  <div class="metrica"><strong>{{ stats.cupo }}</strong><span>lugares reservados</span></div>
+  <div class="metrica metrica--ok"><strong>{{ stats.confirmados }}</strong><span>confirmados</span></div>
+  <div class="metrica"><strong>{{ stats.pendientes }}</strong><span>sin responder</span></div>
+  <div class="metrica"><strong>{{ stats.rechazadas }}</strong><span>no asisten</span></div>
+  <div class="metrica metrica--acento"><strong>{{ stats.ingresados }}</strong><span>ingresaron</span></div>
+</div>
+
+<div class="metricas">
+  <div class="metrica">
+    <strong>{{ stats.fisicas }}</strong><span>tarjetas físicas</span>
+    <a class="metrica__link" href="/admin/invitaciones?formato=fisica">ver lista</a>
+  </div>
+  <div class="metrica">
+    <strong>{{ stats.virtuales }}</strong><span>invitaciones virtuales</span>
+    <a class="metrica__link" href="/admin/invitaciones?formato=virtual">ver lista</a>
+  </div>
+</div>
+
+<div class="panel">
+  <h2 class="subtitulo">Importar lista (CSV)</h2>
+  <p class="tenue">Columnas: <code>grupo;adultos;ninos;telefono;email;fisica</code>
+    (en <code>fisica</code>: <code>si</code> o vacío)</p>
+  <form method="post" action="/admin/importar" enctype="multipart/form-data" class="fila">
+    <input type="file" name="archivo" accept=".csv" required>
+    <button class="btn" type="submit">Importar</button>
+  </form>
+</div>
+
+{% if stats.restricciones %}
+<div class="panel">
+  <h2 class="subtitulo">Restricciones alimentarias ({{ stats.restricciones|length }})</h2>
+  <ul class="lista-simple">
+    {% for grupo, nombre, dato in stats.restricciones %}
+    <li><strong>{{ nombre or '(sin nombre)' }}</strong> <span class="tenue">({{ grupo }})</span> — {{ dato }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="panel">
+  <h2 class="subtitulo">Mensajes recibidos</h2>
+  <ul class="lista-simple">
+    {% for i in invitaciones if i.mensaje %}
+    <li><strong>{{ i.nombre_grupo }}:</strong> {{ i.mensaje }}</li>
+    {% else %}
+    <li class="tenue">Todavía no hay mensajes.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

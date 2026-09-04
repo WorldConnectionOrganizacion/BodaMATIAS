@@ -1,0 +1,53 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Invitaciones · Gestión{% endblock %}
+{% block contenido %}
+<h1 class="titulo">Invitaciones <span class="tenue">({{ invitaciones|length }})</span></h1>
+
+<form class="fila" method="get" action="/admin/invitaciones">
+  <input type="search" name="q" value="{{ q }}" placeholder="Buscar por grupo o código">
+  <select name="estado">
+    <option value="">Todos los estados</option>
+    {% for e in ['pendiente','confirmada','parcial','rechazada'] %}
+    <option value="{{ e }}" {{ 'selected' if estado == e }}>{{ e }}</option>
+    {% endfor %}
+  </select>
+  <select name="formato">
+    <option value="">Físicas y virtuales</option>
+    <option value="fisica" {{ 'selected' if formato == 'fisica' }}>Solo tarjeta física</option>
+    <option value="virtual" {{ 'selected' if formato == 'virtual' }}>Solo virtuales</option>
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+  <a class="btn" href="/admin/invitaciones/nueva">+ Nueva</a>
+</form>
+
+<div class="panel panel--tabla">
+<table class="tabla tabla--lista">
+  <thead>
+    <tr><th>Grupo</th><th>Código</th><th>Formato</th><th>Cupo</th><th>Confirm.</th><th>Ingresó</th><th>Estado</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for i in invitaciones %}
+    <tr>
+      <td><a href="/admin/invitaciones/{{ i.id }}">{{ i.nombre_grupo }}</a></td>
+      <td><code>{{ i.codigo }}</code></td>
+      <td>
+        <span class="estado estado--{{ 'fisica' if i.tarjeta_fisica else 'virtual' }}">
+          {{ 'física' if i.tarjeta_fisica else 'virtual' }}
+        </span>
+      </td>
+      <td>{{ i.cupo_adultos }}A{% if i.cupo_ninos %} + {{ i.cupo_ninos }}N{% endif %}</td>
+      <td>{{ i.confirmados }}</td>
+      <td>{{ i.ingresados }}</td>
+      <td><span class="estado estado--{{ i.estado.value }}">{{ i.estado.value }}</span></td>
+      <td class="acciones-fila">
+        <a href="/i/{{ i.codigo }}" target="_blank">link</a>
+        <a href="/admin/invitaciones/{{ i.id }}/tarjeta" target="_blank">QR</a>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="8" class="tenue">Sin invitaciones todavía.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

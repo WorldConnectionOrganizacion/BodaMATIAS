@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Invitación no encontrada{% endblock %}
+{% block contenido %}
+<main class="pagina">
+  <section class="seccion" style="padding-top:22vh">
+    <h1 class="seccion__titulo">No encontramos esa invitación</h1>
+    <p class="parrafo">El código <strong>{{ codigo }}</strong> no figura en nuestra lista. Revisá el link que te enviamos o escribinos para reenviártelo.</p>
+    <a class="btn btn--linea" href="/">Ver la invitación general</a>
+  </section>
+</main>
+{% endblock %}
