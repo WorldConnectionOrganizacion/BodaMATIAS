@@ -17,7 +17,8 @@
   window.addEventListener("error", revelarTodo);
 
   /* ------------------------------------------------ GSAP Envelope 25-Frame Canvas Sequence & Green Flash Filter */
-  (function initGSAPEnvelope() {
+  /* ------------------------------------------------ Sobre Interactivo: Apertura al Tocar */
+  (function initEnvelope() {
     var wrapper = document.getElementById("envelope-pin-wrapper");
     var stage = document.getElementById("envelope-stage");
     var hint = document.getElementById("envelope-scroll-hint");
@@ -34,21 +35,39 @@
 
     var ctx = canvas.getContext("2d");
 
-    // Si el usuario navegó a un ancla directa (#rsvp) o prefiere sin movimiento
+    function finalizarApertura() {
+      wrapper.style.transition = "opacity 0.75s ease, visibility 0.75s ease";
+      wrapper.style.opacity = "0";
+      wrapper.style.pointerEvents = "none";
+      setTimeout(function () {
+        wrapper.style.display = "none";
+        document.body.classList.remove("envelope-locked");
+        document.body.style.overflow = "";
+        arrancarRevelados();
+      }, 750);
+    }
+
+    // Si navegó directamente a una sección con ancla (#rsvp) o prefiere sin animación:
     if (location.hash || quieto) {
       wrapper.style.display = "none";
       arrancarRevelados();
       return;
     }
 
-    // Evitar que el navegador restaure una posición de scroll previa al navegar entre invitaciones
-    if ("scrollRestoration" in history && !location.hash) {
-      history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-    }
+    // Bloquear scroll mientras el sobre está cerrado
+    document.body.classList.add("envelope-locked");
+    document.body.style.overflow = "hidden";
 
-    // 116 Fotogramas de alta definición extraídos del video
-    var TOTAL_FRAMES = 116;
+    // 83 Fotogramas progresivos con movimiento continuo real
+    var FRAME_NUMBERS = [
+      1, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 27, 28, 29, 30,
+      31, 34, 35, 36, 37, 39, 40, 41, 42, 43, 45, 46, 47, 48, 49, 51,
+      52, 53, 54, 55, 57, 58, 59, 60, 61, 64, 65, 66, 67, 69, 70, 71,
+      72, 73, 75, 76, 77, 78, 79, 81, 82, 83, 84, 85, 87, 88, 89, 90,
+      91, 94, 95, 96, 97, 99, 100, 101, 102, 103, 105, 106, 107, 108,
+      109, 111, 113, 114, 115
+    ];
+    var TOTAL_FRAMES = FRAME_NUMBERS.length;
     var frameImages = [];
     var loadedCount = 0;
 
@@ -72,7 +91,7 @@
         ctx.globalAlpha = 1.0;
         ctx.drawImage(imgA, 0, 0, canvas.width, canvas.height);
 
-        // Mezcla continua entre fotogramas para lograr 60fps sin sensación de saltos
+        // Mezcla suave continua entre fotogramas para 60fps
         if (frac > 0.02 && imgB && imgB.complete && imgB.naturalWidth > 0) {
           ctx.globalAlpha = frac;
           ctx.drawImage(imgB, 0, 0, canvas.width, canvas.height);
@@ -80,10 +99,11 @@
       }
     }
 
-    for (var i = 1; i <= TOTAL_FRAMES; i++) {
+    for (var i = 0; i < TOTAL_FRAMES; i++) {
       (function (index) {
+        var num = FRAME_NUMBERS[index];
         var img = new Image();
-        img.src = "/static/img/seq/frame_" + pad(index + 1, 3) + ".jpg";
+        img.src = "/static/img/seq/frame_" + pad(num, 3) + ".jpg";
         img.onload = function () {
           loadedCount++;
           if (index === 0) {
@@ -91,80 +111,104 @@
           }
         };
         frameImages.push(img);
-      })(i - 1);
+      })(i);
     }
 
-    if (window.gsap && window.ScrollTrigger) {
-      gsap.registerPlugin(ScrollTrigger);
+    if (frameImages[0] && frameImages[0].complete && frameImages[0].naturalWidth > 0) {
+      renderCanvasFrame(0);
+    }
 
-      var scrollDist = 2600;
-      var frameState = { frame: 0 };
-
-      if (cardContainer) {
+    // Inicializar estado de la tarjeta interior
+    if (cardContainer) {
+      if (window.gsap) {
         gsap.set(cardContainer, {
           xPercent: -50,
           yPercent: -50,
           x: 0,
           y: 0,
           opacity: 0,
-          scale: 0.95,
+          scale: 0.94,
           pointerEvents: "none"
         });
+      } else {
+        cardContainer.style.opacity = "0";
+      }
+    }
+
+    var abriendo = false;
+    var abierto = false;
+    var allowSkip = false;
+    var tl = null;
+
+    function abrirSobre() {
+      if (abriendo || abierto) return;
+      abriendo = true;
+      allowSkip = false;
+
+      // Habilitar salto sólo después de 700ms para evitar falsos toques durante la interacción inicial
+      setTimeout(function () {
+        allowSkip = true;
+      }, 700);
+
+      // Quitar animación de respiración del sello
+      if (seal) {
+        seal.style.animation = "none";
+        seal.style.cursor = "default";
       }
 
-      var tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: wrapper,
-          start: "top top",
-          end: "+=" + scrollDist,
-          pin: true,
-          scrub: 0.6,
-          anticipatePin: 1,
-          onUpdate: function (self) {
-            if (self.progress > 0.75) {
-              arrancarRevelados();
-            }
-          }
+      if (!window.gsap) {
+        finalizarApertura();
+        return;
+      }
+
+      var frameState = { frame: 0 };
+
+      tl = gsap.timeline({
+        onComplete: function () {
+          abierto = true;
+          finalizarApertura();
         }
       });
 
-      // 1. Pista de scroll se desvanece suavemente al inicio (0.00 -> 0.06)
-      tl.to(hint, {
-        opacity: 0,
-        y: 18,
-        ease: "power1.out",
-        duration: 0.06
-      }, 0);
-
-      // 2. El sello circular crema S&M en el centro se despega y desvanece de forma natural (0.01 -> 0.12)
-      if (seal) {
-        gsap.set(seal, { xPercent: -50, yPercent: -50 });
-        tl.to(seal, {
-          scale: 1.2,
+      // 1. Desvanecer la pista de toque de inmediato
+      if (hint) {
+        tl.to(hint, {
           opacity: 0,
-          ease: "power1.out",
-          duration: 0.11
-        }, 0.01);
+          scale: 0.9,
+          duration: 0.3,
+          ease: "power2.out"
+        }, 0);
+        tl.set(hint, { pointerEvents: "none", display: "none" }, 0.3);
       }
 
-      // 3. Secuencia de fotogramas fluida: del fotograma 0 al 115 (0.04 -> 0.88)
-      // Solapa izquierda -> Solapa derecha -> Solapa superior e inferior -> Revelado interior
+      // 2. Despegar y elevar el sello de cera S&M
+      if (seal) {
+        tl.to(seal, {
+          xPercent: -50,
+          yPercent: -50,
+          scale: 1.35,
+          opacity: 0,
+          duration: 0.45,
+          ease: "back.in(1.4)"
+        }, 0);
+        tl.set(seal, { pointerEvents: "none", display: "none" }, 0.45);
+      }
+
+      // 3. Secuencia continua de apertura del sobre verde (2.3 segundos cinematográficos)
       tl.to(frameState, {
         frame: TOTAL_FRAMES - 1,
-        ease: "none",
-        duration: 0.84,
+        duration: 2.3,
+        ease: "power1.inOut",
         onUpdate: function () {
           renderCanvasFrame(frameState.frame);
         }
-      }, 0.04);
+      }, 0.15);
 
-      // 4. Revelado natural del texto de invitación impreso en el interior del sobre (0.60 -> 0.82)
+      // 4. Revelado natural de la carta en el interior
       if (cardContainer) {
-        // A medida que las solapas superior e inferior se abren y descubren el papel interior,
-        // la caligrafía/impresión sobre el sobre se revela con nitidez y elegancia.
         tl.fromTo(cardContainer, {
           opacity: 0,
-          scale: 0.95,
+          scale: 0.94,
           xPercent: -50,
           yPercent: -50,
           x: 0,
@@ -176,51 +220,65 @@
           yPercent: -50,
           x: 0,
           y: 0,
-          ease: "power2.out",
-          duration: 0.22
-        }, 0.60);
-
-        // Habilitar interacción con los elementos al completarse la apertura
-        tl.set(cardContainer, { pointerEvents: "auto" }, 0.82);
+          duration: 0.7,
+          ease: "power2.out"
+        }, 1.35);
       }
 
-      // 5. Destello verde etéreo / resplandor suave de apertura (0.80 -> 0.88 -> 0.95)
+      // 5. Destello verde etéreo al completarse la apertura
       if (flash) {
-        tl.fromTo(flash, {
-          opacity: 0,
-          scale: 0.98
-        }, {
-          opacity: 0.65,
+        tl.fromTo(flash, { opacity: 0, scale: 0.98 }, {
+          opacity: 0.55,
           scale: 1.02,
-          ease: "power2.in",
-          duration: 0.08
-        }, 0.80);
-
+          duration: 0.25,
+          ease: "power2.in"
+        }, 1.95);
         tl.to(flash, {
           opacity: 0,
           scale: 1,
-          ease: "power2.out",
-          duration: 0.08
-        }, 0.88);
+          duration: 0.35,
+          ease: "power2.out"
+        }, 2.2);
       }
 
-      // Click / Tap para abrir automáticamente de forma fluida
-      function abrirClick() {
-        var top = wrapper.offsetTop + scrollDist * 0.98;
-        window.scrollTo({ top: top, behavior: "smooth" });
-      }
-
-      if (seal) seal.addEventListener("click", abrirClick);
-      if (system) system.addEventListener("click", abrirClick);
-      if (hint) hint.addEventListener("click", abrirClick);
-
-      window.addEventListener("load", function () {
-        ScrollTrigger.refresh();
-        renderCanvasFrame(frameState.frame);
-      });
-    } else {
-      arrancarRevelados();
+      // Pausa prolongada para que los invitados puedan leer la tarjeta con calma antes de pasar a la invitación (+2s)
+      tl.to({}, { duration: 2.7 });
     }
+
+    function alTocar(e) {
+      if (e && e.stopPropagation) {
+        e.stopPropagation();
+      }
+      try {
+        if (window.getSelection) {
+          window.getSelection().removeAllRanges();
+        }
+      } catch (err) {}
+      if (!abriendo) {
+        abrirSobre();
+      } else if (!abierto && allowSkip && tl) {
+        tl.progress(1);
+      }
+    }
+
+    // Permitir abrir tocando el sello S&M, el sobre o el fondo del escenario
+    if (seal) {
+      seal.addEventListener("click", alTocar);
+      seal.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          alTocar(e);
+        }
+      });
+    }
+    if (hint) hint.addEventListener("click", alTocar);
+    if (system) system.addEventListener("click", alTocar);
+    if (stage) stage.addEventListener("click", alTocar);
+    wrapper.addEventListener("click", alTocar);
+
+    window.addEventListener("load", function () {
+      renderCanvasFrame(0);
+    });
   })();
 
   /* ------------------------------------------------ Reproductor de Música ("DALE PLAY...") */
@@ -268,8 +326,11 @@
 
   /* ------------------------------------------------- revelados al hacer scroll */
   var observador = null;
+  var reveladosArrancados = false;
 
   function arrancarRevelados() {
+    if (reveladosArrancados) return;
+    reveladosArrancados = true;
     var sueltos = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
     var grupos = Array.prototype.slice.call(document.querySelectorAll("[data-reveal-grupo]"));
     var hijos = [];
@@ -426,6 +487,22 @@
       if (!boton) return;
       boton.disabled = true;
       boton.textContent = boton.dataset.enviando || "Enviando…";
+    });
+  })();
+
+  /* ------------------------------------------------ desplazamiento suave para anclas */
+  (function anclas() {
+    document.querySelectorAll('a[href^="#"]').forEach(function (enlace) {
+      enlace.addEventListener("click", function (e) {
+        var destinoId = this.getAttribute("href");
+        if (destinoId && destinoId.length > 1) {
+          var el = document.querySelector(destinoId);
+          if (el) {
+            e.preventDefault();
+            el.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      });
     });
   })();
 })();

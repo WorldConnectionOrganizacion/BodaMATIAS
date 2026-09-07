@@ -58,20 +58,19 @@
       </div>
 
       <!-- Sello circular crema pastel con iniciales S&M ubicado en el centro exacto del sobre -->
-      <div class="wax-seal" id="wax-seal" role="button" tabindex="0" aria-label="Abrir sobre de boda">
-        <img src="{{ estatico('static/img/sello-crema.png') }}" alt="Sello S&M" class="wax-seal__img">
+      <div class="wax-seal" id="wax-seal" role="button" aria-label="Abrir sobre de boda">
+        <img src="{{ estatico('static/img/sello-crema.png') }}" alt="Sello S&M" class="wax-seal__img" draggable="false">
       </div>
     </div>
 
     <!-- Destello verde etéreo (Flash verde) al completarse la apertura -->
     <div class="flash-verde" id="flash-verde" aria-hidden="true"></div>
 
-    <!-- Pista interactiva de scroll -->
-    <div class="envelope-scroll-hint" id="envelope-scroll-hint">
-      <span class="scroll-hint-text">Deslizá para abrir la invitación</span>
+    <!-- Pista interactiva de toque -->
+    <div class="envelope-scroll-hint" id="envelope-scroll-hint" role="button" aria-label="Abrir invitación">
+      <span class="scroll-hint-text">Tocá para abrir la invitación</span>
       <div class="scroll-hint-chevrons" aria-hidden="true">
-        <span></span>
-        <span></span>
+        <span class="scroll-hint-dot"></span>
       </div>
     </div>
   </section>
@@ -252,19 +251,50 @@
         <p class="dresscode-tarjeta__sub">Caballeros con traje, damas con vestido largo.</p>
       </div>
 
-      <!-- Boceto de Alta Costura: Vestido de Novia y Traje -->
+      <!-- Boceto de Alta Costura: Vestido de Fiesta y Traje de Etiqueta -->
       <div class="dresscode-sketch-card">
-        <svg viewBox="0 0 160 160" width="130" height="130" class="sketch-svg" aria-hidden="true">
-          <!-- Vestido de Novia -->
-          <path d="M46 36c-4 0-8 12-10 24l-14 78h48l-12-78c-2-12-6-24-12-24Z" fill="none" stroke="#233121" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M40 36c3 6 9 6 12 0M38 60c4 2 10 2 14 0" fill="none" stroke="#233121" stroke-width="1.3"/>
-          <path d="M30 138c8-3 24-3 32 0" fill="none" stroke="#233121" stroke-width="1.3"/>
-          <!-- Traje del Novio -->
-          <rect x="94" y="32" width="40" height="64" rx="2" fill="none" stroke="#233121" stroke-width="1.6"/>
-          <path d="M114 32v22M102 44l12-12 12 12" fill="none" stroke="#233121" stroke-width="1.4"/>
-          <path d="M94 96l-6 42h11l5-24 5 24h11l-6-42" fill="none" stroke="#233121" stroke-width="1.6"/>
-          <circle cx="114" cy="62" r="1.5" fill="#233121"/>
-          <circle cx="114" cy="74" r="1.5" fill="#233121"/>
+        <svg viewBox="0 0 170 150" width="150" height="132" class="sketch-svg" fill="none" stroke="#233121" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- DAMA: Vestido de fiesta con caída fluida -->
+          <g class="sketch-dama">
+            <path d="M45 18 C45 14, 48 12, 51 12 C53 12, 54 14, 54 17 L54 21" stroke-width="1.2"/>
+            <path d="M34 25 L48 21 L62 25" stroke-width="1.3"/>
+            <path d="M38 25 L39 31 M58 25 L57 31" stroke-width="1.2"/>
+            <path d="M39 31 C43 28, 46 31, 48 33 C50 31, 53 28, 57 31" stroke-width="1.5"/>
+            <path d="M39 31 C38 40, 40 49, 42 57" stroke-width="1.5"/>
+            <path d="M57 31 C58 40, 56 49, 54 57" stroke-width="1.5"/>
+            <path d="M42 57 C45 59, 51 59, 54 57" stroke-width="1.4"/>
+            <path d="M42 57 C40 74, 30 108, 22 138 C38 142, 58 142, 74 138 C66 108, 56 74, 54 57" stroke-width="1.6"/>
+            <path d="M45 60 C43 84, 38 114, 36 139" stroke-width="1.0" stroke-opacity="0.65"/>
+            <path d="M51 60 C53 84, 58 114, 60 139" stroke-width="1.0" stroke-opacity="0.65"/>
+            <path d="M48 70 C47 93, 48 118, 48 139.5" stroke-width="0.9" stroke-opacity="0.5"/>
+          </g>
+
+          <!-- CABALLERO: Traje formal de etiqueta con moño y saco entallado -->
+          <g class="sketch-caballero">
+            <path d="M123 18 C123 14, 126 12, 129 12 C131 12, 132 14, 132 17 L132 21" stroke-width="1.2"/>
+            <path d="M106 26 L126 21 L146 26" stroke-width="1.3"/>
+            <path d="M120 23 L123 27 M132 23 L129 27" stroke-width="1.2"/>
+            <path d="M121 25.5 L117 23.5 V28 L121 26 Z" stroke-width="1.2" fill="#233121"/>
+            <path d="M131 25.5 L135 23.5 V28 L131 26 Z" stroke-width="1.2" fill="#233121"/>
+            <circle cx="126" cy="25.8" r="1.3" fill="#233121"/>
+            <path d="M120 23 L115 35 L119 37 L124 60" stroke-width="1.4"/>
+            <path d="M132 23 L137 35 L133 37 L128 60" stroke-width="1.4"/>
+            <path d="M106 26 C103 40, 104 58, 107 75" stroke-width="1.5"/>
+            <path d="M146 26 C149 40, 148 58, 145 75" stroke-width="1.5"/>
+            <path d="M107 75 C111 77, 118 78, 123 75 L124 60" stroke-width="1.4"/>
+            <path d="M145 75 C141 77, 134 78, 129 75 L128 60" stroke-width="1.4"/>
+            <path d="M134 41 H141" stroke-width="1.3"/>
+            <path d="M136 41 L138 37.5 L140 41" stroke-width="1.1"/>
+            <circle cx="126" cy="64" r="1.3" fill="#233121"/>
+            <circle cx="126" cy="70" r="1.3" fill="#233121"/>
+            <path d="M111 76 L113 135 H122 L124 88" stroke-width="1.5"/>
+            <path d="M141 76 L139 135 H130 L128 88" stroke-width="1.5"/>
+            <path d="M124 88 C125.5 90, 126.5 90, 128 88" stroke-width="1.4"/>
+            <path d="M117.5 82 V135" stroke-width="0.9" stroke-opacity="0.55"/>
+            <path d="M134.5 82 V135" stroke-width="0.9" stroke-opacity="0.55"/>
+            <path d="M112 135 C109 139, 114 141, 121 141 C123 141, 123 135, 122 135" stroke-width="1.3"/>
+            <path d="M140 135 C143 139, 138 141, 131 141 C129 141, 129 135, 130 135" stroke-width="1.3"/>
+          </g>
         </svg>
         
         <p class="sketch-rotulo">{{ cfg.DRESS_CODE }}</p>
@@ -284,19 +314,18 @@
         </div>
         
         <blockquote class="regalo-cita">
-          <span class="script-inicial">S</span>u compañía es lo más importante. Si desean hacernos un obsequio, lo recibiremos con mucho cariño.
+          Su compañía es lo más importante. Si desean hacernos un obsequio, lo recibiremos con mucho cariño.
         </blockquote>
       </article>
 
-      <!-- Medallón Circular Verde Bosque con flores -->
+      <!-- Insignia Festoneada Verde Bosque con flores y título en cursiva -->
       <div class="regalos-medallon-wrap">
         <div class="calas-adorno calas-adorno--izq" aria-hidden="true">
           <img src="{{ estatico('static/img/calas-blancas.png') }}" alt="" class="calas-img">
         </div>
 
-        <div class="medallon-circular">
-          <span class="medallon-r">R</span>
-          <span class="medallon-texto">EGALOS</span>
+        <div class="medallon-regalos">
+          <span class="medallon-regalos__texto">Regalos</span>
         </div>
       </div>
 

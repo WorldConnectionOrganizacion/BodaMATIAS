@@ -18,47 +18,115 @@
   --serif:'Cormorant Garamond', Georgia, serif;
   --sans:'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+*, *::before, *::after{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent!important;
+  -webkit-touch-callout:none;
+}
+
+::selection{
+  background:rgba(185,156,107,.25)!important;
+  color:inherit!important;
+}
+::-moz-selection{
+  background:rgba(185,156,107,.25)!important;
+  color:inherit!important;
+}
+
+:focus:not(:focus-visible){
+  outline:none!important;
+}
+
+html{
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior-y:none;
+  -webkit-tap-highlight-color:transparent!important;
+}
 body{
   margin:0;background:var(--crema);color:var(--tinta);
   font-family:var(--sans);font-weight:300;font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-wrap:break-word;
+  overscroll-behavior-y:none;
+  -webkit-tap-highlight-color:transparent!important;
 }
-img{max-width:100%;display:block}
-a{color:inherit}
+img{max-width:100%;display:block;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
+a{color:inherit;-webkit-tap-highlight-color:transparent}
 
-/* --- Escenario GSAP ScrollTrigger: Sobre que se abre con el scroll --- */
+/* --- Sobre Interactivo: Se abre automáticamente al tocar el sello o el sobre --- */
 .envelope-pin-wrapper{
-  position:relative;
+  position:fixed;
+  inset:0;
   width:100%;
-  z-index:40;
+  height:100%;
+  height:100svh;
+  z-index:1000;
+  overflow:hidden;
+  background:var(--crema);
+  cursor:pointer;
+  will-change:opacity;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent!important;
+  -webkit-touch-callout:none!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  outline:none!important;
+}
+
+.envelope-pin-wrapper *,
+.envelope-stage,
+.envelope-seq-system,
+.envelope-canvas,
+.envelope-card-container,
+.tarjeta-troquelada--inside,
+.wax-seal,
+.envelope-scroll-hint{
+  -webkit-tap-highlight-color:transparent!important;
+  -webkit-touch-callout:none!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  outline:none!important;
+  -webkit-focus-ring-color:transparent!important;
+}
+
+.envelope-pin-wrapper:focus,
+.envelope-stage:focus,
+.envelope-seq-system:focus,
+.envelope-canvas:focus,
+.wax-seal:focus,
+.envelope-scroll-hint:focus{
+  outline:none!important;
+  box-shadow:none!important;
+}
+
+body.envelope-locked{
+  overflow:hidden!important;
+  touch-action:none;
 }
 
 .envelope-stage{
   position:relative;
   width:100%;
+  height:100vh;
   height:100svh;
-  min-height:560px;
   overflow:hidden;
   display:grid;
   place-items:center;
   align-content:center;
   background:
-    radial-gradient(circle at 50% 25%, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 65%),
-    linear-gradient(165deg, #FAF7F0 0%, #E9E4D8 35%, var(--sage) 80%, var(--sage-osc) 100%);
+    radial-gradient(circle at 50% 25%, rgba(255,255,255,.45) 0%, rgba(255,255,255,0) 65%),
+    linear-gradient(165deg, #FAF7F0 0%, #F5EDE0 35%, #D4B282 80%, #9B7844 100%);
 }
 
 .envelope-ambient-bg{
   position:absolute;
   inset:0;
   pointer-events:none;
-  background-image:radial-gradient(rgba(185,156,107,.14) 1px, transparent 1px);
+  background-image:radial-gradient(rgba(185,156,107,.2) 1px, transparent 1px);
   background-size:28px 28px;
   opacity:.6;
 }
 
-/* Escenario del Sobre Verde (Secuencia de 25 Fotogramas HD con Lienzo Canvas) */
+/* Escenario del Sobre Ocre (Secuencia HD en Lienzo Canvas) */
 .envelope-seq-system{
   --env-h:min(84svh, 690px);
   --env-w:calc(var(--env-h) * (720 / 1280));
@@ -68,7 +136,7 @@ a{color:inherit}
   max-width:min(90vw, 420px);
   user-select:none;
   -webkit-user-select:none;
-  filter:drop-shadow(0 18px 36px rgba(28,34,26,.35));
+  filter:drop-shadow(0 18px 36px rgba(45,32,15,.35));
 }
 
 @media (max-width:440px){
@@ -91,7 +159,7 @@ a{color:inherit}
   will-change:transform, opacity;
 }
 
-/* Texto de la Invitación impreso directamente en el interior del sobre verde */
+/* Texto de la Invitación impreso directamente en el interior del sobre ocre */
 .envelope-card-container{
   position:absolute;
   left:50%;
@@ -130,7 +198,7 @@ a{color:inherit}
   font-size:clamp(.55rem, 1.4vw, .68rem);
   letter-spacing:.24em;
   text-transform:uppercase;
-  color:#3A4535;
+  color:#42301D;
   margin:0 0 10px;
   font-weight:600;
   text-shadow:0 1px 1px rgba(255,255,255,.5);
@@ -141,14 +209,14 @@ a{color:inherit}
   font-size:clamp(2.6rem, 8.4vw, 3.8rem);
   font-weight:400;
   line-height:1.06;
-  color:#1D2619;
+  color:#271B0E;
   margin:4px 0 8px;
   letter-spacing:.02em;
   text-shadow:0 1px 1px rgba(255,255,255,.5);
 }
 
 .tarjeta-troquelada--inside .troquel-amp{
-  color:#9A7A3E;
+  color:#B58A38;
   font-style:italic;
   font-family:var(--serif);
   margin:0 .18em;
@@ -165,13 +233,13 @@ a{color:inherit}
 .tarjeta-troquelada--inside .troquel-linea{
   width:38px;
   height:1px;
-  background:linear-gradient(90deg, transparent, rgba(154,122,62,.6), transparent);
+  background:linear-gradient(90deg, transparent, rgba(181,138,56,.6), transparent);
 }
 
 .tarjeta-troquelada--inside .troquel-rombo{
   width:6px;
   height:6px;
-  border:1px solid #9A7A3E;
+  border:1px solid #B58A38;
   transform:rotate(45deg);
 }
 
@@ -180,7 +248,7 @@ a{color:inherit}
   font-size:clamp(.68rem, 1.6vw, .76rem);
   letter-spacing:.2em;
   text-transform:uppercase;
-  color:#3A4535;
+  color:#42301D;
   margin:0 0 4px;
   font-weight:600;
   text-shadow:0 1px 1px rgba(255,255,255,.45);
@@ -189,7 +257,7 @@ a{color:inherit}
 .tarjeta-troquelada--inside .troquel-fecha{
   font-family:var(--serif);
   font-size:clamp(1.02rem, 2.9vw, 1.25rem);
-  color:#273322;
+  color:#271B0E;
   margin:3px 0 12px;
   letter-spacing:.03em;
   text-shadow:0 1px 1px rgba(255,255,255,.45);
@@ -199,11 +267,22 @@ a{color:inherit}
   font-family:var(--serif);
   font-style:italic;
   font-size:clamp(.88rem, 2.4vw, 1.02rem);
-  color:#424F3D;
+  color:#4D3823;
   max-width:28ch;
   margin:0 auto;
   line-height:1.38;
   text-shadow:0 1px 1px rgba(255,255,255,.45);
+}
+
+@keyframes sello-pulse{
+  0%, 100%{
+    transform:translate(-50%, -50%) scale(1);
+    filter:drop-shadow(0 8px 16px rgba(45,32,15,.4));
+  }
+  50%{
+    transform:translate(-50%, -50%) scale(1.06);
+    filter:drop-shadow(0 14px 26px rgba(185,156,107,.75));
+  }
 }
 
 /* Sello circular crema pastel con S&M centrado exactamente en el sobre */
@@ -211,13 +290,21 @@ a{color:inherit}
   position:absolute;
   left:50%;
   top:46.8%;
-  width:clamp(54px, 12.5vw, 68px);
-  height:clamp(54px, 12.5vw, 68px);
+  width:clamp(56px, 13vw, 72px);
+  height:clamp(56px, 13vw, 72px);
   transform:translate(-50%, -50%);
   z-index:25;
   cursor:pointer;
-  filter:drop-shadow(0 8px 16px rgba(28,34,26,.45));
+  filter:drop-shadow(0 8px 16px rgba(45,32,15,.4));
   will-change:transform, opacity;
+  animation:sello-pulse 2.4s ease-in-out infinite;
+  transition:filter .3s ease;
+}
+
+.wax-seal:hover{
+  animation-play-state:paused;
+  transform:translate(-50%, -50%) scale(1.09);
+  filter:drop-shadow(0 12px 24px rgba(185,156,107,.85));
 }
 
 .wax-seal__img{
@@ -227,13 +314,13 @@ a{color:inherit}
   display:block;
 }
 
-/* Destello verde etéreo (Flash verde) */
+/* Destello ocre dorado etéreo */
 .flash-verde{
   position:absolute;
   inset:0;
   z-index:50;
   pointer-events:none;
-  background:radial-gradient(circle at 50% 50%, rgba(255,254,248,.99) 0%, rgba(162,180,154,.94) 42%, rgba(98,114,92,.88) 78%, rgba(56,66,52,.75) 100%);
+  background:radial-gradient(circle at 50% 50%, rgba(255,254,245,.99) 0%, rgba(235,198,135,.94) 42%, rgba(195,145,68,.88) 78%, rgba(135,95,35,.75) 100%);
   opacity:0;
   mix-blend-mode:screen;
   will-change:opacity, transform;
@@ -616,24 +703,18 @@ a{color:inherit}
   gap:2px;
 }
 
-.scroll-hint-chevrons span{
+.scroll-hint-dot{
   display:block;
-  width:8px;
-  height:8px;
-  border-right:2px solid var(--dorado);
-  border-bottom:2px solid var(--dorado);
-  transform:rotate(45deg);
-  animation:scroll-bounce 1.6s ease-in-out infinite;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--dorado);
+  animation:dot-pulse 1.8s ease-in-out infinite;
 }
 
-.scroll-hint-chevrons span:nth-child(2){
-  animation-delay:.2s;
-  margin-top:-4px;
-}
-
-@keyframes scroll-bounce{
-  0%,100%{transform:rotate(45deg) translate(0,0);opacity:.4}
-  50%{transform:rotate(45deg) translate(2px,2px);opacity:1}
+@keyframes dot-pulse{
+  0%, 100%{ transform:scale(1); opacity:.4; }
+  50%{ transform:scale(1.5); opacity:1; }
 }
 
 /* --- página --- */
@@ -1001,8 +1082,8 @@ a{color:inherit}
   align-items:center;
   justify-content:center;
   margin:18px auto 26px;
-  width:140px;
-  height:100px;
+  width:170px;
+  height:72px;
 }
 
 .calas-adorno{
@@ -1012,11 +1093,11 @@ a{color:inherit}
 }
 
 .calas-adorno--izq{
-  left:-34px;
-  top:-20px;
-  width:100px;
-  transform:rotate(-15deg);
-  filter:drop-shadow(0 4px 12px rgba(35,49,33,.12));
+  left:-22px;
+  top:-16px;
+  width:86px;
+  transform:rotate(-12deg);
+  filter:drop-shadow(0 4px 10px rgba(35,49,33,.14));
 }
 
 .calas-img{
@@ -1025,44 +1106,44 @@ a{color:inherit}
   display:block;
 }
 
-.medallon-circular{
+.medallon-circular,
+.medallon-regalos{
   position:relative;
   z-index:2;
-  width:92px;
-  height:92px;
-  border-radius:50%;
+  width:148px;
+  height:58px;
+  border-radius:29px;
   background:var(--verde-bosque);
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
   color:#FAF8F2;
-  box-shadow:0 10px 24px rgba(35,49,33,.3);
-  border:1px solid rgba(185,156,107,.5);
+  box-shadow:0 10px 24px rgba(35,49,33,.24);
+  border:1px solid rgba(185,156,107,.55);
 }
 
-.medallon-circular::before{
+.medallon-circular::before,
+.medallon-regalos::before{
   content:"";
   position:absolute;
-  inset:4px;
-  border-radius:50%;
+  inset:3px;
+  border-radius:26px;
   border:1px solid rgba(255,255,255,.2);
 }
 
-.medallon-r{
+.medallon-r,
+.medallon-regalos__texto{
   font-family:var(--script);
-  font-size:2.8rem;
-  line-height:0.8;
+  font-size:2.35rem;
+  line-height:1;
   color:#FAF8F2;
-  margin-top:2px;
+  letter-spacing:.02em;
+  text-shadow:0 1px 2px rgba(0,0,0,.25);
+  margin-top:-2px;
 }
 
 .medallon-texto{
-  font-size:.58rem;
-  letter-spacing:.22em;
-  font-family:var(--sans);
-  font-weight:600;
-  margin-top:2px;
+  display:none;
 }
 
 .alias-tarjeta-box{
