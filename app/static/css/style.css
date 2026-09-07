@@ -1,15 +1,22 @@
 :root{
-  --crema:#F6F2EA;
-  --papel:#FFFDF8;
-  --tinta:#2C312B;
-  --tinta-suave:#6B7268;
-  --sage:#8A9A83;
-  --sage-osc:#5E6D58;
+  --crema:#F7F4EE;
+  --papel:#FAF8F2;
+  --blanco:#FFFFFF;
+  --tinta:#21291F;
+  --tinta-suave:#4D5B49;
+  --sage:#8B9A84;
+  --sage-osc:#55664E;
+  --verde-bosque:#233121;
+  --verde-bosque-suave:#2F3E2C;
+  --verde-oliva:#384534;
   --arena:#D9CFC0;
   --dorado:#B99C6B;
-  --sombra:0 18px 45px rgba(44,49,43,.10);
-  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
-  --sans:"Jost","Segoe UI",Helvetica,Arial,sans-serif;
+  --dorado-fino:#B39257;
+  --sombra:0 18px 45px rgba(35,49,33,.10);
+  --sombra-card:0 16px 40px rgba(35,49,33,.12), 0 2px 10px rgba(35,49,33,.05);
+  --script:'Pinyon Script', 'Alex Brush', cursive;
+  --serif:'Cormorant Garamond', Georgia, serif;
+  --sans:'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -21,131 +28,612 @@ body{
 img{max-width:100%;display:block}
 a{color:inherit}
 
-/* --- sobre que se abre --- */
-.sobre{
-  position:fixed;inset:0;z-index:50;display:grid;place-items:center;align-content:center;gap:26px;
+/* --- Escenario GSAP ScrollTrigger: Sobre que se abre con el scroll --- */
+.envelope-pin-wrapper{
+  position:relative;
+  width:100%;
+  z-index:40;
+}
+
+.envelope-stage{
+  position:relative;
+  width:100%;
+  height:100svh;
+  min-height:560px;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  align-content:center;
   background:
-    radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 60%),
-    linear-gradient(160deg,var(--sage) 0%,var(--sage-osc) 100%);
-  transition:opacity .8s ease,visibility .8s,background .7s ease;
-  padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));
-  min-height:100svh;
-}
-.sobre--abierto{opacity:0;visibility:hidden}
-
-.sobre__escena{
-  --w:min(86vw,360px);
-  --h:calc(var(--w) * .68);
-  position:relative;width:var(--w);height:var(--h);
-  perspective:1400px;transform-style:preserve-3d;
-  filter:drop-shadow(0 22px 38px rgba(28,34,26,.32));
-  animation:sobre-entra 1s cubic-bezier(.2,.7,.3,1) both;
-}
-.sobre__escena::before{            /* interior del sobre */
-  content:"";position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg,#DCD3C4 0%,#CFC5B4 100%);
+    radial-gradient(circle at 50% 25%, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 65%),
+    linear-gradient(165deg, #FAF7F0 0%, #E9E4D8 35%, var(--sage) 80%, var(--sage-osc) 100%);
 }
 
-/* papel: la carta que sale del sobre */
-.sobre__papel{
-  position:absolute;left:50%;bottom:7%;z-index:2;
-  width:calc(var(--w) * .88);height:calc(var(--h) * .88);
-  transform:translate(-50%,0);
-  background:linear-gradient(180deg,var(--papel) 0%,#FBF7F0 100%);
-  border:1px solid rgba(217,207,192,.9);
+.envelope-ambient-bg{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background-image:radial-gradient(rgba(185,156,107,.14) 1px, transparent 1px);
+  background-size:28px 28px;
+  opacity:.6;
+}
+
+/* Escenario del Sobre Verde (Secuencia de 25 Fotogramas HD con Lienzo Canvas) */
+.envelope-seq-system{
+  --env-h:min(84svh, 690px);
+  --env-w:calc(var(--env-h) * (720 / 1280));
+  position:relative;
+  width:var(--env-w);
+  height:var(--env-h);
+  max-width:min(90vw, 420px);
+  user-select:none;
+  -webkit-user-select:none;
+  filter:drop-shadow(0 18px 36px rgba(28,34,26,.35));
+}
+
+@media (max-width:440px){
+  .envelope-seq-system{
+    --env-w:min(88vw, 360px, calc(84svh * (720 / 1280)));
+    --env-h:calc(var(--env-w) * (1280 / 720));
+    width:var(--env-w);
+    height:var(--env-h);
+    max-height:84svh;
+  }
+}
+
+.envelope-canvas{
+  position:relative;
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  border-radius:4px;
+  will-change:transform, opacity;
+}
+
+/* Texto de la Invitación impreso directamente en el interior del sobre verde */
+.envelope-card-container{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:84%;
+  max-width:340px;
+  transform:translate(-50%, -50%);
+  z-index:15;
+  pointer-events:none;
+  will-change:transform, opacity;
+  opacity:0;
+}
+
+.tarjeta-troquelada--inside{
+  width:100%!important;
+  max-width:100%!important;
+  margin:0 auto!important;
+  background:transparent!important;
+  border-radius:0!important;
+  padding:0 clamp(6px, 2vw, 16px)!important;
+  border:none!important;
+  box-shadow:none!important;
+  text-align:center;
+  box-sizing:border-box;
+  position:relative;
+  /* Efecto tipográfico impreso/letterpress integrado en la textura del papel */
+  mix-blend-mode:multiply;
+}
+
+.tarjeta-troquelada--inside .troquel-borde-decorativo{
+  display:none!important;
+}
+
+.tarjeta-troquelada--inside .troquel-eyebrow{
+  font-family:var(--sans);
+  font-size:clamp(.55rem, 1.4vw, .68rem);
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:#3A4535;
+  margin:0 0 10px;
+  font-weight:600;
+  text-shadow:0 1px 1px rgba(255,255,255,.5);
+}
+
+.tarjeta-troquelada--inside .troquel-nombres{
+  font-family:var(--script);
+  font-size:clamp(2.6rem, 8.4vw, 3.8rem);
+  font-weight:400;
+  line-height:1.06;
+  color:#1D2619;
+  margin:4px 0 8px;
+  letter-spacing:.02em;
+  text-shadow:0 1px 1px rgba(255,255,255,.5);
+}
+
+.tarjeta-troquelada--inside .troquel-amp{
+  color:#9A7A3E;
+  font-style:italic;
+  font-family:var(--serif);
+  margin:0 .18em;
+}
+
+.tarjeta-troquelada--inside .troquel-ornamento{
+  margin:10px 0 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.tarjeta-troquelada--inside .troquel-linea{
+  width:38px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(154,122,62,.6), transparent);
+}
+
+.tarjeta-troquelada--inside .troquel-rombo{
+  width:6px;
+  height:6px;
+  border:1px solid #9A7A3E;
+  transform:rotate(45deg);
+}
+
+.tarjeta-troquelada--inside .troquel-ciudad{
+  font-family:var(--sans);
+  font-size:clamp(.68rem, 1.6vw, .76rem);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:#3A4535;
+  margin:0 0 4px;
+  font-weight:600;
+  text-shadow:0 1px 1px rgba(255,255,255,.45);
+}
+
+.tarjeta-troquelada--inside .troquel-fecha{
+  font-family:var(--serif);
+  font-size:clamp(1.02rem, 2.9vw, 1.25rem);
+  color:#273322;
+  margin:3px 0 12px;
+  letter-spacing:.03em;
+  text-shadow:0 1px 1px rgba(255,255,255,.45);
+}
+
+.tarjeta-troquelada--inside .troquel-mensaje{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(.88rem, 2.4vw, 1.02rem);
+  color:#424F3D;
+  max-width:28ch;
+  margin:0 auto;
+  line-height:1.38;
+  text-shadow:0 1px 1px rgba(255,255,255,.45);
+}
+
+/* Sello circular crema pastel con S&M centrado exactamente en el sobre */
+.wax-seal{
+  position:absolute;
+  left:50%;
+  top:46.8%;
+  width:clamp(54px, 12.5vw, 68px);
+  height:clamp(54px, 12.5vw, 68px);
+  transform:translate(-50%, -50%);
+  z-index:25;
+  cursor:pointer;
+  filter:drop-shadow(0 8px 16px rgba(28,34,26,.45));
+  will-change:transform, opacity;
+}
+
+.wax-seal__img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+
+/* Destello verde etéreo (Flash verde) */
+.flash-verde{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 50%, rgba(255,254,248,.99) 0%, rgba(162,180,154,.94) 42%, rgba(98,114,92,.88) 78%, rgba(56,66,52,.75) 100%);
+  opacity:0;
+  mix-blend-mode:screen;
+  will-change:opacity, transform;
+}
+
+/* --- Portada Editorial estilo Amorea (Luego Apertura) --- */
+.hero--portada,
+.hero--editorial{
+  min-height:85svh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:24px 0 36px;
+}
+
+.hero-envelope-backdrop{
+  position:absolute;
+  top:-20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(94vw, 440px);
+  opacity:.16;
+  pointer-events:none;
+  z-index:0;
+  filter:blur(.5px);
+}
+
+.hero-envelope-img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+/* Composición de Tarjeta de Boda con Arreglo Floral Colgante */
+.editorial-card-wrapper{
+  position:relative;
+  width:100%;
+  max-width:440px;
+  margin:0 auto;
+}
+
+.editorial-flores-esquina{
+  position:absolute;
+  top:-44px;
+  left:-32px;
+  z-index:10;
+  width:145px;
+  pointer-events:none;
+  filter:drop-shadow(0 12px 20px rgba(35,49,33,.15));
+}
+
+.flores-esquina-img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+/* Tarjeta con Silueta Barroca Troquelada de Lujo */
+.tarjeta-barroca{
+  position:relative;
+  z-index:2;
+  width:100%;
+  background:#FAF8F2;
+  border-radius:36px;
+  padding:clamp(50px, 10vw, 64px) clamp(20px, 5.5vw, 36px) clamp(36px, 7vw, 48px);
+  box-shadow:0 20px 48px rgba(35,49,33,.12), 0 4px 12px rgba(35,49,33,.05);
+  border:1px solid rgba(197,188,174,.7);
+  text-align:center;
+  box-sizing:border-box;
+}
+
+.barroca-borde-doble{
+  position:absolute;
+  inset:9px;
+  border:1px solid rgba(185,156,107,.45);
+  border-radius:28px;
+  pointer-events:none;
+}
+
+.barroca-borde-doble::after{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border:0.5px dashed rgba(162,180,154,.4);
+  border-radius:24px;
+  pointer-events:none;
+}
+
+.tarjeta-barroca__contenido{
+  position:relative;
+  z-index:3;
+}
+
+.barroca-eyebrow{
+  font-size:clamp(.56rem, 1.4vw, .68rem);
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:var(--verde-bosque-suave);
+  margin:0 auto 12px;
+  max-width:28ch;
+  line-height:1.45;
+  font-weight:500;
+}
+
+.barroca-nombres{
+  font-family:var(--script);
+  font-size:clamp(2.8rem, 9.5vw, 4.4rem);
+  font-weight:normal;
+  line-height:1.05;
+  color:var(--verde-bosque);
+  margin:4px 0 12px;
+  letter-spacing:.02em;
+}
+
+.barroca-nombre{
+  display:inline-block;
+}
+
+.barroca-amp{
+  font-family:var(--serif);
+  font-style:italic;
+  color:var(--dorado-fino);
+  font-size:.6em;
+  margin:0 4px;
+  vertical-align:middle;
+}
+
+.barroca-ornamento{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin:8px 0 14px;
+}
+
+.barroca-linea{
+  width:24px;
+  height:1px;
+  background:rgba(185,156,107,.5);
+}
+
+.barroca-rombo{
+  width:5px;
+  height:5px;
+  border:1px solid var(--dorado-fino);
+  transform:rotate(45deg);
+}
+
+.barroca-ciudad{
+  font-size:.76rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--verde-bosque);
+  margin:4px 0 2px;
+  font-weight:500;
+}
+
+.barroca-fecha{
+  font-family:var(--serif);
+  font-size:clamp(1.05rem, 3.2vw, 1.3rem);
+  color:var(--sage-osc);
+  margin:4px 0 14px;
+  letter-spacing:.04em;
+}
+
+.barroca-mensaje{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(.92rem, 2.4vw, 1.06rem);
+  color:var(--tinta-suave);
+  max-width:32ch;
+  margin:0 auto 8px;
+  line-height:1.4;
+}
+
+.barroca-badge-invitado{
+  margin-top:16px;
+  background:rgba(162,180,154,.12);
+  border:1px solid rgba(162,180,154,.4);
+  border-radius:8px;
+  padding:8px 16px;
+  display:inline-block;
+}
+
+.badge-rotulo{
+  display:block;
+  font-size:.6rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--verde-bosque-suave);
+  margin-bottom:2px;
+}
+
+.badge-familia{
+  display:block;
+  font-family:var(--serif);
+  font-size:clamp(1rem, 2.8vw, 1.22rem);
+  color:var(--verde-bosque);
+  font-weight:500;
+  margin:1px 0;
+}
+
+.badge-lugares{
+  display:block;
+  font-size:.66rem;
+  color:var(--sage-osc);
+  letter-spacing:.08em;
+}
+
+/* --- Reproductor Interactivo Minimalista estilo Amorea --- */
+.seccion--musica{
+  padding:10px 0 28px;
+  border-top:0!important;
+}
+
+.music-card-minimal{
+  max-width:390px;
+  margin:0 auto;
+  text-align:center;
+  padding:12px 16px;
+}
+
+.music-kicker-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.music-kicker-line{
+  flex:1;
+  max-width:42px;
+  height:1px;
+  background:rgba(185,156,107,.4);
+}
+
+.music-kicker-text{
+  font-size:clamp(.62rem, 1.6vw, .72rem);
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--verde-bosque);
+  margin:0;
+  font-weight:500;
+}
+
+.music-player-minimal{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+}
+
+.music-ctrl-btn{
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  color:var(--verde-bosque);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .2s ease;
+  padding:6px;
+}
+
+.music-ctrl-btn:hover{
+  color:var(--sage-osc);
+  transform:scale(1.08);
+}
+
+.music-ctrl--skip{
+  opacity:.75;
+}
+
+.music-ctrl--skip:hover{
+  opacity:1;
+}
+
+.music-ctrl--play{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:var(--verde-bosque);
+  color:#FAF8F2;
+  box-shadow:0 6px 18px rgba(35,49,33,.28);
+  border:1px solid rgba(185,156,107,.3);
+}
+
+.music-ctrl--play:hover{
+  background:#2F402C;
+  transform:scale(1.06);
+}
+
+.music-ctrl--play .icon-pause{
+  display:none;
+}
+
+.music-card-minimal.is-playing .music-ctrl--play .icon-play{
+  display:none;
+}
+
+.music-card-minimal.is-playing .music-ctrl--play .icon-pause{
+  display:block;
+}
+
+.music-equalizer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  height:16px;
+  margin-top:12px;
+}
+
+.music-equalizer span{
+  width:3px;
+  height:4px;
+  background:var(--dorado-fino);
+  border-radius:2px;
+  transition:height .2s ease;
+}
+
+.music-card-minimal.is-playing .music-equalizer span{
+  animation:eq-dance .8s ease-in-out infinite alternate;
+}
+
+.music-card-minimal.is-playing .music-equalizer span:nth-child(2){animation-delay:.15s}
+.music-card-minimal.is-playing .music-equalizer span:nth-child(3){animation-delay:.3s}
+.music-card-minimal.is-playing .music-equalizer span:nth-child(4){animation-delay:.45s}
+.music-card-minimal.is-playing .music-equalizer span:nth-child(5){animation-delay:.6s}
+
+@keyframes eq-dance{
+  0%{height:4px}
+  100%{height:16px}
+}
+
+/* Pista de scroll */
+.envelope-scroll-hint{
+  position:absolute;
+  bottom:clamp(16px,3.5vh,32px);
+  left:50%;
+  transform:translateX(-50%);
+  z-index:12;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  padding:8px 18px;
+  border-radius:24px;
+  background:rgba(255,255,255,.78);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
   box-shadow:0 6px 18px rgba(44,49,43,.12);
-  padding:calc(var(--w) * .04);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;overflow:hidden;
-}
-.papel__eyebrow{
-  font-size:calc(var(--w) * .028);letter-spacing:.34em;text-transform:uppercase;
-  color:var(--sage-osc);margin:0 0 calc(var(--w) * .018);
-}
-.papel__nombres{
-  font-family:var(--serif);font-weight:300;line-height:1.06;margin:0;
-  font-size:calc(var(--w) * .095);
-}
-.papel__nombres em{display:block;font-size:.62em;color:var(--dorado);margin:2px 0}
-.papel__linea{width:calc(var(--w) * .11);height:1px;background:var(--dorado);margin:calc(var(--w) * .022) 0}
-.papel__fecha{
-  font-size:calc(var(--w) * .03);letter-spacing:.14em;text-transform:uppercase;margin:0 0 calc(var(--w) * .028);
-}
-.papel__para{font-size:calc(var(--w) * .036);color:var(--tinta-suave);margin:0;line-height:1.45}
-.papel__para strong{
-  display:block;font-family:var(--serif);font-size:1.45em;color:var(--tinta);font-weight:400;margin-top:2px;
+  border:1px solid rgba(217,207,192,.8);
+  transition:all .3s ease;
 }
 
-/* frente del sobre, con la V clásica */
-.sobre__frente{
-  position:absolute;inset:0;z-index:3;
-  background:linear-gradient(150deg,#EFE9DE 0%,#E3DACB 100%);
-  clip-path:polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
-}
-/* solapa superior que se abre */
-.sobre__solapa{
-  position:absolute;top:0;left:0;z-index:4;width:100%;height:52%;
-  background:linear-gradient(180deg,#E7E0D2 0%,#D9CFC0 100%);
-  clip-path:polygon(0 0, 100% 0, 50% 100%);
-  transform-origin:top center;transform:rotateX(0deg);
-}
-/* sello de lacre */
-.sobre__sello{
-  position:absolute;left:50%;top:46%;z-index:6;transform:translate(-50%,-50%);
-  width:clamp(56px,17vw,68px);height:clamp(56px,17vw,68px);border-radius:50%;cursor:pointer;
-  border:1px solid rgba(255,255,255,.45);
-  background:radial-gradient(circle at 34% 30%, #D5B87F 0%, var(--dorado) 45%, #9C7F4E 100%);
-  color:#FFFDF8;font-family:var(--serif);display:grid;place-items:center;
-  box-shadow:0 6px 14px rgba(44,49,43,.28);
-  animation:latido 2.6s ease-in-out infinite;
-}
-.sobre__sello span{font-size:clamp(1rem,4.4vw,1.25rem);letter-spacing:.04em;line-height:1}
-.sobre__sello i{font-style:italic;opacity:.85;margin:0 1px}
-.sobre__sello:hover{filter:brightness(1.06)}
-.sobre__pista{
-  color:rgba(255,255,255,.9);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;
-  margin:0;text-align:center;animation:aparecer 1.2s ease .6s both;
+.envelope-scroll-hint:hover{
+  background:rgba(255,255,255,.95);
+  box-shadow:0 8px 24px rgba(44,49,43,.18);
+  transform:translateX(-50%) translateY(-2px);
 }
 
-/* secuencia de apertura */
-.sobre.abriendo .sobre__sello{animation:sello-sale .5s ease forwards}
-.sobre.abriendo .sobre__pista{animation:none;opacity:0;transition:opacity .4s}
-.sobre.abriendo .sobre__solapa{animation:abrir-solapa .95s cubic-bezier(.55,.06,.3,1) forwards}
-.sobre.sacando .sobre__papel{animation:sacar-papel 1.15s cubic-bezier(.36,.03,.2,1) forwards}
-/* el sobre se apaga contra el fondo de la página, sin superponer las dos capas */
-.sobre.saliendo{background:var(--crema)}
-.sobre.saliendo .sobre__escena{
-  opacity:0;transform:translateY(-20px) scale(1.06);
-  transition:opacity .65s ease,transform .9s cubic-bezier(.22,.61,.36,1);
+.scroll-hint-text{
+  font-size:.72rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--tinta);
+  font-weight:400;
+  white-space:nowrap;
 }
-.sobre.saliendo .sobre__pista{opacity:0}
 
-@keyframes abrir-solapa{
-  0%{transform:rotateX(0deg);z-index:4}
-  49%{z-index:4}
-  50%{z-index:1}
-  100%{transform:rotateX(178deg);z-index:1;filter:brightness(.94)}
+.scroll-hint-chevrons{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
 }
-@keyframes sacar-papel{
-  0%{transform:translate(-50%,0)}
-  62%{transform:translate(-50%,-88%)}
-  100%{transform:translate(-50%,-82%) scale(1.06)}
-}
-@keyframes sello-sale{
-  to{opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(-22deg)}
-}
-@keyframes sobre-entra{from{opacity:0;transform:translateY(26px) scale(.94)}to{opacity:1;transform:none}}
-@keyframes latido{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.06)}}
-@keyframes aparecer{from{opacity:0}to{opacity:1}}
 
-/* pantallas bajas: el sobre entra igual */
-@media (max-height:620px){
-  .sobre__escena{--w:min(72vw,300px)}
-  .sobre{gap:16px}
+.scroll-hint-chevrons span{
+  display:block;
+  width:8px;
+  height:8px;
+  border-right:2px solid var(--dorado);
+  border-bottom:2px solid var(--dorado);
+  transform:rotate(45deg);
+  animation:scroll-bounce 1.6s ease-in-out infinite;
 }
-@media (max-height:520px) and (orientation:landscape){
-  .sobre__escena{--w:min(46vw,280px)}
+
+.scroll-hint-chevrons span:nth-child(2){
+  animation-delay:.2s;
+  margin-top:-4px;
+}
+
+@keyframes scroll-bounce{
+  0%,100%{transform:rotate(45deg) translate(0,0);opacity:.4}
+  50%{transform:rotate(45deg) translate(2px,2px);opacity:1}
 }
 
 /* --- página --- */
@@ -182,19 +670,149 @@ a{color:inherit}
 .centro{text-align:center}
 .tenue{color:var(--tinta-suave);font-size:.85rem}
 
-/* --- countdown --- */
-.cuenta__grilla{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(6px,2vw,10px);max-width:520px;margin:0 auto}
-.cuenta__grilla div{background:var(--papel);border:1px solid var(--arena);padding:clamp(10px,3vw,16px) 4px}
-.cuenta__grilla strong{display:block;font-family:var(--serif);font-size:clamp(1.5rem,7vw,2.1rem);font-weight:400;line-height:1}
-.cuenta__grilla span{font-size:clamp(.56rem,2.4vw,.68rem);letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-suave)}
+/* --- Dónde y Cuándo: Composición Papelería Flotante estilo Amorea --- */
+.seccion--lugares{
+  padding:clamp(40px, 9vw, 64px) 0;
+  overflow:visible;
+}
 
-/* --- lugares --- */
-.lugares__grilla{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.tarjeta{background:var(--papel);border:1px solid var(--arena);padding:clamp(22px,6vw,30px) clamp(16px,5vw,22px)}
-.tarjeta__hora{font-family:var(--serif);font-size:1.8rem;margin:0;color:var(--sage-osc)}
-.tarjeta__titulo{font-family:var(--serif);font-weight:400;font-size:1.25rem;margin:4px 0 12px}
-.tarjeta__lugar{margin:0;font-weight:400}
-.tarjeta__dir{margin:4px 0 18px;color:var(--tinta-suave);font-size:.88rem}
+.lugares-composicion{
+  position:relative;
+  max-width:440px;
+  margin:0 auto;
+  padding-top:16px;
+}
+
+.polaroid-flotante{
+  width:84%;
+  max-width:340px;
+  margin:0 auto;
+  transform:rotate(-3.5deg) translateX(-16px);
+  filter:drop-shadow(0 16px 36px rgba(35,49,33,.16));
+  transition:transform .4s cubic-bezier(.22,.61,.36,1);
+  position:relative;
+  z-index:1;
+}
+
+.polaroid-flotante:hover{
+  transform:rotate(-1.5deg) translateX(-10px) scale(1.02);
+}
+
+.polaroid-marco{
+  background:#FAF8F2;
+  border:1px solid rgba(217,207,192,.85);
+  border-radius:10px;
+  padding:12px 12px 34px;
+}
+
+.polaroid-img{
+  width:100%;
+  aspect-ratio:4 / 3;
+  object-fit:cover;
+  border-radius:6px;
+  display:block;
+}
+
+.tarjeta-lugares-editorial{
+  position:relative;
+  z-index:2;
+  width:94%;
+  max-width:390px;
+  margin:-44px auto 0;
+  background:#FAF8F2;
+  border:1px solid rgba(197,188,174,.75);
+  border-radius:28px;
+  padding:clamp(28px, 6vw, 40px) clamp(20px, 5vw, 32px);
+  box-shadow:0 22px 52px rgba(35,49,33,.14), 0 4px 14px rgba(35,49,33,.06);
+  text-align:center;
+  box-sizing:border-box;
+}
+
+.lugares-borde-fino{
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(185,156,107,.4);
+  border-radius:20px;
+  pointer-events:none;
+}
+
+.lugar-bloque{
+  position:relative;
+  z-index:1;
+}
+
+.lugar-titulo-script{
+  font-family:var(--serif);
+  font-size:clamp(1.7rem, 5.2vw, 2.2rem);
+  font-weight:400;
+  color:var(--verde-bosque);
+  margin:0 0 4px;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  line-height:1;
+}
+
+.script-inicial{
+  font-family:var(--script);
+  font-size:2.8rem;
+  line-height:0.8;
+  color:var(--verde-bosque);
+  margin-right:2px;
+  font-weight:normal;
+}
+
+.lugar-sitio{
+  font-family:var(--serif);
+  font-size:1.15rem;
+  font-weight:500;
+  color:var(--tinta);
+  margin:4px 0 2px;
+}
+
+.lugar-direccion{
+  font-size:.82rem;
+  color:var(--tinta-suave);
+  margin:0 0 14px;
+  letter-spacing:.02em;
+}
+
+.btn-pildora{
+  display:inline-block;
+  padding:7px 24px;
+  border:1px solid var(--verde-bosque);
+  border-radius:24px;
+  font-size:.7rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--verde-bosque);
+  text-decoration:none;
+  font-weight:500;
+  transition:all .25s ease;
+  background:transparent;
+}
+
+.btn-pildora:hover{
+  background:var(--verde-bosque);
+  color:#FAF8F2;
+  box-shadow:0 4px 14px rgba(35,49,33,.22);
+}
+
+.lugar-horario{
+  font-size:.72rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--sage-osc);
+  margin:12px 0 0;
+  font-weight:500;
+}
+
+.lugar-separador-fino{
+  width:48px;
+  height:1px;
+  background:rgba(185,156,107,.45);
+  margin:24px auto;
+}
 
 /* --- itinerario --- */
 .linea-tiempo{list-style:none;margin:0 auto;padding:0;max-width:420px;text-align:left}
@@ -203,9 +821,426 @@ a{color:inherit}
 .linea-tiempo__hora{font-family:var(--serif);font-size:1.15rem;color:var(--dorado);min-width:64px}
 .linea-tiempo__texto{color:var(--tinta-suave)}
 
-.dos-col{display:grid;gap:36px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));text-align:center}
-.alias{font-size:.95rem;margin:0 0 16px}
-.alias strong{font-family:var(--serif);font-size:1.35rem;letter-spacing:.04em}
+/* --- Dress Code: Insignia Festoneada Verde Bosque + Boceto Moda + Tarjeta Flotante --- */
+.seccion--dresscode-amorea{
+  padding:clamp(40px, 9vw, 60px) 0;
+}
+
+.dresscode-composicion{
+  position:relative;
+  max-width:400px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+
+.insignia-festoneada{
+  position:relative;
+  width:140px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  filter:drop-shadow(0 8px 18px rgba(35,49,33,.25));
+}
+
+.insignia-festoneada__svg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.insignia-fondo{
+  fill:var(--verde-bosque);
+}
+
+.insignia-borde{
+  fill:none;
+  stroke:rgba(185,156,107,.55);
+  stroke-width:1;
+}
+
+.insignia-contenido{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  gap:2px;
+  color:#FAF8F2;
+  line-height:1;
+}
+
+.insignia-d{
+  font-family:var(--script);
+  font-size:2.9rem;
+  color:#FAF8F2;
+  margin-right:2px;
+  line-height:0.8;
+}
+
+.insignia-texto{
+  font-size:.62rem;
+  letter-spacing:.22em;
+  font-family:var(--sans);
+  font-weight:600;
+  text-align:left;
+  line-height:1.15;
+}
+
+.dresscode-tarjeta-flotante{
+  background:#FAF8F2;
+  border:1px solid rgba(185,156,107,.45);
+  border-radius:16px;
+  padding:14px 24px;
+  box-shadow:0 8px 24px rgba(35,49,33,.08);
+  transform:rotate(1.5deg);
+  text-align:center;
+  max-width:300px;
+}
+
+.dresscode-tarjeta__titulo{
+  font-family:var(--serif);
+  font-size:1.1rem;
+  letter-spacing:.12em;
+  color:var(--verde-bosque);
+  margin:0 0 4px;
+  font-weight:600;
+}
+
+.dresscode-tarjeta__sub{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:.9rem;
+  color:var(--tinta-suave);
+  margin:0;
+  line-height:1.3;
+}
+
+.dresscode-sketch-card{
+  background:#FAF8F2;
+  border:1px solid rgba(217,207,192,.8);
+  border-radius:24px;
+  padding:24px 28px 18px;
+  box-shadow:0 12px 32px rgba(35,49,33,.09);
+  text-align:center;
+  width:100%;
+  max-width:320px;
+  box-sizing:border-box;
+}
+
+.sketch-svg{
+  display:block;
+  margin:0 auto 12px;
+}
+
+.sketch-rotulo{
+  font-size:.76rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--verde-bosque);
+  font-weight:500;
+  margin:0;
+}
+
+/* --- Regalos y Luna de Miel: Cita Sello Cera + Medallón Verde + Alias --- */
+.seccion--regalos-amorea{
+  padding:clamp(40px, 9vw, 64px) 0;
+}
+
+.regalos-composicion{
+  position:relative;
+  max-width:420px;
+  margin:0 auto;
+}
+
+.tarjeta-regalo-intro{
+  background:#FAF8F2;
+  border:1px solid rgba(217,207,192,.85);
+  border-radius:24px;
+  padding:34px 24px 22px;
+  box-shadow:0 12px 32px rgba(35,49,33,.08);
+  position:relative;
+  margin-top:28px;
+  margin-bottom:34px;
+  text-align:center;
+}
+
+.regalo-sello-wrap{
+  position:absolute;
+  top:-28px;
+  left:50%;
+  transform:translateX(-50%);
+  width:56px;
+  height:56px;
+  filter:drop-shadow(0 6px 14px rgba(35,49,33,.22));
+}
+
+.regalo-sello-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+.regalo-cita{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(1rem, 2.7vw, 1.15rem);
+  line-height:1.45;
+  color:var(--verde-bosque);
+  margin:0;
+  padding:0;
+  border:0;
+}
+
+.regalos-medallon-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:18px auto 26px;
+  width:140px;
+  height:100px;
+}
+
+.calas-adorno{
+  position:absolute;
+  pointer-events:none;
+  z-index:1;
+}
+
+.calas-adorno--izq{
+  left:-34px;
+  top:-20px;
+  width:100px;
+  transform:rotate(-15deg);
+  filter:drop-shadow(0 4px 12px rgba(35,49,33,.12));
+}
+
+.calas-img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.medallon-circular{
+  position:relative;
+  z-index:2;
+  width:92px;
+  height:92px;
+  border-radius:50%;
+  background:var(--verde-bosque);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#FAF8F2;
+  box-shadow:0 10px 24px rgba(35,49,33,.3);
+  border:1px solid rgba(185,156,107,.5);
+}
+
+.medallon-circular::before{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.2);
+}
+
+.medallon-r{
+  font-family:var(--script);
+  font-size:2.8rem;
+  line-height:0.8;
+  color:#FAF8F2;
+  margin-top:2px;
+}
+
+.medallon-texto{
+  font-size:.58rem;
+  letter-spacing:.22em;
+  font-family:var(--sans);
+  font-weight:600;
+  margin-top:2px;
+}
+
+.alias-tarjeta-box{
+  background:#FAF8F2;
+  border:1px dashed rgba(162,180,154,.6);
+  border-radius:20px;
+  padding:22px 20px;
+  box-shadow:0 8px 24px rgba(35,49,33,.06);
+  text-align:center;
+  max-width:340px;
+  margin:0 auto;
+}
+
+.alias-kicker{
+  font-size:.66rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--verde-bosque-suave);
+  margin:0 0 10px;
+  font-weight:500;
+}
+
+.alias-fila{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.alias-label{
+  font-size:.78rem;
+  color:var(--tinta-suave);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+.alias-valor{
+  font-family:var(--serif);
+  font-size:1.35rem;
+  color:var(--verde-bosque);
+  letter-spacing:.04em;
+}
+
+.btn-copiar-amorea{
+  display:inline-block;
+  padding:7px 20px;
+  border-radius:20px;
+  border:1px solid var(--verde-bosque);
+  background:#fff;
+  color:var(--verde-bosque);
+  font-size:.7rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  cursor:pointer;
+  font-weight:500;
+  transition:all .2s;
+  margin-bottom:8px;
+}
+
+.btn-copiar-amorea:hover{
+  background:var(--verde-bosque);
+  color:#FAF8F2;
+}
+
+.alias__aviso{
+  display:block;
+  font-size:.72rem;
+  color:var(--sage-osc);
+  margin-top:4px;
+  margin-bottom:8px;
+  opacity:0;
+  transform:translateY(4px);
+  transition:all .3s ease;
+  font-weight:500;
+}
+
+.alias__aviso.visible{
+  opacity:1;
+  transform:none;
+}
+
+.btn-mercadopago{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  padding:10px 18px;
+  border-radius:22px;
+  background:var(--verde-bosque);
+  color:#FAF8F2;
+  text-decoration:none;
+  font-size:.74rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:500;
+  transition:background .25s ease;
+  margin-top:8px;
+}
+
+.btn-mercadopago:hover{
+  background:#2F402C;
+}
+
+/* --- Cuenta Regresiva Editorial ("Faltan ... para nuestro gran día") --- */
+.seccion--cuenta-amorea{
+  padding:clamp(44px, 10vw, 68px) 0;
+  border-top:1px solid rgba(217,207,192,.7);
+  text-align:center;
+}
+
+.cuenta-composicion{
+  max-width:440px;
+  margin:0 auto;
+  position:relative;
+}
+
+.cuenta-faltan{
+  font-family:var(--script);
+  font-size:clamp(3.4rem, 11vw, 4.8rem);
+  font-weight:normal;
+  color:var(--verde-bosque);
+  margin:0 0 16px;
+  line-height:0.95;
+}
+
+.cuenta__grilla-editorial{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(16px, 5vw, 36px);
+  margin:0 auto 18px;
+}
+
+.cuenta-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.cuenta-num{
+  display:block;
+  font-family:var(--serif);
+  font-size:clamp(2.6rem, 9.5vw, 3.8rem);
+  font-weight:300;
+  line-height:1;
+  color:var(--verde-bosque);
+}
+
+.cuenta-rotulo{
+  font-size:clamp(.6rem, 1.8vw, .7rem);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--verde-bosque-suave);
+  margin-top:4px;
+}
+
+.cuenta-kicker-bottom{
+  font-size:.72rem;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:var(--verde-bosque-suave);
+  margin:18px 0 20px;
+  font-weight:500;
+}
+
+.calas-adorno--centro{
+  position:relative;
+  margin:0 auto;
+  width:85px;
+  opacity:.9;
+  filter:drop-shadow(0 4px 10px rgba(35,49,33,.1));
+}
+
+.calas-img--pequena{
+  width:100%;
+  height:auto;
+  display:block;
+}
 
 /* --- formulario --- */
 .formulario{max-width:520px;margin:0 auto;text-align:left}
