@@ -122,24 +122,18 @@
             <span class="barroca-nombre">{{ cfg.NOVIO }}</span>
           </h1>
           
-          <div class="barroca-ornamento" aria-hidden="true">
-            <span class="barroca-linea"></span>
-            <span class="barroca-rombo"></span>
-            <span class="barroca-linea"></span>
+          <div class="barroca-pie">
+            <p class="barroca-ciudad">{{ cfg.LUGAR_CIUDAD or 'Mendoza, Argentina' }}</p>
+            <p class="barroca-fecha">20.12.2026</p>
           </div>
-
-          <p class="barroca-ciudad">{{ cfg.LUGAR_CIUDAD or 'Mendoza, Argentina' }}</p>
-          <p class="barroca-fecha">20.12.2026</p>
-
-          {% if inv %}
-          <div class="barroca-badge-invitado">
-            <span class="badge-rotulo">Invitación para</span>
-            <strong class="badge-familia">{{ inv.nombre_grupo }}</strong>
-            <span class="badge-lugares">{{ inv.cupo_adultos }} adulto{{ 's' if inv.cupo_adultos != 1 }}{% if inv.cupo_ninos %} y {{ inv.cupo_ninos }} niño{{ 's' if inv.cupo_ninos != 1 }}{% endif %}</span>
-          </div>
-          {% endif %}
         </div>
       </article>
+
+      {% if inv %}
+      <div class="editorial-invitado-badge">
+        <span class="invitado-pill">Invitación especial para <strong>{{ inv.nombre_grupo }}</strong> · {{ inv.cupo_adultos }} adulto{{ 's' if inv.cupo_adultos != 1 }}{% if inv.cupo_ninos %}, {{ inv.cupo_ninos }} niño{{ 's' if inv.cupo_ninos != 1 }}{% endif %}</span>
+      </div>
+      {% endif %}
     </div>
   </header>
 

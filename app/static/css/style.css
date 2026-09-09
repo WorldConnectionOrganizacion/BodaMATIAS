@@ -363,11 +363,16 @@ body.envelope-locked{
 }
 
 /* Composición de Tarjeta de Boda con Sobre Ocre de Fondo y Arreglo Floral Colgante */
+.hero--editorial{
+  padding:46px 0 12px;
+  overflow:visible;
+}
+
 .editorial-card-wrapper{
   position:relative;
   width:100%;
-  max-width:390px;
-  margin:24px auto 0;
+  max-width:380px;
+  margin:0 auto;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -376,14 +381,14 @@ body.envelope-locked{
 /* Sobre abierto de fondo en tono ocre idéntico a la apertura */
 .editorial-sobre-fondo{
   position:absolute;
-  top:-75px;
+  top:-72px;
   left:50%;
-  transform:translateX(-50%);
-  width:320px;
-  max-width:88vw;
+  transform:translateX(-40%) rotate(-10deg);
+  width:370px;
+  max-width:96vw;
   z-index:1;
   pointer-events:none;
-  filter:drop-shadow(0 14px 28px rgba(62,44,15,.22));
+  filter:drop-shadow(0 16px 30px rgba(62,44,15,.18));
 }
 
 .sobre-fondo-img{
@@ -395,11 +400,12 @@ body.envelope-locked{
 /* Arreglo floral colgante en la esquina superior izquierda idéntico al video */
 .editorial-flores-esquina{
   position:absolute;
-  top:12px;
+  top:-26px;
   left:-14px;
-  z-index:10;
-  width:105px;
+  z-index:5;
+  width:124px;
   pointer-events:none;
+  transform:rotate(-8deg);
   filter:drop-shadow(0 10px 18px rgba(45,30,10,.25));
 }
 
@@ -412,17 +418,17 @@ body.envelope-locked{
 /* Tarjeta con Silueta Barroca Troquelada de Lujo */
 .tarjeta-barroca{
   position:relative;
-  z-index:2;
-  width:340px;
-  max-width:92vw;
-  min-height:510px;
-  padding:55px 28px 45px;
+  z-index:3;
+  width:290px;
+  max-width:88vw;
+  height:365px;
+  padding:30px 20px 22px;
   text-align:center;
   box-sizing:border-box;
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
+  justify-content:space-between;
 }
 
 .barroca-marco-svg{
@@ -445,26 +451,33 @@ body.envelope-locked{
   position:relative;
   z-index:3;
   width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
 }
 
 .barroca-eyebrow{
-  font-size:clamp(.56rem, 1.4vw, .68rem);
-  letter-spacing:.26em;
+  font-family:var(--serif);
+  font-size:clamp(.6rem, 1.5vw, .66rem);
+  letter-spacing:.15em;
   text-transform:uppercase;
   color:var(--ocre-osc-suave);
-  margin:0 auto 12px;
-  max-width:28ch;
+  margin:0 auto;
+  max-width:100%;
   line-height:1.45;
   font-weight:500;
+  white-space:pre-line;
 }
 
 .barroca-nombres{
-  font-family:var(--script);
-  font-size:clamp(2.8rem, 8.5vw, 3.6rem);
+  font-family:'Pinyon Script', cursive;
+  font-size:clamp(3.2rem, 9.4vw, 3.65rem);
   font-weight:normal;
-  line-height:1.05;
+  line-height:.94;
   color:var(--ocre-osc);
-  margin:4px 0 10px;
+  margin:2px 0 4px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -473,87 +486,70 @@ body.envelope-locked{
 
 .barroca-nombre{
   display:block;
+  letter-spacing:.02em;
 }
 
 .barroca-amp{
-  font-family:var(--script);
+  font-family:'Pinyon Script', cursive;
   font-style:italic;
   color:var(--ocre-claro);
-  font-size:.68em;
-  margin:2px 0;
+  font-size:1.85rem;
+  line-height:.75;
+  margin:1px 0;
   display:block;
 }
 
-.barroca-ornamento{
+.barroca-pie{
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
-  gap:8px;
-  margin:8px 0 14px;
-}
-
-.barroca-linea{
-  width:24px;
-  height:1px;
-  background:rgba(184,134,54,.5);
-}
-
-.barroca-rombo{
-  width:5px;
-  height:5px;
-  border:1px solid var(--dorado-fino);
-  transform:rotate(45deg);
+  gap:2px;
+  margin-bottom:2px;
 }
 
 .barroca-ciudad{
-  font-size:.76rem;
-  letter-spacing:.22em;
+  font-family:var(--serif);
+  font-size:.74rem;
+  letter-spacing:.16em;
   text-transform:uppercase;
   color:var(--ocre-osc);
-  margin:4px 0 2px;
+  margin:0;
   font-weight:500;
 }
 
 .barroca-fecha{
   font-family:var(--serif);
-  font-size:clamp(1.05rem, 3.2vw, 1.3rem);
+  font-size:.98rem;
   color:var(--ocre-claro);
-  margin:4px 0 14px;
-  letter-spacing:.04em;
-}
-
-.barroca-badge-invitado{
-  margin-top:14px;
-  background:rgba(159,112,33,.08);
-  border:1px solid rgba(184,134,54,.35);
-  border-radius:8px;
-  padding:8px 16px;
-  display:inline-block;
-}
-
-.badge-rotulo{
-  display:block;
-  font-size:.6rem;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  color:var(--ocre-osc-suave);
-  margin-bottom:2px;
-}
-
-.badge-familia{
-  display:block;
-  font-family:var(--serif);
-  font-size:clamp(1rem, 2.8vw, 1.22rem);
-  color:var(--ocre-osc);
-  font-weight:500;
-  margin:1px 0;
-}
-
-.badge-lugares{
-  display:block;
-  font-size:.66rem;
-  color:var(--ocre-claro);
+  margin:0;
   letter-spacing:.08em;
+  font-weight:500;
+}
+
+.editorial-invitado-badge{
+  margin-top:14px;
+  text-align:center;
+  z-index:4;
+}
+
+.invitado-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:5px 16px;
+  background:rgba(250,248,242,.92);
+  border:1px solid rgba(184,134,54,.32);
+  border-radius:20px;
+  box-shadow:0 4px 14px rgba(62,44,15,.06);
+  font-family:var(--serif);
+  font-size:.76rem;
+  letter-spacing:.05em;
+  color:var(--tinta-suave);
+}
+
+.invitado-pill strong{
+  color:var(--ocre-osc);
+  font-weight:600;
 }
 
 /* --- Reproductor Interactivo Minimalista estilo Amorea --- */
