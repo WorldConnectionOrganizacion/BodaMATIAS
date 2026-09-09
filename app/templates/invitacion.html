@@ -154,43 +154,51 @@
     </div>
   </section>
 
-  <!-- Dónde y Cuándo: Composición Papelería Flotante con Polaroid y Tarjeta Editorial estilo Frame 12 -->
+  <!-- Dónde y Cuándo: Réplica Exacta de Papelería Flotante con Polaroid en Abanico y Tarjeta Vellum Inclinada estilo Frame 12 -->
   <section class="seccion seccion--lugares" aria-label="Dónde y cuándo">
-    <div class="lugares-composicion" data-reveal>
+    <div class="lugares-frame12-wrapper" data-reveal>
       
-      <!-- Pila de Fotos / Polaroid de Fondo (Inclinadas estilo Frame 12) -->
-      <div class="lugares-polaroid-stack" aria-hidden="true">
-        <div class="polaroid-fondo-tilted"></div>
-        <div class="polaroid-foto-card">
-          <img src="{{ estatico('static/img/pareja-polaroid.jpg') }}" alt="Sofía y Matías en los viñedos" class="polaroid-foto-img">
+      <!-- Abanico de Fotos Polaroid Inclinadas a la Izquierda (-6.4deg) -->
+      <div class="polaroid-fan-stack" aria-hidden="true">
+        <div class="polaroid-leaf polaroid-leaf--back"></div>
+        <div class="polaroid-leaf polaroid-leaf--mid"></div>
+        <div class="polaroid-print-card">
+          <img src="{{ estatico('static/img/pareja-polaroid.jpg') }}" alt="Sofía y Matías en los viñedos" class="polaroid-print-img">
         </div>
       </div>
 
-      <!-- Tarjeta Editorial Translúcida / Vellum Superpuesta sobre la Foto -->
-      <article class="tarjeta-lugares-editorial">
-        <!-- Ceremonia -->
-        <div class="lugar-bloque">
-          <h2 class="lugar-titulo-script">
-            <span class="script-inicial">C</span><span class="titulo-resto">EREMONIA</span>
+      <!-- Tarjeta de Papel Vegetal / Vellum Inclinada a la Derecha (+8.4deg) -->
+      <article class="tarjeta-vellum-frame12">
+        
+        <!-- Bloque Ceremonia -->
+        <div class="vellum-lugar-bloque">
+          <h2 class="vellum-title">
+            <span class="vellum-script-c">C</span><span class="vellum-title-caps">EREMONIA</span>
           </h2>
-          <p class="lugar-sitio">{{ cfg.CEREMONIA.lugar }}</p>
-          <p class="lugar-direccion">{{ cfg.CEREMONIA.direccion }}</p>
-          <a class="btn-pildora-amorea" href="{{ cfg.CEREMONIA.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
-          <p class="lugar-horario">HORA: {{ cfg.CEREMONIA.hora }}</p>
+          <p class="vellum-venue">{{ cfg.CEREMONIA.lugar }}</p>
+          <p class="vellum-address">{{ cfg.CEREMONIA.direccion }}</p>
+          <div class="vellum-btn-wrap">
+            <a class="vellum-pill-btn" href="{{ cfg.CEREMONIA.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
+          </div>
+          <p class="vellum-time">HORA: {{ cfg.CEREMONIA.hora }}</p>
         </div>
 
-        <div class="lugar-separador-fino" aria-hidden="true"></div>
+        <!-- Espacio de separación editorial entre bloques (sin línea pesada) -->
+        <div class="vellum-space-sep" aria-hidden="true"></div>
 
-        <!-- Recepción -->
-        <div class="lugar-bloque">
-          <h2 class="lugar-titulo-script">
-            <span class="script-inicial">R</span><span class="titulo-resto">ECEPCIÓN</span>
+        <!-- Bloque Recepción -->
+        <div class="vellum-lugar-bloque">
+          <h2 class="vellum-title">
+            <span class="vellum-script-r">R</span><span class="vellum-title-caps">ECEPCIÓN</span>
           </h2>
-          <p class="lugar-sitio">{{ cfg.RECEPCION.lugar }}</p>
-          <p class="lugar-direccion">{{ cfg.RECEPCION.direccion }}</p>
-          <a class="btn-pildora-amorea" href="{{ cfg.RECEPCION.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
-          <p class="lugar-horario">HORA: {{ cfg.RECEPCION.hora }}</p>
+          <p class="vellum-venue">{{ cfg.RECEPCION.lugar }}</p>
+          <p class="vellum-address">{{ cfg.RECEPCION.direccion }}</p>
+          <div class="vellum-btn-wrap">
+            <a class="vellum-pill-btn" href="{{ cfg.RECEPCION.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
+          </div>
+          <p class="vellum-time">HORA: {{ cfg.RECEPCION.hora }}</p>
         </div>
+
       </article>
 
     </div>
