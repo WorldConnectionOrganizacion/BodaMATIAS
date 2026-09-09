@@ -1,25 +1,25 @@
 :root{
-  --crema:#F7F4EE;
-  --papel:#FAF8F2;
+  --crema:#F9F9FB;
+  --papel:#FFFFFF;
   --blanco:#FFFFFF;
-  --tinta:#261B0B;
-  --tinta-suave:#544127;
+  --tinta:#24201D;
+  --tinta-suave:#4A4036;
   --ocre:#9F7021;
   --ocre-claro:#B88636;
   --ocre-dorado:#C5994E;
   --ocre-osc:#3E2C0F;
   --ocre-osc-suave:#4D3815;
-  --ocre-tenue:rgba(159,112,33,.12);
+  --ocre-tenue:rgba(159,112,33,.10);
   --sage:#9F7021;
   --sage-osc:#3E2C0F;
   --verde-bosque:#3E2C0F;
   --verde-bosque-suave:#4D3815;
   --verde-oliva:#544127;
-  --arena:#D9CFC0;
+  --arena:#E8E4DC;
   --dorado:#B88636;
   --dorado-fino:#AA7B2D;
-  --sombra:0 18px 45px rgba(62,44,15,.12);
-  --sombra-card:0 16px 40px rgba(62,44,15,.14), 0 2px 10px rgba(62,44,15,.06);
+  --sombra:0 18px 45px rgba(62,44,15,.08);
+  --sombra-card:0 16px 40px rgba(62,44,15,.10), 0 2px 10px rgba(62,44,15,.04);
   --script:'Pinyon Script', 'Alex Brush', cursive;
   --serif:'Cormorant Garamond', Georgia, serif;
   --sans:'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -364,7 +364,7 @@ body.envelope-locked{
 
 /* Composición de Tarjeta de Boda con Sobre Ocre de Fondo y Arreglo Floral Colgante */
 .hero--editorial{
-  padding:46px 0 12px;
+  padding:44px 0 16px;
   overflow:visible;
 }
 
@@ -381,14 +381,13 @@ body.envelope-locked{
 /* Sobre abierto de fondo en tono ocre idéntico a la apertura */
 .editorial-sobre-fondo{
   position:absolute;
-  top:-72px;
+  top:-96px;
   left:50%;
-  transform:translateX(-40%) rotate(-10deg);
-  width:370px;
-  max-width:96vw;
+  transform:translateX(-44%) rotate(2deg);
+  width:415px;
+  max-width:98vw;
   z-index:1;
   pointer-events:none;
-  filter:drop-shadow(0 16px 30px rgba(62,44,15,.18));
 }
 
 .sobre-fondo-img{
@@ -400,13 +399,13 @@ body.envelope-locked{
 /* Arreglo floral colgante en la esquina superior izquierda idéntico al video */
 .editorial-flores-esquina{
   position:absolute;
-  top:-26px;
-  left:-14px;
+  top:-32px;
+  left:-32px;
   z-index:5;
-  width:124px;
+  width:125px;
   pointer-events:none;
-  transform:rotate(-8deg);
-  filter:drop-shadow(0 10px 18px rgba(45,30,10,.25));
+  transform:rotate(-12deg);
+  filter:drop-shadow(0 10px 18px rgba(45,30,10,.18));
 }
 
 .flores-esquina-img{
@@ -419,10 +418,10 @@ body.envelope-locked{
 .tarjeta-barroca{
   position:relative;
   z-index:3;
-  width:290px;
+  width:295px;
   max-width:88vw;
-  height:365px;
-  padding:30px 20px 22px;
+  height:380px;
+  padding:34px 22px 24px;
   text-align:center;
   box-sizing:border-box;
   display:flex;
@@ -461,9 +460,9 @@ body.envelope-locked{
 .barroca-eyebrow{
   font-family:var(--serif);
   font-size:clamp(.6rem, 1.5vw, .66rem);
-  letter-spacing:.15em;
+  letter-spacing:.16em;
   text-transform:uppercase;
-  color:var(--ocre-osc-suave);
+  color:var(--tinta-suave);
   margin:0 auto;
   max-width:100%;
   line-height:1.45;
@@ -509,10 +508,10 @@ body.envelope-locked{
 
 .barroca-ciudad{
   font-family:var(--serif);
-  font-size:.74rem;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  color:var(--ocre-osc);
+  font-size:.76rem;
+  letter-spacing:.08em;
+  text-transform:none;
+  color:var(--tinta-suave);
   margin:0;
   font-weight:500;
 }
@@ -522,34 +521,8 @@ body.envelope-locked{
   font-size:.98rem;
   color:var(--ocre-claro);
   margin:0;
-  letter-spacing:.08em;
+  letter-spacing:.06em;
   font-weight:500;
-}
-
-.editorial-invitado-badge{
-  margin-top:14px;
-  text-align:center;
-  z-index:4;
-}
-
-.invitado-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  padding:5px 16px;
-  background:rgba(250,248,242,.92);
-  border:1px solid rgba(184,134,54,.32);
-  border-radius:20px;
-  box-shadow:0 4px 14px rgba(62,44,15,.06);
-  font-family:var(--serif);
-  font-size:.76rem;
-  letter-spacing:.05em;
-  color:var(--tinta-suave);
-}
-
-.invitado-pill strong{
-  color:var(--ocre-osc);
-  font-weight:600;
 }
 
 /* --- Reproductor Interactivo Minimalista estilo Amorea --- */

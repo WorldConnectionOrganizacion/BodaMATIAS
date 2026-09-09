@@ -128,12 +128,6 @@
           </div>
         </div>
       </article>
-
-      {% if inv %}
-      <div class="editorial-invitado-badge">
-        <span class="invitado-pill">Invitación especial para <strong>{{ inv.nombre_grupo }}</strong> · {{ inv.cupo_adultos }} adulto{{ 's' if inv.cupo_adultos != 1 }}{% if inv.cupo_ninos %}, {{ inv.cupo_ninos }} niño{{ 's' if inv.cupo_ninos != 1 }}{% endif %}</span>
-      </div>
-      {% endif %}
     </div>
   </header>
 
