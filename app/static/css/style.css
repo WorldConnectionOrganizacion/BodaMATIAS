@@ -707,7 +707,7 @@ body.envelope-locked{
 .centro{text-align:center}
 .tenue{color:var(--tinta-suave);font-size:.85rem}
 
-/* --- Dónde y Cuándo: Réplica Estilo Frame 12 (Tarjeta Recta + Polaroid Inclinada Detrás) --- */
+/* --- Dónde y Cuándo: Réplica Exacta estilo Frame 12 (Abanico Polaroid + Vellum Inclinada) --- */
 .seccion--lugares{
   padding:16px 0 36px;
   overflow:visible;
@@ -716,81 +716,80 @@ body.envelope-locked{
 .lugares-frame12-wrapper{
   position:relative;
   width:100%;
-  max-width:350px;
+  max-width:360px;
   margin:0 auto;
-  min-height:auto;
+  min-height:430px;
   display:flex;
-  flex-direction:column;
-  align-items:center;
+  justify-content:center;
 }
 
-/* Abanico de fotos polaroid inclinadas a la izquierda (-5.2deg) */
+/* Abanico de fotos polaroid inclinadas a la izquierda (-6deg) */
 .polaroid-fan-stack{
-  position:relative;
-  width:215px;
-  margin:0 auto -105px 22px;
+  position:absolute;
+  top:10px;
+  left:12px;
+  width:185px;
   z-index:1;
   pointer-events:none;
 }
 
-/* Hoja 1 trasera en el abanico (-12deg) */
+/* Hoja 1 trasera en el abanico (-12.5deg) */
 .polaroid-leaf--back{
   position:absolute;
   inset:0;
-  height:220px;
+  height:225px;
   background:#ECE7DF;
   border:1px solid rgba(210,200,185,.85);
   border-radius:3px;
-  transform:rotate(-12deg) translate(-10px, -6px);
+  transform:rotate(-12.5deg) translate(-10px, -6px);
   box-shadow:0 6px 16px rgba(45,30,10,.07);
 }
 
-/* Hoja 2 intermedia en el abanico (-8.5deg) */
+/* Hoja 2 intermedia en el abanico (-9deg) */
 .polaroid-leaf--mid{
   position:absolute;
   inset:0;
-  height:220px;
+  height:225px;
   background:#F6F2EB;
   border:1px solid rgba(215,205,190,.9);
   border-radius:3px;
-  transform:rotate(-8.5deg) translate(-5px, -3px);
+  transform:rotate(-9deg) translate(-5px, -3px);
   box-shadow:0 8px 20px rgba(45,30,10,.08);
 }
 
-/* Foto Polaroid frontal (-5.2deg) */
+/* Foto Polaroid frontal (-5.8deg) */
 .polaroid-print-card{
   position:relative;
   background:#FFFFFF;
   padding:7px 7px 24px 7px;
   border:1px solid rgba(220,212,198,.9);
   border-radius:3px;
-  transform:rotate(-5.2deg);
+  transform:rotate(-5.8deg);
   box-shadow:0 14px 34px rgba(40,28,10,.14);
 }
 
 .polaroid-print-img{
   width:100%;
-  aspect-ratio:1 / 1.15;
+  aspect-ratio:1 / 1.12;
   object-fit:cover;
-  object-position:center 30%;
+  object-position:center 32%;
   border-radius:2px;
   display:block;
 }
 
-/* Tarjeta de Papel Vegetal Vellum translúcido RECTA (sin inclinación) */
+/* Tarjeta de Papel Vegetal Vellum translúcido recta sobre las fotos */
 .tarjeta-vellum-frame12{
   position:relative;
   z-index:3;
-  width:100%;
-  max-width:295px;
-  margin:0 auto;
+  width:260px;
+  margin:20px 0 0 64px;
   transform:none;
-  background:rgba(255,255,255,.86);
-  backdrop-filter:blur(3px);
-  -webkit-backdrop-filter:blur(3px);
+  background:rgba(255,255,255,.84);
+  backdrop-filter:blur(2.5px);
+  -webkit-backdrop-filter:blur(2.5px);
   border:1px solid rgba(255,255,255,.95);
-  border-radius:6px;
-  padding:24px 18px 22px;
+  border-radius:4px;
+  padding:20px 14px 18px;
   box-shadow:0 18px 42px rgba(45,30,10,.12), 0 2px 6px rgba(45,30,10,.04);
   text-align:center;
   box-sizing:border-box;
@@ -833,31 +832,31 @@ body.envelope-locked{
 
 .vellum-venue{
   font-family:var(--serif);
-  font-size:1.02rem;
+  font-size:.98rem;
   font-weight:500;
   color:var(--tinta);
-  margin:3px 0 2px;
+  margin:2px 0 1px;
   line-height:1.2;
 }
 
 .vellum-address{
-  font-size:.72rem;
+  font-size:.70rem;
   color:var(--tinta-suave);
-  margin:0 0 10px;
+  margin:0 0 8px;
   letter-spacing:.02em;
-  line-height:1.35;
+  line-height:1.3;
 }
 
 .vellum-btn-wrap{
-  margin:6px 0;
+  margin:5px 0;
 }
 
 .vellum-pill-btn{
   display:inline-block;
-  padding:4px 20px;
+  padding:4px 18px;
   border:1px solid rgba(62,44,15,.7);
   border-radius:999px;
-  font-size:.62rem;
+  font-size:.60rem;
   letter-spacing:.22em;
   text-transform:uppercase;
   color:var(--ocre-osc);
@@ -875,16 +874,16 @@ body.envelope-locked{
 }
 
 .vellum-time{
-  font-size:.70rem;
-  letter-spacing:.2em;
+  font-size:.68rem;
+  letter-spacing:.18em;
   text-transform:uppercase;
   color:var(--ocre-osc);
-  margin:8px 0 0;
+  margin:7px 0 0;
   font-weight:500;
 }
 
 .vellum-space-sep{
-  height:20px;
+  height:18px;
 }
 
 /* --- itinerario --- */
