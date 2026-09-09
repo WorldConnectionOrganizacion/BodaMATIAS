@@ -362,121 +362,71 @@ body.envelope-locked{
   display:block;
 }
 
-/* Composición de Tarjeta de Boda con Sobre Ocre de Fondo y Arreglo Floral Colgante */
+/* Composición Editorial Fiel a Amorea: Sobre Ocre, Tarjeta Barroca y Ramo */
 .hero--editorial{
-  padding:44px 0 16px;
+  padding:28px 0 12px;
   overflow:visible;
 }
 
 .editorial-card-wrapper{
   position:relative;
   width:100%;
-  max-width:380px;
+  max-width:375px;
   margin:0 auto;
   display:flex;
+  justify-content:center;
+}
+
+.editorial-composition-base{
+  width:100%;
+  display:block;
+}
+
+.composition-img{
+  width:100%;
+  height:auto;
+  display:block;
+  filter:drop-shadow(0 14px 28px rgba(45,30,10,.12));
+}
+
+/* Capa tipográfica superpuesta con precisión milimétrica sobre la tarjeta blanca */
+.tarjeta-texto-overlay{
+  position:absolute;
+  top:43.5%;
+  left:40.5%;
+  width:32.5%;
+  height:37.5%;
+  display:flex;
   flex-direction:column;
   align-items:center;
-}
-
-/* Sobre abierto de fondo en tono ocre idéntico a la apertura */
-.editorial-sobre-fondo{
-  position:absolute;
-  top:-96px;
-  left:50%;
-  transform:translateX(-44%) rotate(2deg);
-  width:415px;
-  max-width:98vw;
-  z-index:1;
-  pointer-events:none;
-}
-
-.sobre-fondo-img{
-  width:100%;
-  height:auto;
-  display:block;
-}
-
-/* Arreglo floral colgante en la esquina superior izquierda idéntico al video */
-.editorial-flores-esquina{
-  position:absolute;
-  top:-32px;
-  left:-32px;
-  z-index:5;
-  width:125px;
-  pointer-events:none;
-  transform:rotate(-12deg);
-  filter:drop-shadow(0 10px 18px rgba(45,30,10,.18));
-}
-
-.flores-esquina-img{
-  width:100%;
-  height:auto;
-  display:block;
-}
-
-/* Tarjeta con Silueta Barroca Troquelada de Lujo */
-.tarjeta-barroca{
-  position:relative;
-  z-index:3;
-  width:295px;
-  max-width:88vw;
-  height:380px;
-  padding:34px 22px 24px;
+  justify-content:space-between;
   text-align:center;
   box-sizing:border-box;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.barroca-marco-svg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
+  padding:2px 0 6px;
+  z-index:2;
   pointer-events:none;
-  z-index:1;
-}
-
-.cartouche-svg-img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:fill;
-}
-
-.tarjeta-barroca__contenido{
-  position:relative;
-  z-index:3;
-  width:100%;
-  height:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:space-between;
 }
 
 .barroca-eyebrow{
   font-family:var(--serif);
-  font-size:clamp(.6rem, 1.5vw, .66rem);
-  letter-spacing:.16em;
+  font-size:0.43rem;
+  letter-spacing:.08em;
   text-transform:uppercase;
   color:var(--tinta-suave);
   margin:0 auto;
   max-width:100%;
-  line-height:1.45;
+  line-height:1.35;
   font-weight:500;
   white-space:pre-line;
 }
 
 .barroca-nombres{
   font-family:'Pinyon Script', cursive;
-  font-size:clamp(3.2rem, 9.4vw, 3.65rem);
+  font-size:2.15rem;
   font-weight:normal;
-  line-height:.94;
+  line-height:.92;
   color:var(--ocre-osc);
-  margin:2px 0 4px;
+  margin:1px 0;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -492,7 +442,7 @@ body.envelope-locked{
   font-family:'Pinyon Script', cursive;
   font-style:italic;
   color:var(--ocre-claro);
-  font-size:1.85rem;
+  font-size:1.25rem;
   line-height:.75;
   margin:1px 0;
   display:block;
@@ -502,14 +452,14 @@ body.envelope-locked{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:2px;
+  gap:1px;
   margin-bottom:2px;
 }
 
 .barroca-ciudad{
   font-family:var(--serif);
-  font-size:.76rem;
-  letter-spacing:.08em;
+  font-size:.58rem;
+  letter-spacing:.06em;
   text-transform:none;
   color:var(--tinta-suave);
   margin:0;
@@ -518,10 +468,10 @@ body.envelope-locked{
 
 .barroca-fecha{
   font-family:var(--serif);
-  font-size:.98rem;
+  font-size:.74rem;
   color:var(--ocre-claro);
   margin:0;
-  letter-spacing:.06em;
+  letter-spacing:.04em;
   font-weight:500;
 }
 

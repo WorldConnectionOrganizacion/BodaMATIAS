@@ -94,40 +94,27 @@
 
   <!-- Portada Editorial: Tarjeta Troquelada Barroca con Sobre Ocre y Flores -->
   <header class="hero hero--editorial">
-    <!-- Composición de Tarjeta de Boda Inspiración Amorea -->
     <div class="editorial-card-wrapper" data-reveal>
-      <!-- Sobre abierto visible de fondo detrás de la tarjeta en tono Ocre idéntico a la apertura -->
-      <div class="editorial-sobre-fondo" aria-hidden="true">
-        <img src="{{ estatico('static/img/amorea-sobre-fondo.png') }}" alt="" class="sobre-fondo-img">
+      <!-- Composición Editorial Fiel a la Referencia Amorea -->
+      <div class="editorial-composition-base">
+        <img src="{{ estatico('static/img/amorea-hero-composition.png') }}" alt="Invitación de Boda Sofía y Matías" class="composition-img">
       </div>
 
-      <!-- Arreglo floral colgante en la esquina superior izquierda idéntico al video -->
-      <div class="editorial-flores-esquina" aria-hidden="true">
-        <img src="{{ estatico('static/img/amorea-bouquet.png') }}" alt="" class="flores-esquina-img">
-      </div>
-
-      <!-- Tarjeta con Silueta Barroca Troquelada de Lujo -->
-      <article class="tarjeta-barroca">
-        <!-- SVG de la silueta barroca con doble filete ocre -->
-        <div class="barroca-marco-svg" aria-hidden="true">
-          <img src="{{ estatico('static/img/amorea-cartouche.svg') }}" alt="" class="cartouche-svg-img">
-        </div>
+      <!-- Tipografía Formal Copperplate sobre la Tarjeta -->
+      <div class="tarjeta-texto-overlay">
+        <p class="barroca-eyebrow">TENEMOS EL HONOR DE<br>INVITARTE A LA BODA DE</p>
         
-        <div class="tarjeta-barroca__contenido">
-          <p class="barroca-eyebrow">TENEMOS EL HONOR DE<br>INVITARTE A LA BODA DE</p>
-          
-          <h1 class="barroca-nombres">
-            <span class="barroca-nombre">{{ cfg.NOVIA }}</span>
-            <span class="barroca-amp">&amp;</span>
-            <span class="barroca-nombre">{{ cfg.NOVIO }}</span>
-          </h1>
-          
-          <div class="barroca-pie">
-            <p class="barroca-ciudad">{{ cfg.LUGAR_CIUDAD or 'Mendoza, Argentina' }}</p>
-            <p class="barroca-fecha">20.12.2026</p>
-          </div>
+        <h1 class="barroca-nombres">
+          <span class="barroca-nombre">{{ cfg.NOVIA }}</span>
+          <span class="barroca-amp">&amp;</span>
+          <span class="barroca-nombre">{{ cfg.NOVIO }}</span>
+        </h1>
+        
+        <div class="barroca-pie">
+          <p class="barroca-ciudad">{{ cfg.LUGAR_CIUDAD or 'Mendoza, Argentina' }}</p>
+          <p class="barroca-fecha">20.12.2026</p>
         </div>
-      </article>
+      </div>
     </div>
   </header>
 
