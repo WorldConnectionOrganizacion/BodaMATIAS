@@ -2,18 +2,24 @@
   --crema:#F7F4EE;
   --papel:#FAF8F2;
   --blanco:#FFFFFF;
-  --tinta:#21291F;
-  --tinta-suave:#4D5B49;
-  --sage:#8B9A84;
-  --sage-osc:#55664E;
-  --verde-bosque:#233121;
-  --verde-bosque-suave:#2F3E2C;
-  --verde-oliva:#384534;
+  --tinta:#261B0B;
+  --tinta-suave:#544127;
+  --ocre:#9F7021;
+  --ocre-claro:#B88636;
+  --ocre-dorado:#C5994E;
+  --ocre-osc:#3E2C0F;
+  --ocre-osc-suave:#4D3815;
+  --ocre-tenue:rgba(159,112,33,.12);
+  --sage:#9F7021;
+  --sage-osc:#3E2C0F;
+  --verde-bosque:#3E2C0F;
+  --verde-bosque-suave:#4D3815;
+  --verde-oliva:#544127;
   --arena:#D9CFC0;
-  --dorado:#B99C6B;
-  --dorado-fino:#B39257;
-  --sombra:0 18px 45px rgba(35,49,33,.10);
-  --sombra-card:0 16px 40px rgba(35,49,33,.12), 0 2px 10px rgba(35,49,33,.05);
+  --dorado:#B88636;
+  --dorado-fino:#AA7B2D;
+  --sombra:0 18px 45px rgba(62,44,15,.12);
+  --sombra-card:0 16px 40px rgba(62,44,15,.14), 0 2px 10px rgba(62,44,15,.06);
   --script:'Pinyon Script', 'Alex Brush', cursive;
   --serif:'Cormorant Garamond', Georgia, serif;
   --sans:'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -356,22 +362,45 @@ body.envelope-locked{
   display:block;
 }
 
-/* Composición de Tarjeta de Boda con Arreglo Floral Colgante */
+/* Composición de Tarjeta de Boda con Sobre Ocre de Fondo y Arreglo Floral Colgante */
 .editorial-card-wrapper{
   position:relative;
   width:100%;
-  max-width:440px;
-  margin:0 auto;
+  max-width:390px;
+  margin:24px auto 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 
+/* Sobre abierto de fondo en tono ocre idéntico a la apertura */
+.editorial-sobre-fondo{
+  position:absolute;
+  top:-75px;
+  left:50%;
+  transform:translateX(-50%);
+  width:320px;
+  max-width:88vw;
+  z-index:1;
+  pointer-events:none;
+  filter:drop-shadow(0 14px 28px rgba(62,44,15,.22));
+}
+
+.sobre-fondo-img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+/* Arreglo floral colgante en la esquina superior izquierda idéntico al video */
 .editorial-flores-esquina{
   position:absolute;
-  top:-44px;
-  left:-32px;
+  top:12px;
+  left:-14px;
   z-index:10;
-  width:145px;
+  width:105px;
   pointer-events:none;
-  filter:drop-shadow(0 12px 20px rgba(35,49,33,.15));
+  filter:drop-shadow(0 10px 18px rgba(45,30,10,.25));
 }
 
 .flores-esquina-img{
@@ -384,43 +413,45 @@ body.envelope-locked{
 .tarjeta-barroca{
   position:relative;
   z-index:2;
-  width:100%;
-  background:#FAF8F2;
-  border-radius:36px;
-  padding:clamp(50px, 10vw, 64px) clamp(20px, 5.5vw, 36px) clamp(36px, 7vw, 48px);
-  box-shadow:0 20px 48px rgba(35,49,33,.12), 0 4px 12px rgba(35,49,33,.05);
-  border:1px solid rgba(197,188,174,.7);
+  width:340px;
+  max-width:92vw;
+  min-height:510px;
+  padding:55px 28px 45px;
   text-align:center;
   box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
 
-.barroca-borde-doble{
+.barroca-marco-svg{
   position:absolute;
-  inset:9px;
-  border:1px solid rgba(185,156,107,.45);
-  border-radius:28px;
+  inset:0;
+  width:100%;
+  height:100%;
   pointer-events:none;
+  z-index:1;
 }
 
-.barroca-borde-doble::after{
-  content:"";
-  position:absolute;
-  inset:4px;
-  border:0.5px dashed rgba(162,180,154,.4);
-  border-radius:24px;
-  pointer-events:none;
+.cartouche-svg-img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:fill;
 }
 
 .tarjeta-barroca__contenido{
   position:relative;
   z-index:3;
+  width:100%;
 }
 
 .barroca-eyebrow{
   font-size:clamp(.56rem, 1.4vw, .68rem);
   letter-spacing:.26em;
   text-transform:uppercase;
-  color:var(--verde-bosque-suave);
+  color:var(--ocre-osc-suave);
   margin:0 auto 12px;
   max-width:28ch;
   line-height:1.45;
@@ -429,25 +460,28 @@ body.envelope-locked{
 
 .barroca-nombres{
   font-family:var(--script);
-  font-size:clamp(2.8rem, 9.5vw, 4.4rem);
+  font-size:clamp(2.8rem, 8.5vw, 3.6rem);
   font-weight:normal;
   line-height:1.05;
-  color:var(--verde-bosque);
-  margin:4px 0 12px;
-  letter-spacing:.02em;
+  color:var(--ocre-osc);
+  margin:4px 0 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0;
 }
 
 .barroca-nombre{
-  display:inline-block;
+  display:block;
 }
 
 .barroca-amp{
-  font-family:var(--serif);
+  font-family:var(--script);
   font-style:italic;
-  color:var(--dorado-fino);
-  font-size:.6em;
-  margin:0 4px;
-  vertical-align:middle;
+  color:var(--ocre-claro);
+  font-size:.68em;
+  margin:2px 0;
+  display:block;
 }
 
 .barroca-ornamento{
@@ -461,7 +495,7 @@ body.envelope-locked{
 .barroca-linea{
   width:24px;
   height:1px;
-  background:rgba(185,156,107,.5);
+  background:rgba(184,134,54,.5);
 }
 
 .barroca-rombo{
@@ -475,7 +509,7 @@ body.envelope-locked{
   font-size:.76rem;
   letter-spacing:.22em;
   text-transform:uppercase;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   margin:4px 0 2px;
   font-weight:500;
 }
@@ -483,25 +517,15 @@ body.envelope-locked{
 .barroca-fecha{
   font-family:var(--serif);
   font-size:clamp(1.05rem, 3.2vw, 1.3rem);
-  color:var(--sage-osc);
+  color:var(--ocre-claro);
   margin:4px 0 14px;
   letter-spacing:.04em;
 }
 
-.barroca-mensaje{
-  font-family:var(--serif);
-  font-style:italic;
-  font-size:clamp(.92rem, 2.4vw, 1.06rem);
-  color:var(--tinta-suave);
-  max-width:32ch;
-  margin:0 auto 8px;
-  line-height:1.4;
-}
-
 .barroca-badge-invitado{
-  margin-top:16px;
-  background:rgba(162,180,154,.12);
-  border:1px solid rgba(162,180,154,.4);
+  margin-top:14px;
+  background:rgba(159,112,33,.08);
+  border:1px solid rgba(184,134,54,.35);
   border-radius:8px;
   padding:8px 16px;
   display:inline-block;
@@ -512,7 +536,7 @@ body.envelope-locked{
   font-size:.6rem;
   letter-spacing:.16em;
   text-transform:uppercase;
-  color:var(--verde-bosque-suave);
+  color:var(--ocre-osc-suave);
   margin-bottom:2px;
 }
 
@@ -520,7 +544,7 @@ body.envelope-locked{
   display:block;
   font-family:var(--serif);
   font-size:clamp(1rem, 2.8vw, 1.22rem);
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   font-weight:500;
   margin:1px 0;
 }
@@ -528,7 +552,7 @@ body.envelope-locked{
 .badge-lugares{
   display:block;
   font-size:.66rem;
-  color:var(--sage-osc);
+  color:var(--ocre-claro);
   letter-spacing:.08em;
 }
 
@@ -545,28 +569,35 @@ body.envelope-locked{
   padding:12px 16px;
 }
 
-.music-kicker-wrap{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  margin-bottom:14px;
-}
-
-.music-kicker-line{
-  flex:1;
-  max-width:42px;
-  height:1px;
-  background:rgba(185,156,107,.4);
-}
-
 .music-kicker-text{
   font-size:clamp(.62rem, 1.6vw, .72rem);
   letter-spacing:.24em;
   text-transform:uppercase;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   margin:0;
   font-weight:500;
+}
+
+.music-divider-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin:8px auto 14px;
+  max-width:140px;
+}
+
+.music-bar-line{
+  flex:1;
+  height:1px;
+  background:rgba(184,134,54,.45);
+}
+
+.music-bar-dot{
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--ocre-claro);
 }
 
 .music-player-minimal{
@@ -580,7 +611,7 @@ body.envelope-locked{
   background:transparent;
   border:0;
   cursor:pointer;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -589,7 +620,7 @@ body.envelope-locked{
 }
 
 .music-ctrl-btn:hover{
-  color:var(--sage-osc);
+  color:var(--ocre-claro);
   transform:scale(1.08);
 }
 
@@ -605,14 +636,14 @@ body.envelope-locked{
   width:50px;
   height:50px;
   border-radius:50%;
-  background:var(--verde-bosque);
+  background:var(--ocre-osc);
   color:#FAF8F2;
-  box-shadow:0 6px 18px rgba(35,49,33,.28);
-  border:1px solid rgba(185,156,107,.3);
+  box-shadow:0 6px 18px rgba(62,44,15,.28);
+  border:1px solid rgba(184,134,54,.4);
 }
 
 .music-ctrl--play:hover{
-  background:#2F402C;
+  background:#2C1E0A;
   transform:scale(1.06);
 }
 
@@ -824,10 +855,12 @@ body.envelope-locked{
 
 .lugar-titulo-script{
   font-family:var(--serif);
-  font-size:clamp(1.7rem, 5.2vw, 2.2rem);
-  font-weight:400;
-  color:var(--verde-bosque);
-  margin:0 0 4px;
+  font-size:clamp(1.1rem, 3.2vw, 1.25rem);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-weight:500;
+  color:var(--ocre-osc);
+  margin:0 0 6px;
   display:flex;
   align-items:baseline;
   justify-content:center;
@@ -836,11 +869,12 @@ body.envelope-locked{
 
 .script-inicial{
   font-family:var(--script);
-  font-size:2.8rem;
+  font-size:2.9rem;
   line-height:0.8;
-  color:var(--verde-bosque);
-  margin-right:2px;
+  color:var(--ocre-osc);
+  margin-right:1px;
   font-weight:normal;
+  text-transform:none;
 }
 
 .lugar-sitio{
@@ -861,12 +895,12 @@ body.envelope-locked{
 .btn-pildora{
   display:inline-block;
   padding:7px 24px;
-  border:1px solid var(--verde-bosque);
+  border:1px solid var(--ocre-osc);
   border-radius:24px;
   font-size:.7rem;
   letter-spacing:.22em;
   text-transform:uppercase;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   text-decoration:none;
   font-weight:500;
   transition:all .25s ease;
@@ -874,16 +908,16 @@ body.envelope-locked{
 }
 
 .btn-pildora:hover{
-  background:var(--verde-bosque);
+  background:var(--ocre-osc);
   color:#FAF8F2;
-  box-shadow:0 4px 14px rgba(35,49,33,.22);
+  box-shadow:0 4px 14px rgba(62,44,15,.25);
 }
 
 .lugar-horario{
   font-size:.72rem;
   letter-spacing:.18em;
   text-transform:uppercase;
-  color:var(--sage-osc);
+  color:var(--ocre-claro);
   margin:12px 0 0;
   font-weight:500;
 }
@@ -891,7 +925,7 @@ body.envelope-locked{
 .lugar-separador-fino{
   width:48px;
   height:1px;
-  background:rgba(185,156,107,.45);
+  background:rgba(184,134,54,.45);
   margin:24px auto;
 }
 
@@ -902,91 +936,39 @@ body.envelope-locked{
 .linea-tiempo__hora{font-family:var(--serif);font-size:1.15rem;color:var(--dorado);min-width:64px}
 .linea-tiempo__texto{color:var(--tinta-suave)}
 
-/* --- Dress Code: Insignia Festoneada Verde Bosque + Boceto Moda + Tarjeta Flotante --- */
+/* --- Dress Code: Insignia Ocre Festoneada + Boceto Moda con Corsage + Tarjeta Inclinada --- */
 .seccion--dresscode-amorea{
-  padding:clamp(40px, 9vw, 60px) 0;
+  padding:clamp(40px, 9vw, 64px) 0;
+  position:relative;
 }
 
 .dresscode-composicion{
   position:relative;
-  max-width:400px;
+  max-width:390px;
   margin:0 auto;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:18px;
-}
-
-.insignia-festoneada{
-  position:relative;
-  width:140px;
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  filter:drop-shadow(0 8px 18px rgba(35,49,33,.25));
-}
-
-.insignia-festoneada__svg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-}
-
-.insignia-fondo{
-  fill:var(--verde-bosque);
-}
-
-.insignia-borde{
-  fill:none;
-  stroke:rgba(185,156,107,.55);
-  stroke-width:1;
-}
-
-.insignia-contenido{
-  position:relative;
-  z-index:2;
-  display:flex;
-  align-items:center;
-  gap:2px;
-  color:#FAF8F2;
-  line-height:1;
-}
-
-.insignia-d{
-  font-family:var(--script);
-  font-size:2.9rem;
-  color:#FAF8F2;
-  margin-right:2px;
-  line-height:0.8;
-}
-
-.insignia-texto{
-  font-size:.62rem;
-  letter-spacing:.22em;
-  font-family:var(--sans);
-  font-weight:600;
-  text-align:left;
-  line-height:1.15;
+  gap:16px;
 }
 
 .dresscode-tarjeta-flotante{
   background:#FAF8F2;
-  border:1px solid rgba(185,156,107,.45);
-  border-radius:16px;
-  padding:14px 24px;
-  box-shadow:0 8px 24px rgba(35,49,33,.08);
-  transform:rotate(1.5deg);
+  border:1px solid rgba(184,134,54,.45);
+  border-radius:12px;
+  padding:12px 24px;
+  box-shadow:0 8px 24px rgba(62,44,15,.10);
+  transform:rotate(-2.5deg) translateX(-20px);
   text-align:center;
-  max-width:300px;
+  max-width:280px;
+  z-index:2;
 }
 
 .dresscode-tarjeta__titulo{
   font-family:var(--serif);
-  font-size:1.1rem;
-  letter-spacing:.12em;
-  color:var(--verde-bosque);
+  font-size:1.05rem;
+  letter-spacing:.14em;
+  color:var(--ocre-osc);
   margin:0 0 4px;
   font-weight:600;
 }
@@ -994,58 +976,72 @@ body.envelope-locked{
 .dresscode-tarjeta__sub{
   font-family:var(--serif);
   font-style:italic;
-  font-size:.9rem;
+  font-size:.88rem;
   color:var(--tinta-suave);
   margin:0;
   line-height:1.3;
 }
 
-.dresscode-sketch-card{
-  background:#FAF8F2;
-  border:1px solid rgba(217,207,192,.8);
-  border-radius:24px;
-  padding:24px 28px 18px;
-  box-shadow:0 12px 32px rgba(35,49,33,.09);
-  text-align:center;
+.dresscode-sketch-wrapper{
+  position:relative;
+  width:270px;
+  margin-top:20px;
+}
+
+.insignia-festoneada{
+  position:absolute;
+  top:-34px;
+  left:50%;
+  transform:translateX(-50%);
+  width:180px;
+  z-index:5;
+  filter:drop-shadow(0 8px 20px rgba(35,22,7,.32));
+}
+
+.insignia-badge-img{
   width:100%;
-  max-width:320px;
+  height:auto;
+  display:block;
+}
+
+.dresscode-sketch-card{
+  background:transparent;
+  border:none;
+  padding:0;
+  margin:0;
+  text-align:center;
   box-sizing:border-box;
 }
 
-.sketch-svg{
+.sketch-card-img{
+  width:100%;
+  height:auto;
   display:block;
-  margin:0 auto 12px;
+  border-radius:2px;
+  box-shadow:0 18px 40px rgba(62,44,15,.15);
+  transform:rotate(1.8deg);
 }
 
-.sketch-rotulo{
-  font-size:.76rem;
-  letter-spacing:.2em;
-  text-transform:uppercase;
-  color:var(--verde-bosque);
-  font-weight:500;
-  margin:0;
-}
-
-/* --- Regalos y Luna de Miel: Cita Sello Cera + Medallón Verde + Alias --- */
+/* --- Regalos y Luna de Miel: Cita Sello Cera + Medallón Ocre con Calas + Alias --- */
 .seccion--regalos-amorea{
   padding:clamp(40px, 9vw, 64px) 0;
 }
 
 .regalos-composicion{
   position:relative;
-  max-width:420px;
+  max-width:390px;
   margin:0 auto;
 }
 
 .tarjeta-regalo-intro{
   background:#FAF8F2;
   border:1px solid rgba(217,207,192,.85);
-  border-radius:24px;
-  padding:34px 24px 22px;
-  box-shadow:0 12px 32px rgba(35,49,33,.08);
+  border-radius:20px;
+  padding:36px 24px 22px;
+  box-shadow:0 12px 32px rgba(62,44,15,.10);
   position:relative;
-  margin-top:28px;
-  margin-bottom:34px;
+  margin-top:30px;
+  margin-bottom:32px;
   text-align:center;
 }
 
@@ -1054,9 +1050,9 @@ body.envelope-locked{
   top:-28px;
   left:50%;
   transform:translateX(-50%);
-  width:56px;
-  height:56px;
-  filter:drop-shadow(0 6px 14px rgba(35,49,33,.22));
+  width:58px;
+  height:58px;
+  filter:drop-shadow(0 6px 14px rgba(62,44,15,.25));
 }
 
 .regalo-sello-img{
@@ -1067,91 +1063,51 @@ body.envelope-locked{
 
 .regalo-cita{
   font-family:var(--serif);
-  font-style:italic;
-  font-size:clamp(1rem, 2.7vw, 1.15rem);
-  line-height:1.45;
-  color:var(--verde-bosque);
-  margin:0;
+  font-size:clamp(.76rem, 2.2vw, .86rem);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  line-height:1.6;
+  color:var(--ocre-osc);
+  margin:0 auto;
+  max-width:32ch;
   padding:0;
   border:0;
+  font-weight:500;
+  text-align:center;
+}
+
+.regalo-cita__inicial{
+  font-family:var(--script);
+  font-size:3rem;
+  line-height:0.8;
+  vertical-align:-0.15em;
+  color:var(--ocre-osc);
+  margin-right:2px;
+  font-style:normal;
+  text-transform:none;
 }
 
 .regalos-medallon-wrap{
-  position:relative;
   display:flex;
   align-items:center;
   justify-content:center;
-  margin:18px auto 26px;
-  width:170px;
-  height:72px;
+  margin:28px auto 28px;
+  width:230px;
+  filter:drop-shadow(0 12px 28px rgba(35,22,7,.25));
 }
 
-.calas-adorno{
-  position:absolute;
-  pointer-events:none;
-  z-index:1;
-}
-
-.calas-adorno--izq{
-  left:-22px;
-  top:-16px;
-  width:86px;
-  transform:rotate(-12deg);
-  filter:drop-shadow(0 4px 10px rgba(35,49,33,.14));
-}
-
-.calas-img{
+.medallon-composite-img{
   width:100%;
   height:auto;
   display:block;
 }
 
-.medallon-circular,
-.medallon-regalos{
-  position:relative;
-  z-index:2;
-  width:148px;
-  height:58px;
-  border-radius:29px;
-  background:var(--verde-bosque);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#FAF8F2;
-  box-shadow:0 10px 24px rgba(35,49,33,.24);
-  border:1px solid rgba(185,156,107,.55);
-}
-
-.medallon-circular::before,
-.medallon-regalos::before{
-  content:"";
-  position:absolute;
-  inset:3px;
-  border-radius:26px;
-  border:1px solid rgba(255,255,255,.2);
-}
-
-.medallon-r,
-.medallon-regalos__texto{
-  font-family:var(--script);
-  font-size:2.35rem;
-  line-height:1;
-  color:#FAF8F2;
-  letter-spacing:.02em;
-  text-shadow:0 1px 2px rgba(0,0,0,.25);
-  margin-top:-2px;
-}
-
-.medallon-texto{
-  display:none;
-}
-
 .alias-tarjeta-box{
   background:#FAF8F2;
-  border:1px dashed rgba(162,180,154,.6);
+  border:1px dashed rgba(184,134,54,.55);
   border-radius:20px;
   padding:22px 20px;
-  box-shadow:0 8px 24px rgba(35,49,33,.06);
+  box-shadow:0 8px 24px rgba(62,44,15,.08);
   text-align:center;
   max-width:340px;
   margin:0 auto;
@@ -1161,7 +1117,7 @@ body.envelope-locked{
   font-size:.66rem;
   letter-spacing:.2em;
   text-transform:uppercase;
-  color:var(--verde-bosque-suave);
+  color:var(--ocre-osc-suave);
   margin:0 0 10px;
   font-weight:500;
 }
@@ -1184,7 +1140,7 @@ body.envelope-locked{
 .alias-valor{
   font-family:var(--serif);
   font-size:1.35rem;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   letter-spacing:.04em;
 }
 
@@ -1192,9 +1148,9 @@ body.envelope-locked{
   display:inline-block;
   padding:7px 20px;
   border-radius:20px;
-  border:1px solid var(--verde-bosque);
+  border:1px solid var(--ocre-osc);
   background:#fff;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   font-size:.7rem;
   letter-spacing:.14em;
   text-transform:uppercase;
@@ -1205,14 +1161,14 @@ body.envelope-locked{
 }
 
 .btn-copiar-amorea:hover{
-  background:var(--verde-bosque);
+  background:var(--ocre-osc);
   color:#FAF8F2;
 }
 
 .alias__aviso{
   display:block;
   font-size:.72rem;
-  color:var(--sage-osc);
+  color:var(--ocre-claro);
   margin-top:4px;
   margin-bottom:8px;
   opacity:0;
@@ -1232,7 +1188,7 @@ body.envelope-locked{
   box-sizing:border-box;
   padding:10px 18px;
   border-radius:22px;
-  background:var(--verde-bosque);
+  background:var(--ocre-osc);
   color:#FAF8F2;
   text-decoration:none;
   font-size:.74rem;
@@ -1241,10 +1197,11 @@ body.envelope-locked{
   font-weight:500;
   transition:background .25s ease;
   margin-top:8px;
+  border:1px solid rgba(184,134,54,.4);
 }
 
 .btn-mercadopago:hover{
-  background:#2F402C;
+  background:#2C1E0A;
 }
 
 /* --- Cuenta Regresiva Editorial ("Faltan ... para nuestro gran día") --- */
@@ -1255,16 +1212,16 @@ body.envelope-locked{
 }
 
 .cuenta-composicion{
-  max-width:440px;
+  max-width:420px;
   margin:0 auto;
   position:relative;
 }
 
 .cuenta-faltan{
   font-family:var(--script);
-  font-size:clamp(3.4rem, 11vw, 4.8rem);
+  font-size:clamp(3.6rem, 11.5vw, 4.8rem);
   font-weight:normal;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
   margin:0 0 16px;
   line-height:0.95;
 }
@@ -1273,8 +1230,8 @@ body.envelope-locked{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:clamp(16px, 5vw, 36px);
-  margin:0 auto 18px;
+  gap:clamp(18px, 5.5vw, 40px);
+  margin:0 auto 16px;
 }
 
 .cuenta-col{
@@ -1286,38 +1243,37 @@ body.envelope-locked{
 .cuenta-num{
   display:block;
   font-family:var(--serif);
-  font-size:clamp(2.6rem, 9.5vw, 3.8rem);
+  font-size:clamp(2.8rem, 10vw, 4rem);
   font-weight:300;
   line-height:1;
-  color:var(--verde-bosque);
+  color:var(--ocre-osc);
 }
 
 .cuenta-rotulo{
-  font-size:clamp(.6rem, 1.8vw, .7rem);
-  letter-spacing:.22em;
+  font-size:clamp(.62rem, 1.8vw, .72rem);
+  letter-spacing:.24em;
   text-transform:uppercase;
-  color:var(--verde-bosque-suave);
-  margin-top:4px;
+  color:var(--ocre-osc-suave);
+  margin-top:6px;
 }
 
 .cuenta-kicker-bottom{
-  font-size:.72rem;
+  font-size:.74rem;
   letter-spacing:.26em;
   text-transform:uppercase;
-  color:var(--verde-bosque-suave);
-  margin:18px 0 20px;
+  color:var(--ocre-osc-suave);
+  margin:20px 0 24px;
   font-weight:500;
 }
 
 .calas-adorno--centro{
   position:relative;
   margin:0 auto;
-  width:85px;
-  opacity:.9;
-  filter:drop-shadow(0 4px 10px rgba(35,49,33,.1));
+  width:110px;
+  filter:drop-shadow(0 6px 14px rgba(62,44,15,.12));
 }
 
-.calas-img--pequena{
+.calas-img--trio{
   width:100%;
   height:auto;
   display:block;

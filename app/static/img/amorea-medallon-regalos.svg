@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170" width="170" height="170">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&amp;family=Pinyon+Script&amp;display=swap');
+      .script-char { font-family: 'Pinyon Script', 'Brush Script MT', cursive; }
+      .serif-text { font-family: 'Cormorant Garamond', 'Garamond', serif; }
+    </style>
+    <filter id="medallion-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1A1208" flood-opacity="0.28" />
+    </filter>
+  </defs>
+  <!-- Main Circle -->
+  <circle cx="85" cy="85" r="74" fill="#3E2C0F" stroke="#B88636" stroke-width="1.8" filter="url(#medallion-shadow)" />
+  <!-- Inner Inset Ring -->
+  <circle cx="85" cy="85" r="68" fill="none" stroke="#D4A85B" stroke-width="0.9" opacity="0.8" />
+  <!-- Monogram Script 'R' and 'EGALOS' -->
+  <text x="55" y="104" class="script-char" font-size="70" fill="#FDFBF7" text-anchor="middle" font-style="italic">R</text>
+  <text x="68" y="90" class="serif-text" font-size="15" font-weight="600" letter-spacing="2.5" fill="#FDFBF7" text-anchor="start">EGALOS</text>
+</svg>

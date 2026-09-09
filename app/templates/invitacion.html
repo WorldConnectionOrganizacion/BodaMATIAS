@@ -92,21 +92,29 @@
 
 <main class="pagina" id="pagina">
 
-  <!-- Portada Editorial: Tarjeta Troquelada Barroca con Flores -->
+  <!-- Portada Editorial: Tarjeta Troquelada Barroca con Sobre Ocre y Flores -->
   <header class="hero hero--editorial">
     <!-- Composición de Tarjeta de Boda Inspiración Amorea -->
     <div class="editorial-card-wrapper" data-reveal>
-      <!-- Arreglo floral colgante en la esquina superior izquierda -->
+      <!-- Sobre abierto visible de fondo detrás de la tarjeta en tono Ocre idéntico a la apertura -->
+      <div class="editorial-sobre-fondo" aria-hidden="true">
+        <img src="{{ estatico('static/img/amorea-sobre-fondo.png') }}" alt="" class="sobre-fondo-img">
+      </div>
+
+      <!-- Arreglo floral colgante en la esquina superior izquierda idéntico al video -->
       <div class="editorial-flores-esquina" aria-hidden="true">
-        <img src="{{ estatico('static/img/flores-esquina.png') }}" alt="" class="flores-esquina-img">
+        <img src="{{ estatico('static/img/amorea-bouquet.png') }}" alt="" class="flores-esquina-img">
       </div>
 
       <!-- Tarjeta con Silueta Barroca Troquelada de Lujo -->
       <article class="tarjeta-barroca">
-        <div class="barroca-borde-doble" aria-hidden="true"></div>
+        <!-- SVG de la silueta barroca con doble filete ocre -->
+        <div class="barroca-marco-svg" aria-hidden="true">
+          <img src="{{ estatico('static/img/amorea-cartouche.svg') }}" alt="" class="cartouche-svg-img">
+        </div>
         
         <div class="tarjeta-barroca__contenido">
-          <p class="barroca-eyebrow">TENEMOS EL HONOR DE INVITARTE A LA BODA DE</p>
+          <p class="barroca-eyebrow">TENEMOS EL HONOR DE<br>INVITARTE A LA BODA DE</p>
           
           <h1 class="barroca-nombres">
             <span class="barroca-nombre">{{ cfg.NOVIA }}</span>
@@ -121,9 +129,7 @@
           </div>
 
           <p class="barroca-ciudad">{{ cfg.LUGAR_CIUDAD or 'Mendoza, Argentina' }}</p>
-          <p class="barroca-fecha">{{ cfg.FECHA_TEXTO }}</p>
-
-          <p class="barroca-mensaje">Queremos compartir este día tan especial con ustedes.</p>
+          <p class="barroca-fecha">20.12.2026</p>
 
           {% if inv %}
           <div class="barroca-badge-invitado">
@@ -140,10 +146,12 @@
   <!-- Reproductor Interactivo de Música Minimalista ("DALE PLAY PARA ESCUCHAR NUESTRA CANCIÓN") -->
   <section class="seccion seccion--musica" aria-label="Reproductor de música">
     <div class="music-card-minimal" data-reveal>
-      <div class="music-kicker-wrap">
-        <span class="music-kicker-line"></span>
-        <p class="music-kicker-text">DALE PLAY PARA ESCUCHAR NUESTRA CANCIÓN</p>
-        <span class="music-kicker-line"></span>
+      <p class="music-kicker-text">DALE PLAY PARA ESCUCHAR NUESTRA CANCIÓN</p>
+      
+      <div class="music-divider-bar" aria-hidden="true">
+        <span class="music-bar-line"></span>
+        <span class="music-bar-dot"></span>
+        <span class="music-bar-line"></span>
       </div>
       
       <div class="music-player-minimal" id="music-player">
@@ -189,7 +197,7 @@
         <!-- Ceremonia -->
         <div class="lugar-bloque">
           <h2 class="lugar-titulo-script">
-            <span class="script-inicial">C</span>eremonia
+            <span class="script-inicial">C</span>EREMONIA
           </h2>
           <p class="lugar-sitio">{{ cfg.CEREMONIA.titulo }}</p>
           <p class="lugar-direccion">{{ cfg.CEREMONIA.lugar }} · {{ cfg.CEREMONIA.direccion }}</p>
@@ -202,7 +210,7 @@
         <!-- Recepción -->
         <div class="lugar-bloque">
           <h2 class="lugar-titulo-script">
-            <span class="script-inicial">R</span>ecepción
+            <span class="script-inicial">R</span>ECEPCIÓN
           </h2>
           <p class="lugar-sitio">{{ cfg.RECEPCION.titulo }}</p>
           <p class="lugar-direccion">{{ cfg.RECEPCION.lugar }} · {{ cfg.RECEPCION.direccion }}</p>
@@ -229,75 +237,27 @@
     </ol>
   </section>
 
-  <!-- Dress Code Estilo Editorial Amorea: Insignia Troquelada Verde + Boceto Moda + Tarjeta -->
+  <!-- Dress Code Estilo Editorial Amorea: Insignia Troquelada Ocre + Boceto Moda + Tarjeta -->
   <section class="seccion seccion--dresscode-amorea" aria-label="Dress code">
     <div class="dresscode-composicion" data-reveal>
       
-      <!-- Insignia Festoneada Verde Bosque Oscuro con monograma -->
-      <div class="insignia-festoneada" aria-hidden="true">
-        <svg viewBox="0 0 140 64" class="insignia-festoneada__svg">
-          <path class="insignia-fondo" d="M12 4h116c6 0 10 4 10 10v36c0 6-4 10-10 10H12c-6 0-10-4-10-10V14c0-6 4-10 10-10Z"/>
-          <path class="insignia-borde" d="M14 7h112c4 0 7 3 7 7v32c0 4-3 7-7 7H14c-4 0-7-3-7-7V14c0-4 3-7 7-7Z"/>
-        </svg>
-        <div class="insignia-contenido">
-          <span class="insignia-d">D</span>
-          <span class="insignia-texto">RESS<br>CODE</span>
-        </div>
-      </div>
-
       <!-- Tarjeta Pequeña Inclinada de Especificación -->
       <div class="dresscode-tarjeta-flotante">
         <p class="dresscode-tarjeta__titulo">FORMAL DE NOCHE.</p>
         <p class="dresscode-tarjeta__sub">Caballeros con traje, damas con vestido largo.</p>
       </div>
 
-      <!-- Boceto de Alta Costura: Vestido de Fiesta y Traje de Etiqueta -->
-      <div class="dresscode-sketch-card">
-        <svg viewBox="0 0 170 150" width="150" height="132" class="sketch-svg" fill="none" stroke="#233121" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <!-- DAMA: Vestido de fiesta con caída fluida -->
-          <g class="sketch-dama">
-            <path d="M45 18 C45 14, 48 12, 51 12 C53 12, 54 14, 54 17 L54 21" stroke-width="1.2"/>
-            <path d="M34 25 L48 21 L62 25" stroke-width="1.3"/>
-            <path d="M38 25 L39 31 M58 25 L57 31" stroke-width="1.2"/>
-            <path d="M39 31 C43 28, 46 31, 48 33 C50 31, 53 28, 57 31" stroke-width="1.5"/>
-            <path d="M39 31 C38 40, 40 49, 42 57" stroke-width="1.5"/>
-            <path d="M57 31 C58 40, 56 49, 54 57" stroke-width="1.5"/>
-            <path d="M42 57 C45 59, 51 59, 54 57" stroke-width="1.4"/>
-            <path d="M42 57 C40 74, 30 108, 22 138 C38 142, 58 142, 74 138 C66 108, 56 74, 54 57" stroke-width="1.6"/>
-            <path d="M45 60 C43 84, 38 114, 36 139" stroke-width="1.0" stroke-opacity="0.65"/>
-            <path d="M51 60 C53 84, 58 114, 60 139" stroke-width="1.0" stroke-opacity="0.65"/>
-            <path d="M48 70 C47 93, 48 118, 48 139.5" stroke-width="0.9" stroke-opacity="0.5"/>
-          </g>
+      <!-- Contenedor del Boceto de Moda y la Insignia Ocre Festoneada -->
+      <div class="dresscode-sketch-wrapper">
+        <!-- Insignia Festoneada Ocre Oscuro con monograma D y RESS CODE -->
+        <div class="insignia-festoneada" aria-hidden="true">
+          <img src="{{ estatico('static/img/amorea-badge-dresscode.png') }}" alt="Dress Code" class="insignia-badge-img">
+        </div>
 
-          <!-- CABALLERO: Traje formal de etiqueta con moño y saco entallado -->
-          <g class="sketch-caballero">
-            <path d="M123 18 C123 14, 126 12, 129 12 C131 12, 132 14, 132 17 L132 21" stroke-width="1.2"/>
-            <path d="M106 26 L126 21 L146 26" stroke-width="1.3"/>
-            <path d="M120 23 L123 27 M132 23 L129 27" stroke-width="1.2"/>
-            <path d="M121 25.5 L117 23.5 V28 L121 26 Z" stroke-width="1.2" fill="#233121"/>
-            <path d="M131 25.5 L135 23.5 V28 L131 26 Z" stroke-width="1.2" fill="#233121"/>
-            <circle cx="126" cy="25.8" r="1.3" fill="#233121"/>
-            <path d="M120 23 L115 35 L119 37 L124 60" stroke-width="1.4"/>
-            <path d="M132 23 L137 35 L133 37 L128 60" stroke-width="1.4"/>
-            <path d="M106 26 C103 40, 104 58, 107 75" stroke-width="1.5"/>
-            <path d="M146 26 C149 40, 148 58, 145 75" stroke-width="1.5"/>
-            <path d="M107 75 C111 77, 118 78, 123 75 L124 60" stroke-width="1.4"/>
-            <path d="M145 75 C141 77, 134 78, 129 75 L128 60" stroke-width="1.4"/>
-            <path d="M134 41 H141" stroke-width="1.3"/>
-            <path d="M136 41 L138 37.5 L140 41" stroke-width="1.1"/>
-            <circle cx="126" cy="64" r="1.3" fill="#233121"/>
-            <circle cx="126" cy="70" r="1.3" fill="#233121"/>
-            <path d="M111 76 L113 135 H122 L124 88" stroke-width="1.5"/>
-            <path d="M141 76 L139 135 H130 L128 88" stroke-width="1.5"/>
-            <path d="M124 88 C125.5 90, 126.5 90, 128 88" stroke-width="1.4"/>
-            <path d="M117.5 82 V135" stroke-width="0.9" stroke-opacity="0.55"/>
-            <path d="M134.5 82 V135" stroke-width="0.9" stroke-opacity="0.55"/>
-            <path d="M112 135 C109 139, 114 141, 121 141 C123 141, 123 135, 122 135" stroke-width="1.3"/>
-            <path d="M140 135 C143 139, 138 141, 131 141 C129 141, 129 135, 130 135" stroke-width="1.3"/>
-          </g>
-        </svg>
-        
-        <p class="sketch-rotulo">{{ cfg.DRESS_CODE }}</p>
+        <!-- Tarjeta de Boceto de Moda con corsage floral prendido -->
+        <div class="dresscode-sketch-card">
+          <img src="{{ estatico('static/img/amorea-sketch-card.png') }}" alt="Código de vestimenta" class="sketch-card-img">
+        </div>
       </div>
 
     </div>
@@ -314,19 +274,13 @@
         </div>
         
         <blockquote class="regalo-cita">
-          Su compañía es lo más importante. Si desean hacernos un obsequio, lo recibiremos con mucho cariño.
+          <span class="regalo-cita__inicial">S</span>U COMPAÑÍA ES LO MÁS IMPORTANTE. SI DESEAN HACERNOS UN OBSEQUIO, LO RECIBIREMOS CON MUCHO CARIÑO.
         </blockquote>
       </article>
 
-      <!-- Insignia Festoneada Verde Bosque con flores y título en cursiva -->
+      <!-- Medallón Circular Ocre con Calas blancas -->
       <div class="regalos-medallon-wrap">
-        <div class="calas-adorno calas-adorno--izq" aria-hidden="true">
-          <img src="{{ estatico('static/img/calas-blancas.png') }}" alt="" class="calas-img">
-        </div>
-
-        <div class="medallon-regalos">
-          <span class="medallon-regalos__texto">Regalos</span>
-        </div>
+        <img src="{{ estatico('static/img/amorea-regalos-composite.png') }}" alt="Regalos" class="medallon-composite-img">
       </div>
 
       <!-- Tarjeta de Transferencia y Mercado Pago -->
@@ -368,7 +322,7 @@
       <p class="cuenta-kicker-bottom">PARA NUESTRO GRAN DÍA</p>
 
       <div class="calas-adorno calas-adorno--centro" aria-hidden="true">
-        <img src="{{ estatico('static/img/calas-blancas.png') }}" alt="" class="calas-img calas-img--pequena">
+        <img src="{{ estatico('static/img/amorea-calas-trio.png') }}" alt="Calas blancas" class="calas-img calas-img--trio">
       </div>
     </div>
   </section>
