@@ -946,9 +946,9 @@ body.envelope-locked{
 /* 2. Insignia Festoneada Ocre Oscuro con monograma D y RESS CODE */
 .insignia-festoneada{
   position:absolute;
-  top:50px;
-  left:68px;
-  width:165px;
+  top:46px;
+  left:62px;
+  width:184px;
   transform:rotate(-4.5deg);
   z-index:5;
   filter:drop-shadow(0 10px 22px rgba(35,22,7,.35));
