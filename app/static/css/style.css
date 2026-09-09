@@ -893,66 +893,65 @@ body.envelope-locked{
 .linea-tiempo__hora{font-family:var(--serif);font-size:1.15rem;color:var(--dorado);min-width:64px}
 .linea-tiempo__texto{color:var(--tinta-suave)}
 
-/* --- Dress Code: Insignia Ocre Festoneada + Boceto Moda con Corsage + Tarjeta Inclinada --- */
+/* --- Dress Code: Flatlay Stationery Editorial Amorea --- */
 .seccion--dresscode-amorea{
-  padding:clamp(40px, 9vw, 64px) 0;
+  padding:clamp(36px, 8vw, 56px) 0 24px;
   position:relative;
 }
 
 .dresscode-composicion{
   position:relative;
-  max-width:390px;
+  width:100%;
+  max-width:330px;
+  height:440px;
   margin:0 auto;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:16px;
 }
 
+/* 1. Tarjeta Pequeña Inclinada de Especificación */
 .dresscode-tarjeta-flotante{
-  background:#FAF8F2;
-  border:1px solid rgba(184,134,54,.45);
-  border-radius:12px;
-  padding:12px 24px;
-  box-shadow:0 8px 24px rgba(62,44,15,.10);
-  transform:rotate(-2.5deg) translateX(-20px);
+  position:absolute;
+  top:18px;
+  left:8px;
+  width:175px;
+  background:#FFFFFF;
+  border-radius:2px;
+  padding:14px 12px 14px;
+  box-shadow:0 10px 25px rgba(45,30,10,.08), 0 2px 6px rgba(45,30,10,.03);
+  transform:rotate(-6.5deg);
   text-align:center;
-  max-width:280px;
   z-index:2;
+  box-sizing:border-box;
 }
 
 .dresscode-tarjeta__titulo{
   font-family:var(--serif);
-  font-size:1.05rem;
+  font-size:0.78rem;
   letter-spacing:.14em;
   color:var(--ocre-osc);
-  margin:0 0 4px;
+  margin:0 0 5px;
   font-weight:600;
+  line-height:1.2;
 }
 
 .dresscode-tarjeta__sub{
   font-family:var(--serif);
   font-style:italic;
-  font-size:.88rem;
+  font-size:0.86rem;
   color:var(--tinta-suave);
   margin:0;
-  line-height:1.3;
+  line-height:1.32;
 }
 
-.dresscode-sketch-wrapper{
-  position:relative;
-  width:270px;
-  margin-top:20px;
-}
-
+/* 2. Insignia Festoneada Ocre Oscuro con monograma D y RESS CODE */
 .insignia-festoneada{
   position:absolute;
-  top:-34px;
-  left:50%;
-  transform:translateX(-50%);
-  width:180px;
+  top:50px;
+  left:68px;
+  width:165px;
+  transform:rotate(-4.5deg);
   z-index:5;
-  filter:drop-shadow(0 8px 20px rgba(35,22,7,.32));
+  filter:drop-shadow(0 10px 22px rgba(35,22,7,.35));
+  pointer-events:none;
 }
 
 .insignia-badge-img{
@@ -961,22 +960,21 @@ body.envelope-locked{
   display:block;
 }
 
+/* 3. Tarjeta de Boceto de Moda con Ramillete Floral */
 .dresscode-sketch-card{
-  background:transparent;
-  border:none;
-  padding:0;
-  margin:0;
-  text-align:center;
-  box-sizing:border-box;
+  position:absolute;
+  top:58px;
+  left:88px;
+  width:226px;
+  z-index:1;
+  transform:rotate(3.8deg);
+  filter:drop-shadow(0 14px 28px rgba(45,30,10,.12));
 }
 
 .sketch-card-img{
   width:100%;
   height:auto;
   display:block;
-  border-radius:2px;
-  box-shadow:0 18px 40px rgba(62,44,15,.15);
-  transform:rotate(1.8deg);
 }
 
 /* --- Regalos y Luna de Miel: Cita Sello Cera + Medallón Ocre con Calas + Alias --- */
