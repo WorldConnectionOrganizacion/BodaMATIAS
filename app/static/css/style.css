@@ -903,7 +903,7 @@ body.envelope-locked{
   position:relative;
   width:100%;
   max-width:330px;
-  height:440px;
+  height:470px;
   margin:0 auto;
 }
 
@@ -946,9 +946,9 @@ body.envelope-locked{
 /* 2. Insignia Festoneada Ocre Oscuro con monograma D y RESS CODE */
 .insignia-festoneada{
   position:absolute;
-  top:46px;
-  left:62px;
-  width:184px;
+  top:42px;
+  left:52px;
+  width:182px;
   transform:rotate(-4.5deg);
   z-index:5;
   filter:drop-shadow(0 10px 22px rgba(35,22,7,.35));
@@ -964,8 +964,8 @@ body.envelope-locked{
 /* 3. Tarjeta de Boceto de Moda con Ramillete Floral */
 .dresscode-sketch-card{
   position:absolute;
-  top:58px;
-  left:88px;
+  top:84px;
+  left:86px;
   width:226px;
   z-index:1;
   transform:rotate(3.8deg);
