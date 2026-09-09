@@ -246,20 +246,30 @@
   <section class="seccion seccion--regalos-amorea" aria-label="Regalos">
     <div class="regalos-composicion" data-reveal>
 
-      <!-- Tarjeta Introductoria con Sello de Cera -->
-      <article class="tarjeta-regalo-intro">
-        <div class="regalo-sello-wrap">
-          <img src="{{ estatico('static/img/sello-crema.png') }}" alt="Sello de boda" class="regalo-sello-img">
-        </div>
+      <!-- Composición Integrada: Tarjeta, Calas y Medallón Overlap -->
+      <div class="regalo-flatlay-bloque">
         
-        <blockquote class="regalo-cita">
-          <span class="regalo-cita__inicial">S</span>U COMPAÑÍA ES LO MÁS IMPORTANTE. SI DESEAN HACERNOS UN OBSEQUIO, LO RECIBIREMOS CON MUCHO CARIÑO.
-        </blockquote>
-      </article>
+        <!-- Flores Calas que nacen detrás de la tarjeta -->
+        <div class="regalo-calas-tucked" aria-hidden="true">
+          <img src="{{ estatico('static/img/amorea-calas-flatlay.png') }}" alt="Calas decorativas" class="calas-flatlay-img">
+        </div>
 
-      <!-- Medallón Circular Ocre con Calas blancas -->
-      <div class="regalos-medallon-wrap">
-        <img src="{{ estatico('static/img/amorea-regalos-composite.png') }}" alt="Regalos" class="medallon-composite-img">
+        <!-- Tarjeta Introductoria con Sello de Cera -->
+        <article class="tarjeta-regalo-intro">
+          <div class="regalo-sello-wrap">
+            <img src="{{ estatico('static/img/sello-crema.png') }}" alt="Sello de boda" class="regalo-sello-img">
+          </div>
+          
+          <blockquote class="regalo-cita">
+            <span class="regalo-cita__inicial">S</span>U COMPAÑÍA ES LO MÁS IMPORTANTE. SI DESEAN HACERNOS UN OBSEQUIO, LO RECIBIREMOS CON MUCHO CARIÑO.
+          </blockquote>
+        </article>
+
+        <!-- Medallón Circular Ocre superpuesto sobre el borde inferior -->
+        <div class="regalo-medallon-overlap" aria-hidden="true">
+          <img src="{{ estatico('static/img/amorea-medallon-solo.png') }}" alt="Regalos" class="medallon-solo-img">
+        </div>
+
       </div>
 
       <!-- Tarjeta de Transferencia y Mercado Pago -->

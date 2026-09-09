@@ -985,30 +985,54 @@ body.envelope-locked{
 
 .regalos-composicion{
   position:relative;
-  max-width:390px;
+  max-width:350px;
   margin:0 auto;
 }
 
-.tarjeta-regalo-intro{
-  background:#FAF8F2;
-  border:1px solid rgba(217,207,192,.85);
-  border-radius:20px;
-  padding:36px 24px 22px;
-  box-shadow:0 12px 32px rgba(62,44,15,.10);
+.regalo-flatlay-bloque{
   position:relative;
   margin-top:30px;
-  margin-bottom:32px;
+}
+
+/* 1. Flores Calas Blancas que emergen detrás de la tarjeta */
+.regalo-calas-tucked{
+  position:absolute;
+  bottom:-36px;
+  left:-14px;
+  width:190px;
+  z-index:1;
+  pointer-events:none;
+  filter:drop-shadow(0 8px 16px rgba(45,30,10,.12));
+}
+
+.calas-flatlay-img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+/* 2. Tarjeta Introductoria Estilo Papelería Editorial */
+.tarjeta-regalo-intro{
+  background:#FCFBF7;
+  border:1px solid rgba(226,218,206,.85);
+  border-radius:4px;
+  padding:40px 22px 84px;
+  box-shadow:0 12px 32px rgba(45,30,10,.08), 0 2px 6px rgba(45,30,10,.03);
+  position:relative;
   text-align:center;
+  z-index:2;
+  box-sizing:border-box;
 }
 
 .regalo-sello-wrap{
   position:absolute;
-  top:-28px;
+  top:-26px;
   left:50%;
   transform:translateX(-50%);
-  width:58px;
-  height:58px;
-  filter:drop-shadow(0 6px 14px rgba(62,44,15,.25));
+  width:54px;
+  height:54px;
+  filter:drop-shadow(0 6px 12px rgba(45,30,10,.22));
+  z-index:10;
 }
 
 .regalo-sello-img{
@@ -1019,13 +1043,13 @@ body.envelope-locked{
 
 .regalo-cita{
   font-family:var(--serif);
-  font-size:clamp(.76rem, 2.2vw, .86rem);
-  letter-spacing:.16em;
+  font-size:clamp(.76rem, 2.2vw, .82rem);
+  letter-spacing:.15em;
   text-transform:uppercase;
-  line-height:1.6;
+  line-height:1.62;
   color:var(--ocre-osc);
   margin:0 auto;
-  max-width:32ch;
+  max-width:30ch;
   padding:0;
   border:0;
   font-weight:500;
@@ -1034,7 +1058,7 @@ body.envelope-locked{
 
 .regalo-cita__inicial{
   font-family:var(--script);
-  font-size:3rem;
+  font-size:2.9rem;
   line-height:0.8;
   vertical-align:-0.15em;
   color:var(--ocre-osc);
@@ -1043,30 +1067,37 @@ body.envelope-locked{
   text-transform:none;
 }
 
-.regalos-medallon-wrap{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:28px auto 28px;
-  width:230px;
-  filter:drop-shadow(0 12px 28px rgba(35,22,7,.25));
+/* 3. Medallón Circular Ocre superpuesto sobre el borde inferior */
+.regalo-medallon-overlap{
+  position:absolute;
+  bottom:-52px;
+  right:16px;
+  width:154px;
+  height:154px;
+  z-index:5;
+  filter:drop-shadow(0 12px 26px rgba(35,22,7,.32));
+  pointer-events:none;
 }
 
-.medallon-composite-img{
+.medallon-solo-img{
   width:100%;
-  height:auto;
+  height:100%;
+  object-fit:contain;
   display:block;
 }
 
+/* 4. Tarjeta de Transferencia y Mercado Pago */
 .alias-tarjeta-box{
-  background:#FAF8F2;
-  border:1px dashed rgba(184,134,54,.55);
-  border-radius:20px;
-  padding:22px 20px;
-  box-shadow:0 8px 24px rgba(62,44,15,.08);
+  background:#FCFBF7;
+  border:1px dashed rgba(184,134,54,.6);
+  border-radius:4px;
+  padding:24px 20px;
+  box-shadow:0 8px 24px rgba(45,30,10,.06);
   text-align:center;
   max-width:340px;
-  margin:0 auto;
+  margin:86px auto 0;
+  position:relative;
+  z-index:2;
 }
 
 .alias-kicker{
