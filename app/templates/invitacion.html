@@ -154,29 +154,28 @@
     </div>
   </section>
 
-  <!-- Dónde y Cuándo: Composición Papelería Flotante con Polaroid y Tarjeta Editorial -->
+  <!-- Dónde y Cuándo: Composición Papelería Flotante con Polaroid y Tarjeta Editorial estilo Frame 12 -->
   <section class="seccion seccion--lugares" aria-label="Dónde y cuándo">
     <div class="lugares-composicion" data-reveal>
       
-      <!-- Polaroid Romántica de Fondo (Inclinada) -->
-      <div class="polaroid-flotante" aria-hidden="true">
-        <div class="polaroid-marco">
-          <img src="{{ estatico('static/img/pareja-polaroid.jpg') }}" alt="Sofía y Matías" class="polaroid-img">
+      <!-- Pila de Fotos / Polaroid de Fondo (Inclinadas estilo Frame 12) -->
+      <div class="lugares-polaroid-stack" aria-hidden="true">
+        <div class="polaroid-fondo-tilted"></div>
+        <div class="polaroid-foto-card">
+          <img src="{{ estatico('static/img/pareja-polaroid.jpg') }}" alt="Sofía y Matías en los viñedos" class="polaroid-foto-img">
         </div>
       </div>
 
-      <!-- Tarjeta Editorial Vertical Superpuesta -->
+      <!-- Tarjeta Editorial Translúcida / Vellum Superpuesta sobre la Foto -->
       <article class="tarjeta-lugares-editorial">
-        <div class="lugares-borde-fino" aria-hidden="true"></div>
-
         <!-- Ceremonia -->
         <div class="lugar-bloque">
           <h2 class="lugar-titulo-script">
-            <span class="script-inicial">C</span>EREMONIA
+            <span class="script-inicial">C</span><span class="titulo-resto">EREMONIA</span>
           </h2>
-          <p class="lugar-sitio">{{ cfg.CEREMONIA.titulo }}</p>
-          <p class="lugar-direccion">{{ cfg.CEREMONIA.lugar }} · {{ cfg.CEREMONIA.direccion }}</p>
-          <a class="btn-pildora" href="{{ cfg.CEREMONIA.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
+          <p class="lugar-sitio">{{ cfg.CEREMONIA.lugar }}</p>
+          <p class="lugar-direccion">{{ cfg.CEREMONIA.direccion }}</p>
+          <a class="btn-pildora-amorea" href="{{ cfg.CEREMONIA.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
           <p class="lugar-horario">HORA: {{ cfg.CEREMONIA.hora }}</p>
         </div>
 
@@ -185,11 +184,11 @@
         <!-- Recepción -->
         <div class="lugar-bloque">
           <h2 class="lugar-titulo-script">
-            <span class="script-inicial">R</span>ECEPCIÓN
+            <span class="script-inicial">R</span><span class="titulo-resto">ECEPCIÓN</span>
           </h2>
-          <p class="lugar-sitio">{{ cfg.RECEPCION.titulo }}</p>
-          <p class="lugar-direccion">{{ cfg.RECEPCION.lugar }} · {{ cfg.RECEPCION.direccion }}</p>
-          <a class="btn-pildora" href="{{ cfg.RECEPCION.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
+          <p class="lugar-sitio">{{ cfg.RECEPCION.lugar }}</p>
+          <p class="lugar-direccion">{{ cfg.RECEPCION.direccion }}</p>
+          <a class="btn-pildora-amorea" href="{{ cfg.RECEPCION.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
           <p class="lugar-horario">HORA: {{ cfg.RECEPCION.hora }}</p>
         </div>
       </article>

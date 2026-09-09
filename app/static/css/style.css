@@ -333,8 +333,7 @@ body.envelope-locked{
 }
 
 /* --- Portada Editorial estilo Amorea (Luego Apertura) --- */
-.hero--portada,
-.hero--editorial{
+.hero--portada{
   min-height:85svh;
   display:flex;
   flex-direction:column;
@@ -364,14 +363,20 @@ body.envelope-locked{
 
 /* Composición Editorial Fiel a Amorea: Sobre Ocre, Tarjeta Barroca y Ramo */
 .hero--editorial{
-  padding:28px 0 12px;
+  min-height:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:8px 0 0;
   overflow:visible;
 }
 
 .editorial-card-wrapper{
   position:relative;
   width:100%;
-  max-width:375px;
+  max-width:350px;
   margin:0 auto;
   display:flex;
   justify-content:center;
@@ -478,15 +483,15 @@ body.envelope-locked{
 
 /* --- Reproductor Interactivo Minimalista estilo Amorea --- */
 .seccion--musica{
-  padding:10px 0 28px;
+  padding:4px 0 14px;
   border-top:0!important;
 }
 
 .music-card-minimal{
-  max-width:390px;
+  max-width:380px;
   margin:0 auto;
   text-align:center;
-  padding:12px 16px;
+  padding:4px 16px 8px;
 }
 
 .music-kicker-text{
@@ -503,7 +508,7 @@ body.envelope-locked{
   align-items:center;
   justify-content:center;
   gap:10px;
-  margin:8px auto 14px;
+  margin:6px auto 10px;
   max-width:140px;
 }
 
@@ -702,70 +707,73 @@ body.envelope-locked{
 .centro{text-align:center}
 .tenue{color:var(--tinta-suave);font-size:.85rem}
 
-/* --- Dónde y Cuándo: Composición Papelería Flotante estilo Amorea --- */
+/* --- Dónde y Cuándo: Composición Papelería Flotante estilo Frame 12 --- */
 .seccion--lugares{
-  padding:clamp(40px, 9vw, 64px) 0;
+  padding:16px 0 28px;
   overflow:visible;
 }
 
 .lugares-composicion{
   position:relative;
-  max-width:440px;
+  max-width:370px;
   margin:0 auto;
-  padding-top:16px;
+  padding:10px 12px 20px;
 }
 
-.polaroid-flotante{
-  width:84%;
-  max-width:340px;
-  margin:0 auto;
-  transform:rotate(-3.5deg) translateX(-16px);
-  filter:drop-shadow(0 16px 36px rgba(35,49,33,.16));
-  transition:transform .4s cubic-bezier(.22,.61,.36,1);
+/* Pila de fotos polaroid inclinadas detrás de la tarjeta */
+.lugares-polaroid-stack{
   position:relative;
+  width:230px;
+  margin:0 auto -92px 14px;
   z-index:1;
+  pointer-events:none;
 }
 
-.polaroid-flotante:hover{
-  transform:rotate(-1.5deg) translateX(-10px) scale(1.02);
-}
-
-.polaroid-marco{
-  background:#FAF8F2;
-  border:1px solid rgba(217,207,192,.85);
-  border-radius:10px;
-  padding:12px 12px 34px;
-}
-
-.polaroid-img{
-  width:100%;
-  aspect-ratio:4 / 3;
-  object-fit:cover;
+.polaroid-fondo-tilted{
+  position:absolute;
+  inset:0;
+  background:#FAF7F0;
+  border:1px solid rgba(215,205,190,.75);
   border-radius:6px;
+  transform:rotate(-9.5deg) translate(-8px, -4px);
+  box-shadow:0 8px 20px rgba(45,30,10,.07);
+}
+
+.polaroid-foto-card{
+  position:relative;
+  background:#FFFFFF;
+  padding:8px 8px 24px 8px;
+  border:1px solid rgba(215,205,190,.8);
+  border-radius:6px;
+  transform:rotate(-5deg);
+  box-shadow:0 14px 32px rgba(40,28,10,.15);
+}
+
+.polaroid-foto-img{
+  width:100%;
+  aspect-ratio:3.8 / 4.6;
+  object-fit:cover;
+  object-position:center 28%;
+  border-radius:3px;
   display:block;
 }
 
+/* Tarjeta Editorial semi-translúcida vellum superpuesta sobre la foto */
 .tarjeta-lugares-editorial{
   position:relative;
-  z-index:2;
-  width:94%;
-  max-width:390px;
-  margin:-44px auto 0;
-  background:#FAF8F2;
-  border:1px solid rgba(197,188,174,.75);
-  border-radius:28px;
-  padding:clamp(28px, 6vw, 40px) clamp(20px, 5vw, 32px);
-  box-shadow:0 22px 52px rgba(35,49,33,.14), 0 4px 14px rgba(35,49,33,.06);
+  z-index:3;
+  width:92%;
+  max-width:315px;
+  margin:0 auto;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.95);
+  border-radius:12px;
+  padding:24px 18px 22px;
+  box-shadow:0 18px 40px rgba(45,30,10,.11), 0 2px 8px rgba(45,30,10,.04);
   text-align:center;
   box-sizing:border-box;
-}
-
-.lugares-borde-fino{
-  position:absolute;
-  inset:8px;
-  border:1px solid rgba(185,156,107,.4);
-  border-radius:20px;
-  pointer-events:none;
 }
 
 .lugar-bloque{
@@ -774,63 +782,71 @@ body.envelope-locked{
 }
 
 .lugar-titulo-script{
-  font-family:var(--serif);
-  font-size:clamp(1.1rem, 3.2vw, 1.25rem);
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  font-weight:500;
-  color:var(--ocre-osc);
-  margin:0 0 6px;
   display:flex;
   align-items:baseline;
   justify-content:center;
+  margin:0 0 6px;
   line-height:1;
 }
 
 .script-inicial{
-  font-family:var(--script);
-  font-size:2.9rem;
-  line-height:0.8;
+  font-family:'Pinyon Script', cursive;
+  font-size:2.8rem;
+  line-height:0.75;
   color:var(--ocre-osc);
-  margin-right:1px;
+  margin-right:-2px;
+  display:inline-block;
   font-weight:normal;
   text-transform:none;
 }
 
+.titulo-resto{
+  font-family:var(--serif);
+  font-size:1.02rem;
+  letter-spacing:.18em;
+  font-weight:600;
+  color:var(--ocre-osc);
+  display:inline-block;
+  text-transform:uppercase;
+}
+
 .lugar-sitio{
   font-family:var(--serif);
-  font-size:1.15rem;
+  font-size:1.08rem;
   font-weight:500;
   color:var(--tinta);
   margin:4px 0 2px;
+  line-height:1.25;
 }
 
 .lugar-direccion{
-  font-size:.82rem;
+  font-size:.76rem;
   color:var(--tinta-suave);
-  margin:0 0 14px;
+  margin:0 0 12px;
   letter-spacing:.02em;
+  line-height:1.35;
 }
 
-.btn-pildora{
+.btn-pildora-amorea{
   display:inline-block;
-  padding:7px 24px;
-  border:1px solid var(--ocre-osc);
-  border-radius:24px;
-  font-size:.7rem;
-  letter-spacing:.22em;
+  padding:5px 22px;
+  border:1px solid rgba(62,44,15,.65);
+  border-radius:999px;
+  font-size:.66rem;
+  letter-spacing:.2em;
   text-transform:uppercase;
   color:var(--ocre-osc);
   text-decoration:none;
   font-weight:500;
+  background:rgba(255,255,255,.5);
   transition:all .25s ease;
-  background:transparent;
 }
 
-.btn-pildora:hover{
+.btn-pildora-amorea:hover{
   background:var(--ocre-osc);
   color:#FAF8F2;
-  box-shadow:0 4px 14px rgba(62,44,15,.25);
+  border-color:var(--ocre-osc);
+  box-shadow:0 4px 14px rgba(62,44,15,.2);
 }
 
 .lugar-horario{
@@ -838,15 +854,15 @@ body.envelope-locked{
   letter-spacing:.18em;
   text-transform:uppercase;
   color:var(--ocre-claro);
-  margin:12px 0 0;
+  margin:10px 0 0;
   font-weight:500;
 }
 
 .lugar-separador-fino{
-  width:48px;
+  width:42px;
   height:1px;
-  background:rgba(184,134,54,.45);
-  margin:24px auto;
+  background:rgba(184,134,54,.35);
+  margin:18px auto;
 }
 
 /* --- itinerario --- */
