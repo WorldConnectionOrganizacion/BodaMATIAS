@@ -415,7 +415,7 @@ body.envelope-locked{
 
 .barroca-eyebrow{
   font-family:var(--serif);
-  font-size:0.56rem;
+  font-size:0.62rem;
   letter-spacing:.07em;
   text-transform:uppercase;
   color:var(--tinta-suave);
@@ -428,7 +428,7 @@ body.envelope-locked{
 
 .barroca-nombres{
   font-family:'Pinyon Script', cursive;
-  font-size:2.55rem;
+  font-size:2.8rem;
   font-weight:normal;
   line-height:.92;
   color:var(--ocre-osc);
@@ -448,7 +448,7 @@ body.envelope-locked{
   font-family:'Pinyon Script', cursive;
   font-style:italic;
   color:var(--ocre-claro);
-  font-size:1.45rem;
+  font-size:1.55rem;
   line-height:.75;
   margin:1px 0;
   display:block;
@@ -464,7 +464,7 @@ body.envelope-locked{
 
 .barroca-ciudad{
   font-family:var(--serif);
-  font-size:.70rem;
+  font-size:.76rem;
   letter-spacing:.06em;
   text-transform:none;
   color:var(--tinta-suave);
@@ -474,7 +474,7 @@ body.envelope-locked{
 
 .barroca-fecha{
   font-family:var(--serif);
-  font-size:.86rem;
+  font-size:.94rem;
   color:var(--ocre-claro);
   margin:0;
   letter-spacing:.05em;
@@ -1043,7 +1043,7 @@ body.envelope-locked{
 
 .regalo-cita{
   font-family:var(--serif);
-  font-size:clamp(.76rem, 2.2vw, .82rem);
+  font-size:clamp(.82rem, 2.4vw, .90rem);
   letter-spacing:.15em;
   text-transform:uppercase;
   line-height:1.62;
@@ -1058,7 +1058,7 @@ body.envelope-locked{
 
 .regalo-cita__inicial{
   font-family:var(--script);
-  font-size:2.9rem;
+  font-size:3.1rem;
   line-height:0.8;
   vertical-align:-0.15em;
   color:var(--ocre-osc);
@@ -1070,7 +1070,7 @@ body.envelope-locked{
 /* 3. Medallón Circular Ocre superpuesto sobre el borde inferior */
 .regalo-medallon-overlap{
   position:absolute;
-  bottom:-52px;
+  bottom:-64px;
   right:16px;
   width:154px;
   height:154px;
