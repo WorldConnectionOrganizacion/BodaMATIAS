@@ -397,26 +397,26 @@ body.envelope-locked{
 /* Capa tipográfica superpuesta con precisión milimétrica sobre la tarjeta blanca */
 .tarjeta-texto-overlay{
   position:absolute;
-  top:45.5%;
+  top:45%;
   left:51.5%;
   transform:translateX(-50%);
-  width:44%;
-  height:46.5%;
+  width:50%;
+  height:48%;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:space-between;
   text-align:center;
   box-sizing:border-box;
-  padding:2px 0 6px;
+  padding:2px 0 4px;
   z-index:2;
   pointer-events:none;
 }
 
 .barroca-eyebrow{
   font-family:var(--serif);
-  font-size:0.43rem;
-  letter-spacing:.08em;
+  font-size:0.56rem;
+  letter-spacing:.07em;
   text-transform:uppercase;
   color:var(--tinta-suave);
   margin:0 auto;
@@ -428,11 +428,11 @@ body.envelope-locked{
 
 .barroca-nombres{
   font-family:'Pinyon Script', cursive;
-  font-size:2.15rem;
+  font-size:2.55rem;
   font-weight:normal;
   line-height:.92;
   color:var(--ocre-osc);
-  margin:1px 0;
+  margin:2px 0;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -448,7 +448,7 @@ body.envelope-locked{
   font-family:'Pinyon Script', cursive;
   font-style:italic;
   color:var(--ocre-claro);
-  font-size:1.25rem;
+  font-size:1.45rem;
   line-height:.75;
   margin:1px 0;
   display:block;
@@ -458,13 +458,13 @@ body.envelope-locked{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:1px;
+  gap:2px;
   margin-bottom:2px;
 }
 
 .barroca-ciudad{
   font-family:var(--serif);
-  font-size:.58rem;
+  font-size:.70rem;
   letter-spacing:.06em;
   text-transform:none;
   color:var(--tinta-suave);
@@ -474,11 +474,11 @@ body.envelope-locked{
 
 .barroca-fecha{
   font-family:var(--serif);
-  font-size:.74rem;
+  font-size:.86rem;
   color:var(--ocre-claro);
   margin:0;
-  letter-spacing:.04em;
-  font-weight:500;
+  letter-spacing:.05em;
+  font-weight:600;
 }
 
 /* --- Reproductor Interactivo Minimalista estilo Amorea --- */
