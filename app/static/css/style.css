@@ -423,10 +423,10 @@ body.envelope-locked {
 /* Capa tipográfica superpuesta con precisión milimétrica sobre la tarjeta blanca */
 .tarjeta-texto-overlay {
   position: absolute;
-  top: 46%;
-  left: 56.5%;
+  top: 48%;
+  left: 59.5%;
   transform: translateX(-50%);
-  width: 50%;
+  width: 52%;
   height: 48%;
   display: flex;
   flex-direction: column;
