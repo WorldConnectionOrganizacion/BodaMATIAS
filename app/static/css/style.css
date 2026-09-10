@@ -420,9 +420,23 @@ body.envelope-locked {
   filter: drop-shadow(0 14px 28px rgba(45, 30, 10, .12));
 }
 
-/* Capa tipográfica integrada directamente en la composición de alta definición */
+/* Capa tipográfica superpuesta con precisión milimétrica sobre la tarjeta blanca */
 .tarjeta-texto-overlay {
-  display: none;
+  position: absolute;
+  top: 68%;
+  left: 70.6%;
+  transform: translate(-50%, -50%);
+  width: 44%;
+  height: 48%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 4px 0 6px;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .barroca-eyebrow {
