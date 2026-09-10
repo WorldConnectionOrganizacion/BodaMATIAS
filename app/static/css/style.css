@@ -1101,21 +1101,23 @@ body.envelope-locked {
   line-height: 1.32;
 }
 
-/* 2. Insignia Festoneada Ocre Oscuro con monograma D y RESS CODE */
+/* 2. Medallón Circular Ocre Oscuro con monograma D y RESS CODE (idéntico al de Regalos) */
 .insignia-festoneada {
   position: absolute;
-  top: 42px;
-  left: 52px;
-  width: 182px;
-  transform: rotate(-4.5deg);
+  top: 46px;
+  left: 56px;
+  width: 154px;
+  height: 154px;
+  transform: none;
   z-index: 5;
-  filter: drop-shadow(0 10px 22px rgba(35, 22, 7, .35));
+  filter: drop-shadow(0 12px 26px rgba(35, 22, 7, .32));
   pointer-events: none;
 }
 
 .insignia-badge-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
 
