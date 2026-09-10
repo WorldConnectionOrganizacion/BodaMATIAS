@@ -997,8 +997,8 @@ body.envelope-locked{
 /* 1. Flores Calas Blancas que emergen detrás de la tarjeta */
 .regalo-calas-tucked{
   position:absolute;
-  bottom:-46px;
-  left:26px;
+  bottom:-68px;
+  left:24px;
   width:195px;
   z-index:1;
   pointer-events:none;
