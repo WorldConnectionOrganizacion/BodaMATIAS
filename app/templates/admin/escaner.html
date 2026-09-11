@@ -20,12 +20,18 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ estatico('static/js/jsqr.js') }}"></script>
 <script>
 (function(){
   var video = document.getElementById("camara");
   var estado = document.getElementById("estado-escaner");
   var boton = document.getElementById("btn-camara");
+  var lienzo = document.createElement("canvas");
+  // willReadFrequently: se lee un frame de pixeles por vuelta, muchas veces por segundo.
+  var ctx = lienzo.getContext("2d", { willReadFrequently: true });
   var corriendo = false;
+  var detenido = false;
+  var stream = null;
 
   function irA(texto){
     if(!texto) return;
@@ -41,32 +47,58 @@
     irA(document.getElementById("codigo-manual").value);
   });
 
-  if(!("BarcodeDetector" in window)){
-    estado.textContent = "Este navegador no puede escanear. Usá Chrome en Android o cargá el código a mano.";
+  if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)){
+    estado.textContent = "Este navegador no puede usar la cámara. Cargá el código a mano.";
     boton.style.display = "none";
     return;
+  }
+  if(typeof jsQR !== "function"){
+    // No deberia pasar (el archivo es local, no depende de un CDN externo), pero por las dudas
+    // no dejamos la camara encendida sin poder leer nada.
+    estado.textContent = "No se pudo cargar el lector de códigos. Cargá el código a mano.";
+    boton.style.display = "none";
+    return;
+  }
+
+  function detenerCamara(){
+    detenido = true;
+    if(stream) stream.getTracks().forEach(function(t){ t.stop(); });
+  }
+  window.addEventListener("pagehide", detenerCamara);
+
+  function buscarCuadro(){
+    if(detenido) return;
+    if(video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth){
+      lienzo.width = video.videoWidth;
+      lienzo.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, lienzo.width, lienzo.height);
+      var cuadro;
+      try{
+        cuadro = ctx.getImageData(0, 0, lienzo.width, lienzo.height);
+      }catch(err){
+        requestAnimationFrame(buscarCuadro);
+        return;
+      }
+      var leido = jsQR(cuadro.data, cuadro.width, cuadro.height, { inversionAttempts: "dontInvert" });
+      if(leido && leido.data){
+        detenerCamara();
+        irA(leido.data);
+        return;
+      }
+    }
+    requestAnimationFrame(buscarCuadro);
   }
 
   boton.addEventListener("click", async function(){
     if(corriendo) return;
     try{
-      var stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
       video.srcObject = stream;
       await video.play();
       corriendo = true;
       boton.style.display = "none";
       estado.textContent = "Apuntá al QR del invitado.";
-      var detector = new BarcodeDetector({formats:["qr_code"]});
-      var lupa = setInterval(async function(){
-        try{
-          var codes = await detector.detect(video);
-          if(codes.length){
-            clearInterval(lupa);
-            stream.getTracks().forEach(function(t){ t.stop(); });
-            irA(codes[0].rawValue);
-          }
-        }catch(err){ /* frame sin foco: seguir */ }
-      }, 350);
+      requestAnimationFrame(buscarCuadro);
     }catch(err){
       estado.textContent = "No se pudo abrir la cámara: " + err.message;
     }
