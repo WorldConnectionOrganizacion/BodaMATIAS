@@ -48,14 +48,51 @@ lo que queda grabado dentro de cada QR. Con la app expuesta:
 - La IP pública es dinámica en la mayoría de las conexiones hogareñas: si cambia, los QR ya impresos
   dejan de funcionar. Conviene un dominio (o DNS dinámico) antes de repartir QR.
 
+## Deploy en la PC de la empresa (Docker + Cloudflare Tunnel)
+
+La app corre en Docker y el dominio llega por un túnel de Cloudflare: no hace falta abrir puertos en
+el router ni tener IP fija, y el HTTPS lo pone Cloudflare. La app no queda expuesta en la red local;
+solo la alcanza el túnel.
+
+**Requisitos:** Ubuntu/Debian con [Docker Engine y el plugin compose](https://docs.docker.com/engine/install/ubuntu/)
+(`sudo systemctl enable --now docker` para que arranque solo con la PC) y el dominio gestionado en
+Cloudflare (alcanza el plan gratis).
+
+1. **Túnel:** en Cloudflare, Zero Trust → Networks → Tunnels → *Create a tunnel* (tipo Cloudflared).
+   Copiar el token que muestra. En *Public Hostname* cargar el subdominio (ej. `boda.tuempresa.com`)
+   con servicio `HTTP` y URL `app:8000`.
+2. **Configuración:** clonar el repo, `cp .env.example .env` y completar:
+   - `BASE_URL=https://boda.tuempresa.com` — la URL final, queda grabada en cada QR.
+   - `ADMIN_PASSWORD` y `SECRET_KEY` (generarla con `python3 -c "import secrets; print(secrets.token_urlsafe(48))"`).
+   - `CLOUDFLARE_TUNNEL_TOKEN` con el token del paso 1.
+3. **Levantar:** `docker compose up -d --build`. `docker compose ps` tiene que mostrar `app` como
+   *healthy*, y `docker compose logs app` muestra `BASE_URL en uso`.
+4. **Actualizar:** `git pull && docker compose up -d --build`. La base no se toca.
+
+La base (`/app/data/boda.db`) vive en el volumen `datos` de Docker y sobrevive a reinicios y
+actualizaciones. **`docker compose down -v` la borra**: nunca usar `-v`.
+
+La IP real de cada visitante llega en `CF-Connecting-IP` (`DETRAS_DE_PROXY=cloudflare`, ya definido en
+`docker-compose.yml`), así el bloqueo del login es por persona y no uno para todos.
+
+**Respaldos:** `scripts/respaldo.sh` guarda una copia consistente en `respaldos/` con la app andando y
+conserva las últimas 30. Para uno diario a las 4 AM: `crontab -e` y agregar
+`0 4 * * * /ruta/al/repo/scripts/respaldo.sh` (el usuario del cron tiene que estar en el grupo `docker`).
+Conviene copiar `respaldos/` a otro disco o a la nube. Para volver a un respaldo:
+`scripts/restaurar.sh respaldos/boda-AAAAMMDD-HHMMSS.db` (pide confirmación y antes respalda lo actual).
+
+**Probar sin el túnel**, en la misma PC: `docker compose run --rm -p 127.0.0.1:8000:8000 -e DETRAS_DE_PROXY=0 app`
+y abrir `http://localhost:8000`.
+
 ## Deploy en Railway
 
 Un solo servicio con la base SQLite en un **Volume**. El disco del contenedor se borra en cada
 deploy: sin Volume se pierden todas las confirmaciones.
 
-1. New Project → Deploy from GitHub repo. `railway.json` ya define el arranque (`python iniciar.py`),
-   el healthcheck (`/salud`) y el reinicio ante fallas; la versión de Python sale de `.python-version`.
-   Railway instala solo `requirements.txt` (lo de diseño y pruebas está en `requirements-dev.txt`).
+1. New Project → Deploy from GitHub repo. Railway construye con el `Dockerfile` del repo y
+   `railway.json` define el arranque (`python iniciar.py`), el healthcheck (`/salud`) y el reinicio ante
+   fallas. La imagen corre con un usuario sin privilegios: agregar la variable `RAILWAY_RUN_UID=0`
+   para que pueda escribir en el Volume.
 2. En el servicio: **Add Volume**, con mount path `/app/data`. Cualquier ruta sirve porque la app usa
    la que informa Railway (`RAILWAY_VOLUME_MOUNT_PATH`). **No definir `DB_URL`.**
 3. Variables del servicio (el `.env` no se sube):

@@ -1,0 +1,30 @@
+# PC de la empresa: la app + Cloudflare Tunnel.
+#   Levantar / actualizar:  docker compose up -d --build
+#   Ver estado y logs:      docker compose ps   |   docker compose logs -f app
+# Ojo: "docker compose down -v" borra el volumen con la base. No usar -v.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: "8000"
+      DB_URL: "sqlite:////app/data/boda.db"
+      # La IP real de cada visitante llega en CF-Connecting-IP: el bloqueo del login es por persona.
+      DETRAS_DE_PROXY: "cloudflare"
+    volumes:
+      - datos:/app/data
+    # Sin "ports": la app no queda expuesta en la red, solo la alcanza el tunel.
+
+  tunel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?Falta CLOUDFLARE_TUNNEL_TOKEN en .env (ver README)}
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  datos:

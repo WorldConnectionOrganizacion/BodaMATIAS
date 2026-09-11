@@ -391,6 +391,19 @@ check("detras de proxy: inventar X-Forwarded-For no esquiva el bloqueo", "error=
 config.DETRAS_DE_PROXY = False
 security._fallidos.clear()
 
+config.DETRAS_DE_PROXY, config.IP_DE_CLOUDFLARE = True, True
+for _ in range(security.MAX_INTENTOS):
+    TestClient(app, headers={"CF-Connecting-IP": "3.3.3.3", "X-Forwarded-For": "7.7.7.7"}).post(
+        "/admin/login", data={"password": "mala"})
+r = TestClient(app, headers={"CF-Connecting-IP": "4.4.4.4", "X-Forwarded-For": "7.7.7.7"}).post(
+    "/admin/login", data={"password": clave}, follow_redirects=False)
+check("Cloudflare: el bloqueo es por la IP de CF-Connecting-IP", r.headers["location"] == "/admin")
+r = TestClient(app, headers={"CF-Connecting-IP": "3.3.3.3", "X-Forwarded-For": "8.8.8.8"}).post(
+    "/admin/login", data={"password": clave}, follow_redirects=False)
+check("Cloudflare: cambiar X-Forwarded-For no esquiva el bloqueo", "error=2" in r.headers["location"])
+config.DETRAS_DE_PROXY, config.IP_DE_CLOUDFLARE = False, False
+security._fallidos.clear()
+
 check("healthcheck /salud", TestClient(app).get("/salud").json() == {"ok": True})
 check("respaldo exige login", TestClient(app).get("/admin/respaldo.db", follow_redirects=False).status_code == 303)
 r = c.get("/admin/respaldo.db")

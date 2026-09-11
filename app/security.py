@@ -77,6 +77,11 @@ def destino_seguro(destino: str) -> str:
 
 
 def _ip(request: Request) -> str:
+    if config.IP_DE_CLOUDFLARE:
+        # Cloudflare pisa este encabezado con la IP real; el cliente no lo puede inventar.
+        ip = request.headers.get("cf-connecting-ip", "").strip()
+        if ip:
+            return ip
     if config.DETRAS_DE_PROXY:
         # El proxy agrega la IP que ve al final de X-Forwarded-For. Lo anterior lo puede
         # inventar el cliente para esquivar el bloqueo, asi que se toma solo el ultimo valor.
