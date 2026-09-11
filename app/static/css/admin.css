@@ -74,20 +74,12 @@ body.admin{background:#F2EFE9;font-size:15px}
 
 #camara{width:100%;max-height:60vh;background:#000;border:1px solid var(--arena)}
 
-/* --- tarjeta imprimible --- */
+/* --- QR imprimible: en la hoja sale solo el QR --- */
 .tarjeta-print{
-  max-width:400px;margin:0 auto;background:var(--papel);border:1px solid var(--arena);
-  padding:36px 28px;text-align:center;box-shadow:var(--sombra);
+  max-width:360px;margin:0 auto;background:var(--papel);border:1px solid var(--arena);
+  padding:32px 28px;text-align:center;box-shadow:var(--sombra);
 }
-.tarjeta-print__eyebrow{font-size:.68rem;letter-spacing:.4em;text-transform:uppercase;color:var(--sage-osc);margin:0 0 10px}
-.tarjeta-print__nombres{font-family:var(--serif);font-weight:400;font-size:2.3rem;margin:0}
-.tarjeta-print__nombres em{color:var(--dorado)}
-.tarjeta-print__fecha{letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;margin:6px 0 22px}
-.tarjeta-print__grupo{font-family:var(--serif);font-size:1.5rem;margin:0}
-.tarjeta-print__cupo{color:var(--tinta-suave);font-size:.85rem;margin:2px 0 18px}
-.tarjeta-print__qr{margin:0 auto;border:1px solid var(--arena);padding:8px;background:#fff}
-.tarjeta-print__codigo{font-family:var(--serif);font-size:1.6rem;letter-spacing:.3em;margin:12px 0 2px}
-.tarjeta-print__link{font-size:.72rem;color:var(--tinta-suave);word-break:break-all;margin:0}
+.tarjeta-print__qr{display:block;width:240px;max-width:100%;height:auto;margin:0 auto;image-rendering:pixelated}
 
 @media (max-width:760px){
   .panel--doble{grid-template-columns:1fr}
@@ -181,14 +173,40 @@ body.admin{background:#F2EFE9;font-size:15px}
   }
 }
 
+/* menu: en escritorio los links van en fila; en el celular se abren con el boton "Menu" */
+.barra__menu{display:flex;gap:18px;align-items:center}
+.barra__menu a[aria-current="page"]{opacity:1;box-shadow:inset 0 -1px 0 currentColor}
+.barra__boton{display:none}
+
 @media (max-width:760px){
-  /* menu: todos los links a la vista en una grilla, sin deslizar de costado */
-  .barra{
-    position:static;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 4px;
-    overflow:visible;padding:8px 10px 6px;
+  .barra{overflow:visible;flex-wrap:nowrap;padding:8px 16px}
+  .barra__boton{
+    display:inline-flex;align-items:center;gap:12px;min-height:44px;padding:8px 14px;margin-left:auto;
+    background:transparent;border:1px solid rgba(255,255,255,.35);color:var(--papel);cursor:pointer;
+    font-family:var(--sans);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
   }
-  .barra__marca{grid-column:1/-1;text-align:center;margin:0;padding:4px 0 6px}
-  .barra a:not(.barra__marca){text-align:center;padding:10px 2px;font-size:.64rem;letter-spacing:.08em}
+  .barra__icono,.barra__icono::before,.barra__icono::after{
+    display:block;width:18px;height:2px;background:currentColor;transition:transform .2s,background .2s;
+  }
+  .barra__icono{position:relative}
+  .barra__icono::before,.barra__icono::after{content:"";position:absolute;left:0}
+  .barra__icono::before{top:-6px}
+  .barra__icono::after{top:6px}
+  .barra--abierta .barra__icono{background:transparent}
+  .barra--abierta .barra__icono::before{transform:translateY(6px) rotate(45deg)}
+  .barra--abierta .barra__icono::after{transform:translateY(-6px) rotate(-45deg)}
+  .barra__menu{
+    position:absolute;left:0;right:0;top:100%;flex-direction:column;align-items:stretch;gap:0;
+    padding:0 0 6px;background:var(--sage-osc);box-shadow:0 16px 30px rgba(0,0,0,.25);
+  }
+  .barra__menu a{padding:15px 20px;font-size:.8rem;border-top:1px solid rgba(255,255,255,.1)}
+  .barra__menu a[aria-current="page"]{box-shadow:none;background:rgba(255,255,255,.08)}
+  .barra--js .barra__menu{display:none}
+  .barra--js.barra--abierta .barra__menu{display:flex}
+  /* sin JS no hay boton: los links quedan siempre a la vista, debajo del nombre */
+  .barra:not(.barra--js){flex-wrap:wrap}
+  .barra:not(.barra--js) .barra__boton{display:none}
+  .barra:not(.barra--js) .barra__menu{position:static;flex-basis:100%;box-shadow:none}
 
   /* ficha: primero el pase (QR, link, WhatsApp), despues los datos y al final lo demas */
   .ficha__lado{display:contents}
@@ -203,7 +221,4 @@ body.admin{background:#F2EFE9;font-size:15px}
 }
 @media (max-width:420px){
   .tabla--lista tr{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:340px){
-  .barra{grid-template-columns:repeat(3,minmax(0,1fr))}
 }

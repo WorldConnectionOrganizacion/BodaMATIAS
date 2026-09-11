@@ -6,6 +6,7 @@ No toca data/boda.db: crea y borra data/test_smoke.db.
 import io
 import os
 import pathlib
+import re
 import sqlite3
 import zipfile
 from urllib.parse import parse_qs, urlsplit
@@ -212,6 +213,12 @@ check("deshacer ingreso vuelve a 0", leer(inv_id)["ingresados"] == 0)
 for ruta in ["/admin", "/admin/invitaciones", "/admin/invitaciones/nueva", "/admin/escaner",
              "/admin/invitaciones/" + str(inv_id), "/admin/invitaciones/" + str(inv_id) + "/tarjeta"]:
     check("pantalla " + ruta, c.get(ruta).status_code == 200)
+
+r = c.get("/admin/invitaciones/" + str(inv_id) + "/tarjeta")
+impreso = r.text.split('<article class="tarjeta-print">')[1].split("</article>")[0]
+check("QR imprimible: en la hoja sale solo el QR, sin ningun texto",
+      f"/i/{codigo}/qr.png" in impreso and re.sub(r"<[^>]+>", "", impreso).strip() == ""
+      and "Nos casamos" not in r.text)
 
 # --- CSV ---
 r = importar("grupo;adultos;ninos;telefono;email\nFamilia CSV;2;0;5492611111111;a@b.com\n")
