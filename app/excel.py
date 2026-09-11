@@ -94,7 +94,7 @@ def _lista_seguridad(hoja: Worksheet, invitaciones: Iterable[Invitacion]) -> Non
 def _invitaciones(hoja: Worksheet, invitaciones: Iterable[Invitacion]) -> None:
     _preparar(hoja, "Invitaciones", [
         ("Código", 9), ("Grupo / familia", 28), ("Formato", 9), ("Adultos", 8), ("Niños", 7),
-        ("Estado", 11), ("Confirmados", 12), ("Ingresados", 11), ("Teléfono", 17), ("Email", 26),
+        ("Estado", 11), ("Confirmados", 12), ("Teléfono", 17), ("Email", 26),
         ("Invitados", 34), ("Restricciones", 30), ("Mensaje", 40), ("Link", 38),
     ], horizontal=True)
     for inv in invitaciones:
@@ -106,12 +106,12 @@ def _invitaciones(hoja: Worksheet, invitaciones: Iterable[Invitacion]) -> None:
         _fila(hoja, [
             inv.codigo, inv.nombre_grupo, "Física" if inv.tarjeta_fisica else "Virtual",
             inv.cupo_adultos, inv.cupo_ninos, inv.estado.value.capitalize(),
-            inv.confirmados, inv.ingresados, inv.telefono or "", inv.email or "",
+            inv.confirmados, inv.telefono or "", inv.email or "",
             "\n".join(invitados), "\n".join(restricciones), inv.mensaje or "",
             f"{config.BASE_URL}/i/{inv.codigo}",
         ])
     if hoja.max_row > 1:
-        hoja.auto_filter.ref = f"A1:N{hoja.max_row}"
+        hoja.auto_filter.ref = f"A1:M{hoja.max_row}"
 
 
 def generar(invitaciones: Sequence[Invitacion]) -> bytes:

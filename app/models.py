@@ -36,10 +36,6 @@ class Invitacion(SQLModel, table=True):
         back_populates="invitacion",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    checkins: List["Checkin"] = Relationship(
-        back_populates="invitacion",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
 
     # --- helpers ---
     @property
@@ -49,10 +45,6 @@ class Invitacion(SQLModel, table=True):
     @property
     def confirmados(self) -> int:
         return sum(1 for i in self.invitados if i.asiste is True)
-
-    @property
-    def ingresados(self) -> int:
-        return sum(c.personas for c in self.checkins)
 
     @property
     def respondio(self) -> bool:
@@ -68,13 +60,3 @@ class Invitado(SQLModel, table=True):
     restriccion: Optional[str] = None
 
     invitacion: Optional[Invitacion] = Relationship(back_populates="invitados")
-
-
-class Checkin(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    invitacion_id: int = Field(foreign_key="invitacion.id", index=True)
-    personas: int = 1
-    at: datetime = Field(default_factory=datetime.utcnow)
-    operador: Optional[str] = None
-
-    invitacion: Optional[Invitacion] = Relationship(back_populates="checkins")

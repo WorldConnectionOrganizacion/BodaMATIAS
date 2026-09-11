@@ -26,7 +26,6 @@ from app import config, security, servicios  # noqa: E402
 from app.db import engine, init_db  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models import Estado, Invitacion  # noqa: E402
-from app.templating import hora_local  # noqa: E402
 
 fallos = []
 
@@ -43,7 +42,7 @@ def leer(inv_id):
         if inv is None:
             return None
         return {
-            "estado": inv.estado, "confirmados": inv.confirmados, "ingresados": inv.ingresados,
+            "estado": inv.estado, "confirmados": inv.confirmados,
             "filas": [(str(g.id), g.tipo.value, g.nombre, g.asiste) for g in inv.invitados],
         }
 
@@ -147,11 +146,10 @@ with Session(engine) as s:
 r = TestClient(app).get("/i/" + codigo)
 check("tras confirmar aparece el agradecimiento", "Gracias por confirmar" in r.text)
 check("tras confirmar aparece el codigo QR", "Tu código para ese día" in r.text)
-check("el invitado no ve nada de 'registrar ingreso'", "Registrar ingreso" not in r.text)
 r = TestClient(app).get("/i/" + codigo + "?editar=1")
 check("puede volver a editar la respuesta", "Enviar respuesta" in r.text)
 
-# --- puerta ---
+# --- login sin sesion / compatibilidad ---
 sin_sesion = TestClient(app)
 r = sin_sesion.get("/pase/" + codigo, follow_redirects=False)
 check("QR viejo /pase redirige al link unico",
@@ -164,55 +162,36 @@ formulario_login = sin_sesion.get("/admin/login").text
 check("el login pide solo la contraseña",
       'name="usuario"' not in formulario_login and 'name="password"' in formulario_login)
 
-r = c.get("/i/" + codigo)
-check("staff tambien ve la invitacion por defecto", "Registrar ingreso" not in r.text)
-r = c.get("/i/" + codigo + "?puerta=1")
-check("staff entra al control con ?puerta=1",
-      r.status_code == 200 and "Registrar ingreso" in r.text)
-r = sin_sesion.get("/i/" + codigo + "?puerta=1", follow_redirects=False)
-check("sin sesion, ?puerta=1 pide login y vuelve a la puerta (nunca muestra el control)",
-      r.status_code == 303 and r.headers["location"].startswith("/admin/login")
-      and parse_qs(urlsplit(r.headers["location"]).query)["next"] == [f"/i/{codigo}?puerta=1"])
+# La sesion vencida en un POST cualquiera del panel vuelve a la pagina de origen (no a un 405).
 vencida = TestClient(app)
-r = vencida.post("/i/" + codigo + "/ingreso", data={"personas": "1"},
-                 headers={"referer": f"http://testserver/i/{codigo}?puerta=1"}, follow_redirects=False)
+r = vencida.post("/admin/invitaciones/nueva", data={"nombre_grupo": "Nunca se crea"},
+                 headers={"referer": "http://testserver/admin/invitaciones/nueva"}, follow_redirects=False)
 login_url = r.headers["location"]
-check("sesion vencida: el ingreso no se registra y el login lo avisa",
-      "vencida=1" in login_url and leer(inv_id)["ingresados"] == 0
+check("sesion vencida: el POST no se guarda y el login lo avisa",
+      "vencida=1" in login_url and contar_grupos("Nunca se crea") == 0
       and "sesión se venció" in vencida.get(login_url).text)
 r = vencida.post("/admin/login", data={"password": clave,
                                         "next": parse_qs(urlsplit(login_url).query)["next"][0]},
                  follow_redirects=False)
-check("sesion vencida: tras el login vuelve a la pantalla de puerta (no a un 405)",
-      r.headers["location"] == f"/i/{codigo}?puerta=1", r.headers["location"])
-r = c.post("/i/" + codigo + "/ingreso", data={"personas": "500"})
-check("ingreso por encima del cupo se rechaza",
-      "Solo quedan 3 de 3" in r.text and leer(inv_id)["ingresados"] == 0)
-r = c.post("/i/" + codigo + "/ingreso", data={"personas": "abc"})
-check("ingreso con cantidad invalida muestra aviso (no JSON)",
-      r.status_code == 200 and "mayor a 0" in r.text and leer(inv_id)["ingresados"] == 0)
-r = c.post("/i/" + codigo + "/ingreso", data={"personas": "2"}, follow_redirects=False)
-check("registrar ingreso redirige (PRG)", r.status_code == 303 and "hecho=1" in r.headers["location"])
-r = c.get(r.headers["location"])
-check("registra ingreso", r.status_code == 200 and "Ingreso registrado" in r.text)
-check("el ingreso queda registrado como staff", "2 pers. (staff)" in r.text)
-c.get("/i/" + codigo + "?puerta=1&hecho=1")                     # recargar la pantalla
-check("ingresados = 2 (recargar no duplica)", leer(inv_id)["ingresados"] == 2)
-r = c.post("/admin/invitaciones/" + str(inv_id),
-           data={"nombre_grupo": "Familia Prueba", "cupo_adultos": "1", "cupo_ninos": "0"})
-check("no deja bajar el cupo por debajo de los que ya ingresaron",
-      "ya ingresaron 2" in r.text and len(leer(inv_id)["filas"]) == 3)
-with Session(engine) as s:
-    momento = s.get(Invitacion, inv_id).checkins[0].at
-ficha = c.get("/admin/invitaciones/" + str(inv_id)).text
-check("la ficha muestra el ingreso en hora de Mendoza", hora_local(momento) in ficha and " UTC" not in ficha)
-c.post("/admin/invitaciones/" + str(inv_id) + "/deshacer-ingreso", follow_redirects=False)
-check("deshacer ingreso vuelve a 0", leer(inv_id)["ingresados"] == 0)
+check("sesion vencida: tras el login vuelve a la pagina de origen (no a un 405)",
+      r.headers["location"] == "/admin/invitaciones/nueva", r.headers["location"])
 
 # --- pantallas del panel ---
 for ruta in ["/admin", "/admin/invitaciones", "/admin/invitaciones/nueva", "/admin/escaner",
              "/admin/invitaciones/" + str(inv_id), "/admin/invitaciones/" + str(inv_id) + "/tarjeta"]:
     check("pantalla " + ruta, c.get(ruta).status_code == 200)
+
+# --- escaner: arma las tarjetas fisicas, escanear lleva a la ficha (no a un control de puerta) ---
+r = c.get("/admin/buscar/" + codigo.lower(), follow_redirects=False)
+check("escanear un QR valido lleva a la ficha de esa invitacion",
+      r.status_code == 303 and r.headers["location"] == "/admin/invitaciones/" + str(inv_id))
+r = c.get("/admin/buscar/ZZZZZZ", follow_redirects=False)
+check("codigo inexistente vuelve al escaner con un aviso",
+      r.status_code == 303 and r.headers["location"] == "/admin/escaner"
+      and "No existe una invitación" in c.get(r.headers["location"]).text)
+r = sin_sesion.get("/admin/buscar/" + codigo, follow_redirects=False)
+check("buscar por codigo exige sesion de staff",
+      r.status_code == 303 and "/admin/login" in r.headers["location"])
 
 r = c.get("/admin/invitaciones/" + str(inv_id) + "/tarjeta")
 impreso = r.text.split('<article class="tarjeta-print">')[1].split("</article>")[0]
@@ -281,7 +260,7 @@ check("subir cupo deja la invitacion parcial", leer(inv_id)["estado"] == Estado.
 check("filtro de estado invalido no rompe", c.get("/admin/invitaciones?estado=foo").status_code == 200)
 r = c.get("/no-existe")
 check("ruta inexistente: 404 en HTML", r.status_code == 404 and "text/html" in r.headers["content-type"])
-r = c.get("/i/" + codigo + "?puerta=abc")
+r = c.get("/i/" + codigo + "?editar=abc")
 check("parametro invalido: 400 en HTML", r.status_code == 400 and "text/html" in r.headers["content-type"])
 original = servicios.crear_invitacion
 

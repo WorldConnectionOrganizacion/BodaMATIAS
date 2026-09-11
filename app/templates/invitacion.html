@@ -83,12 +83,12 @@
   {% if inv %}<a class="mini-barra__cta" href="#rsvp">{{ 'Mi respuesta' if inv.estado.value != 'pendiente' else 'Confirmar' }}</a>{% endif %}
 </div>
 
-{% if staff and inv %}
-<div class="barra-staff">
-  <span>Estás viendo la invitación como invitado</span>
-  <a href="/i/{{ inv.codigo }}?puerta=1">Control de puerta</a>
+{# Cartel para seguir bajando: aparece al entrar (el sobre lo tapa mientras esta cerrado,
+   tiene menos z-index) y se oculta solo apenas se hace scroll (ver invitacion.js). #}
+<div class="scroll-abajo" id="scroll-abajo" aria-hidden="true">
+  <span class="scroll-abajo__texto">Deslizá hacia abajo para ver toda la información</span>
+  <span class="scroll-abajo__flecha" aria-hidden="true"></span>
 </div>
-{% endif %}
 
 <main class="pagina" id="pagina">
 

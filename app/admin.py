@@ -66,7 +66,6 @@ def tablero(request: Request, _: bool = Depends(requiere_staff), session: Sessio
         "confirmados": sum(i.confirmados for i in invs),
         "pendientes": sum(1 for i in invs if i.estado == Estado.pendiente),
         "rechazadas": sum(1 for i in invs if i.estado == Estado.rechazada),
-        "ingresados": sum(i.ingresados for i in invs),
         "fisicas": sum(1 for i in invs if i.tarjeta_fisica),
         "virtuales": sum(1 for i in invs if not i.tarjeta_fisica),
         "restricciones": [
@@ -238,18 +237,6 @@ def eliminar(
     return RedirectResponse("/admin/invitaciones", status_code=303)
 
 
-@router.post("/invitaciones/{inv_id}/deshacer-ingreso")
-def deshacer_ingreso(
-    inv_id: int, _: bool = Depends(requiere_staff), session: Session = Depends(get_session)
-):
-    inv = _inv(session, inv_id)
-    if inv and inv.checkins:
-        ultimo = sorted(inv.checkins, key=lambda c: c.at)[-1]
-        session.delete(ultimo)
-        session.commit()
-    return RedirectResponse("/admin/invitaciones/" + str(inv_id), status_code=303)
-
-
 # --- Tarjeta imprimible con QR ----------------------------------------------
 @router.get("/invitaciones/{inv_id}/tarjeta", response_class=HTMLResponse)
 def tarjeta(
@@ -264,10 +251,26 @@ def tarjeta(
     return templates.TemplateResponse("admin/tarjeta.html", {"request": request, "inv": inv})
 
 
-# --- Escaner de puerta ------------------------------------------------------
+# --- Escaner de codigos ------------------------------------------------------
 @router.get("/escaner", response_class=HTMLResponse)
 def escaner(request: Request, _: bool = Depends(requiere_staff)):
     return templates.TemplateResponse("admin/escaner.html", {"request": request})
+
+
+@router.get("/buscar/{codigo}")
+def buscar_por_codigo(
+    request: Request, codigo: str, _: bool = Depends(requiere_staff), session: Session = Depends(get_session)
+):
+    """Adonde manda el escaner: busca la invitacion por codigo y va directo a su ficha.
+
+    Pensado para armar las tarjetas fisicas antes de la boda: confirma a que familia corresponde
+    cada QR ya impreso, sin tener que escribir el codigo a mano en el listado.
+    """
+    inv = session.exec(select(Invitacion).where(Invitacion.codigo == codigo.strip().upper())).first()
+    if not inv:
+        avisar(request, f"No existe una invitación con el código {codigo}.")
+        return RedirectResponse("/admin/escaner", status_code=303)
+    return RedirectResponse("/admin/invitaciones/" + str(inv.id), status_code=303)
 
 
 # --- CSV --------------------------------------------------------------------
@@ -288,7 +291,7 @@ def exportar(_: bool = Depends(requiere_staff), session: Session = Depends(get_s
     w = csv.writer(buf, delimiter=";", lineterminator="\n")
     w.writerow([
         "codigo", "grupo", "formato", "cupo_adultos", "cupo_ninos", "estado", "confirmados",
-        "ingresados", "telefono", "email", "invitados", "restricciones", "mensaje", "link",
+        "telefono", "email", "invitados", "restricciones", "mensaje", "link",
     ])
     for i in invs:
         detalle_invitados = []
@@ -299,7 +302,7 @@ def exportar(_: bool = Depends(requiere_staff), session: Session = Depends(get_s
         w.writerow([_celda_segura(v) for v in (
             i.codigo, i.nombre_grupo, "fisica" if i.tarjeta_fisica else "virtual",
             i.cupo_adultos, i.cupo_ninos, i.estado.value,
-            i.confirmados, i.ingresados, i.telefono or "", i.email or "",
+            i.confirmados, i.telefono or "", i.email or "",
             " | ".join(detalle_invitados), " | ".join(restricciones),
             (i.mensaje or "").replace("\n", " "),
             config.BASE_URL + "/i/" + i.codigo,

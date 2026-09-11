@@ -23,7 +23,7 @@
 <div class="panel panel--tabla">
 <table class="tabla tabla--lista">
   <thead>
-    <tr><th>Grupo</th><th>Código</th><th>Formato</th><th>Cupo</th><th>Confirm.</th><th>Ingresó</th><th>Estado</th><th></th></tr>
+    <tr><th>Grupo</th><th>Código</th><th>Formato</th><th>Cupo</th><th>Confirm.</th><th>Estado</th><th></th></tr>
   </thead>
   <tbody>
   {% for i in invitaciones %}
@@ -38,7 +38,6 @@
       </td>
       <td data-label="Cupo">{{ i.cupo_adultos }}A{% if i.cupo_ninos %} + {{ i.cupo_ninos }}N{% endif %}</td>
       <td data-label="Confirmados">{{ i.confirmados }}</td>
-      <td data-label="Ingresaron">{{ i.ingresados }}</td>
       <td data-label="Estado"><span class="estado estado--{{ i.estado.value }}">{{ i.estado.value }}</span></td>
       <td class="acciones-fila">
         <a href="/i/{{ i.codigo }}" target="_blank">Invitación</a>
@@ -46,7 +45,7 @@
       </td>
     </tr>
   {% else %}
-    <tr><td colspan="8" class="tenue celda-vacia">Sin invitaciones todavía.</td></tr>
+    <tr><td colspan="7" class="tenue celda-vacia">Sin invitaciones todavía.</td></tr>
   {% endfor %}
   </tbody>
 </table>

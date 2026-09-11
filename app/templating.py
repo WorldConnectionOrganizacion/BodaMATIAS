@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import Request
@@ -20,11 +19,6 @@ def estatico(ruta: str) -> str:
     except OSError:
         marca = 0
     return "/" + limpio + "?v=" + str(marca)
-
-
-def hora_local(momento: datetime, formato: str = "%d/%m %H:%M") -> str:
-    """Las fechas se guardan en UTC sin zona: se muestran en la hora del evento (Mendoza)."""
-    return momento.replace(tzinfo=timezone.utc).astimezone(config.TZ).strftime(formato)
 
 
 MAX_DETALLES_AVISO = 10  # la sesion viaja en una cookie: no guardar listas largas
@@ -57,4 +51,3 @@ templates.env.globals["largo"] = servicios.LARGO_MAX
 templates.env.globals["rsvp_abierto"] = servicios.rsvp_abierto
 templates.env.globals["fecha_limite_rsvp"] = servicios.fecha_limite_texto
 templates.env.globals["es_staff"] = security.es_staff
-templates.env.filters["hora_local"] = hora_local
