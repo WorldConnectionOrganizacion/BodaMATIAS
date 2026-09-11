@@ -23,7 +23,8 @@ Se lee al importar `app.config`; una variable ya definida en el sistema tiene pr
 |---|---|---|
 | `BASE_URL` | `http://localhost:8000` | URL pública. **Es lo que queda grabado dentro de cada QR**: definirla antes de generar los QR definitivos. |
 | `PUERTO` | `8000` | Puerto local donde escucha uvicorn (lo lee `run.ps1`). |
-| `ADMIN_PASSWORD` | `boda2026` | Contraseña del panel y del control de puerta. Cambiala. |
+| `ADMIN_USUARIOS` | — | Cuentas del staff, una por persona (pensado para 3-4): `Nombre:clave,Nombre:clave`. El nombre queda registrado en cada ingreso de la puerta. La clave puede tener `:` pero no `,`. |
+| `ADMIN_PASSWORD` | `boda2026` | Solo si falta `ADMIN_USUARIOS`: queda una única cuenta `admin` con esta clave. |
 | `SECRET_KEY` | valor de ejemplo | Firma de la cookie de sesión. Cambiala. |
 | `DB_URL` | `sqlite:///data/boda.db` | Base de datos. |
 
@@ -39,7 +40,7 @@ En PowerShell: `$env:BASE_URL="https://boda.midominio.com"` antes de levantar el
 el 9000 de afuera al 8000 de esta máquina, y `BASE_URL` siempre lleva el puerto público porque es
 lo que queda grabado dentro de cada QR. Con la app expuesta:
 
-- Cambiá `ADMIN_PASSWORD` y `SECRET_KEY`: `/admin` queda accesible desde cualquier lado y, sobre HTTP
+- Definí `ADMIN_USUARIOS` con claves propias y cambiá `SECRET_KEY`: `/admin` queda accesible desde cualquier lado y, sobre HTTP
   plano, la clave y la cookie de sesión viajan sin cifrar. El servidor avisa por consola si quedaron
   los valores de ejemplo.
 - El escáner por cámara necesita HTTPS (los navegadores solo lo permiten en contexto seguro o
@@ -47,6 +48,34 @@ lo que queda grabado dentro de cada QR. Con la app expuesta:
   con certificado adelante (Caddy, Nginx + Let's Encrypt, o un túnel tipo Cloudflare).
 - La IP pública es dinámica en la mayoría de las conexiones hogareñas: si cambia, los QR ya impresos
   dejan de funcionar. Conviene un dominio (o DNS dinámico) antes de repartir QR.
+
+## Deploy en Railway
+
+Un solo servicio con la base SQLite en un **Volume**. El disco del contenedor se borra en cada
+deploy: sin Volume se pierden todas las confirmaciones.
+
+1. New Project → Deploy from GitHub repo. `railway.json` ya define el arranque (`python iniciar.py`),
+   el healthcheck (`/salud`) y el reinicio ante fallas; la versión de Python sale de `.python-version`.
+   Railway instala solo `requirements.txt` (lo de diseño y pruebas está en `requirements-dev.txt`).
+2. En el servicio: **Add Volume**, con mount path `/app/data`. Cualquier ruta sirve porque la app usa
+   la que informa Railway (`RAILWAY_VOLUME_MOUNT_PATH`). **No definir `DB_URL`.**
+3. Variables del servicio (el `.env` no se sube):
+   - `ADMIN_USUARIOS` — `Nombre:clave,Nombre:clave` (3-4 cuentas).
+   - `SECRET_KEY` — generarla con `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
+   - `BASE_URL` — la URL pública final, con `https://`.
+   - `PORT` lo pone Railway solo.
+4. Settings → Networking → Generate Domain (o Custom Domain). **Definir el dominio antes de mandar
+   links o imprimir QR**: quedan grabados con `BASE_URL` y los que ya se repartieron no cambian.
+5. Una sola réplica: la base SQLite y el bloqueo del login viven en esa instancia.
+6. Al arrancar, los logs muestran `BASE_URL en uso` y un `AVISO GRAVE` si la base no quedó en el Volume.
+
+Detrás del proxy de Railway la IP real de cada cliente llega en `X-Forwarded-For`. La app la toma de
+ahí sola (`DETRAS_DE_PROXY`, automático en Railway), así el bloqueo del login es por la IP de cada
+persona y no uno solo para todos.
+
+**Backup:** Tablero → *Respaldo de la base* descarga una copia de `boda.db`.
+
+**Pruebas:** `pip install -r requirements-dev.txt` y después `python test_smoke.py`.
 
 ## Rutas
 
@@ -65,7 +94,11 @@ lo que queda grabado dentro de cada QR. Con la app expuesta:
 - `/admin/invitaciones/{id}` — ficha: editar datos, invitados, estado, ver ingresos, link de WhatsApp.
 - `/admin/invitaciones/{id}/tarjeta` — tarjeta imprimible con QR.
 - `/admin/escaner` — escáner de cámara (Chrome/Android) o carga manual del código.
-- `/admin/export.csv` — exporta todo. `/admin/importar` — carga masiva desde CSV.
+- `/admin/export.xlsx` — Excel con la lista de seguridad (una fila por persona confirmada, lista para
+  imprimir) y el detalle de las invitaciones. `/admin/export.csv` — lo mismo en CSV, una fila por grupo.
+- `/admin/respaldo.db` — copia consistente de la base, se puede bajar con el servidor andando.
+- `/admin/importar` — carga masiva desde CSV.
+- `/salud` — healthcheck (responde si la base contesta).
 - `/i/{codigo}` con sesión staff — el mismo link muestra el control de puerta.
   Con `?vista=invitacion` el staff previsualiza lo que ve el invitado.
 - `/pase/{codigo}` — redirección permanente al link único (compatibilidad con QR viejos).
@@ -130,4 +163,16 @@ para tenerlas identificadas: quién recibe la tarjeta impresa en mano y quién s
 
 - Antes de mandar las invitaciones: definir `BASE_URL` real, `ADMIN_PASSWORD` y `SECRET_KEY`.
 - La cámara del escáner necesita HTTPS (salvo en `localhost`).
-- La base es un archivo en `data/boda.db`: copiarlo es todo el backup.
+- La base es un archivo en `data/boda.db` en modo WAL: con el servidor andando, los últimos cambios
+  pueden estar todavía en `data/boda.db-wal`. Backup en caliente:
+  `.venv\Scripts\python -c "import sqlite3; sqlite3.connect('data/boda.db').backup(sqlite3.connect('data/copia.db'))"`,
+  o frenar el servidor y copiar `data/boda.db`.
+- La confirmación (RSVP) cierra al terminar el día `FECHA_LIMITE_RSVP` (hora de Mendoza, en
+  `app/config.py`). Después el invitado ya no puede modificar su respuesta; los cambios se hacen desde
+  la ficha del panel.
+- El login bloquea una IP por 5 minutos después de 5 contraseñas incorrectas. Si se pone un proxy
+  adelante (Caddy, Nginx, túnel), uvicorn tiene que recibir la IP real (`--proxy-headers` y
+  `--forwarded-allow-ips`); si no, todos comparten el mismo contador y un ataque bloquea también al staff.
+- Con `BASE_URL` en `https://` la cookie del panel se marca `Secure` (solo viaja cifrada).
+- Para sacarle el acceso a alguien: cambiar o borrar su entrada en `ADMIN_USUARIOS` y reiniciar el
+  servidor. Su sesión abierta deja de valer en el acto; las de los demás siguen.
