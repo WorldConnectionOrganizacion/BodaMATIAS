@@ -59,36 +59,10 @@ REGALOS_URL = "https://link.mercadopago.com.ar/bodasofimati"
 # --- Configuración técnica --------------------------------------------------
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000").rstrip("/")
 PUERTO = int(os.getenv("PUERTO", "8000"))
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "boda2026")  # solo se usa si falta ADMIN_USUARIOS
+# Contraseña unica del panel (no se pide usuario). Vive solo en .env o en las variables de
+# Railway, nunca en el repo: si falta, nadie puede entrar al panel.
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 SECRET_KEY = os.getenv("SECRET_KEY", "cambiar-esta-clave-en-produccion")
-
-
-def _leer_usuarios(crudo: str, clave_compartida: str) -> dict:
-    """ADMIN_USUARIOS=Nombre:clave,Nombre:clave  (una cuenta por persona del staff).
-
-    La clave puede tener ':' pero no ','. Sin ADMIN_USUARIOS queda una sola cuenta 'admin'
-    con ADMIN_PASSWORD, para no dejar afuera a nadie mientras se configura.
-    """
-    usuarios = {}
-    for numero, par in enumerate(crudo.split(","), start=1):
-        if not par.strip():
-            continue
-        nombre, separador, clave = par.partition(":")
-        nombre, clave = " ".join(nombre.split()), clave.strip()
-        if not separador or not nombre or not clave:
-            # sin mostrar el texto: podria contener una clave
-            raise ValueError(f"ADMIN_USUARIOS: la entrada número {numero} no tiene el formato Nombre:clave.")
-        if nombre.casefold() in (n.casefold() for n in usuarios):
-            raise ValueError(f"ADMIN_USUARIOS: el usuario '{nombre}' está repetido.")
-        usuarios[nombre] = clave
-    return usuarios or {"admin": clave_compartida}
-
-
-ADMIN_USUARIOS_DEFINIDOS = bool(os.getenv("ADMIN_USUARIOS", "").strip())
-try:
-    ADMIN_USUARIOS = _leer_usuarios(os.getenv("ADMIN_USUARIOS", ""), ADMIN_PASSWORD)
-except ValueError as e:
-    raise SystemExit(f"Error de configuracion en .env: {e}")
 EN_RAILWAY = any(os.getenv(v) for v in (
     "RAILWAY_ENVIRONMENT", "RAILWAY_ENVIRONMENT_NAME", "RAILWAY_PROJECT_ID", "RAILWAY_SERVICE_ID"))
 RAILWAY_VOLUMEN = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "")

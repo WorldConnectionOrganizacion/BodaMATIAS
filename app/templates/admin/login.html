@@ -6,17 +6,14 @@
   {% if error == 2 %}
   <p class="aviso aviso--error">Demasiados intentos fallidos. Esperá {{ minutos }} minutos y probá de nuevo.</p>
   {% elif error %}
-  <p class="aviso aviso--error">Usuario o contraseña incorrectos.</p>
+  <p class="aviso aviso--error">Contraseña incorrecta.</p>
   {% elif vencida %}
   <p class="aviso aviso--error">Tu sesión se venció y lo último que enviaste no se guardó. Entrá de nuevo y repetilo.</p>
   {% endif %}
   <form method="post" action="/admin/login" class="formulario">
     <input type="hidden" name="next" value="{{ next }}">
-    <label>Usuario
-      <input type="text" name="usuario" autocomplete="username" autocapitalize="none" required autofocus>
-    </label>
     <label>Contraseña
-      <input type="password" name="password" autocomplete="current-password" required>
+      <input type="password" name="password" autocomplete="current-password" required autofocus>
     </label>
     <button class="btn btn--solido" type="submit">Entrar</button>
   </form>

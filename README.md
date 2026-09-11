@@ -23,8 +23,7 @@ Se lee al importar `app.config`; una variable ya definida en el sistema tiene pr
 |---|---|---|
 | `BASE_URL` | `http://localhost:8000` | URL pública. **Es lo que queda grabado dentro de cada QR**: definirla antes de generar los QR definitivos. |
 | `PUERTO` | `8000` | Puerto local donde escucha uvicorn (lo lee `run.ps1`). |
-| `ADMIN_USUARIOS` | — | Cuentas del staff, una por persona (pensado para 3-4): `Nombre:clave,Nombre:clave`. El nombre queda registrado en cada ingreso de la puerta. La clave puede tener `:` pero no `,`. |
-| `ADMIN_PASSWORD` | `boda2026` | Solo si falta `ADMIN_USUARIOS`: queda una única cuenta `admin` con esta clave. |
+| `ADMIN_PASSWORD` | — | Contraseña del panel y del control de puerta (no se pide usuario). Sin ella nadie puede entrar. No se escribe en el repo: solo en `.env` o en las variables de Railway. |
 | `SECRET_KEY` | valor de ejemplo | Firma de la cookie de sesión. Cambiala. |
 | `DB_URL` | `sqlite:///data/boda.db` | Base de datos. |
 
@@ -40,7 +39,7 @@ En PowerShell: `$env:BASE_URL="https://boda.midominio.com"` antes de levantar el
 el 9000 de afuera al 8000 de esta máquina, y `BASE_URL` siempre lleva el puerto público porque es
 lo que queda grabado dentro de cada QR. Con la app expuesta:
 
-- Definí `ADMIN_USUARIOS` con claves propias y cambiá `SECRET_KEY`: `/admin` queda accesible desde cualquier lado y, sobre HTTP
+- Definí `ADMIN_PASSWORD` y `SECRET_KEY` propias: `/admin` queda accesible desde cualquier lado y, sobre HTTP
   plano, la clave y la cookie de sesión viajan sin cifrar. El servidor avisa por consola si quedaron
   los valores de ejemplo.
 - El escáner por cámara necesita HTTPS (los navegadores solo lo permiten en contexto seguro o
@@ -60,7 +59,7 @@ deploy: sin Volume se pierden todas las confirmaciones.
 2. En el servicio: **Add Volume**, con mount path `/app/data`. Cualquier ruta sirve porque la app usa
    la que informa Railway (`RAILWAY_VOLUME_MOUNT_PATH`). **No definir `DB_URL`.**
 3. Variables del servicio (el `.env` no se sube):
-   - `ADMIN_USUARIOS` — `Nombre:clave,Nombre:clave` (3-4 cuentas).
+   - `ADMIN_PASSWORD` — la contraseña del panel.
    - `SECRET_KEY` — generarla con `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
    - `BASE_URL` — la URL pública final, con `https://`.
    - `PORT` lo pone Railway solo.
@@ -174,5 +173,4 @@ para tenerlas identificadas: quién recibe la tarjeta impresa en mano y quién s
   adelante (Caddy, Nginx, túnel), uvicorn tiene que recibir la IP real (`--proxy-headers` y
   `--forwarded-allow-ips`); si no, todos comparten el mismo contador y un ataque bloquea también al staff.
 - Con `BASE_URL` en `https://` la cookie del panel se marca `Secure` (solo viaja cifrada).
-- Para sacarle el acceso a alguien: cambiar o borrar su entrada en `ADMIN_USUARIOS` y reiniciar el
-  servidor. Su sesión abierta deja de valer en el acto; las de los demás siguen.
+- Cambiar `ADMIN_PASSWORD` y reiniciar el servidor cierra en el acto todas las sesiones abiertas del panel.

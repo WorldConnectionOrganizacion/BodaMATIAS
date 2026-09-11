@@ -40,12 +40,11 @@ def login_form(request: Request, next: str = "/admin", error: int = 0, vencida: 
 @router.post("/login")
 def login_post(
     request: Request,
-    usuario: str = Form(default=""),
     password: str = Form(default=""),
     next: str = Form(default="/admin"),
 ):
     destino = security.destino_seguro(next)
-    if not security.bloqueado(request) and security.login(request, usuario, password):
+    if not security.bloqueado(request) and security.login(request, password):
         return RedirectResponse(destino, status_code=303)
     error = 2 if security.bloqueado(request) else 1
     return RedirectResponse(f"/admin/login?error={error}&next=" + quote(destino), status_code=303)

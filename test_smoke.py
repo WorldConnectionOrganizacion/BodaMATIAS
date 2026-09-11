@@ -12,7 +12,7 @@ from urllib.parse import parse_qs, urlsplit
 
 RUTA = pathlib.Path("data/test_smoke.db")
 os.environ["DB_URL"] = "sqlite:///data/test_smoke.db"
-os.environ["ADMIN_USUARIOS"] = "Test:clave-test-1,Sofía:clave-test-2"  # gana sobre el .env
+os.environ["ADMIN_PASSWORD"] = "clave-test-1"  # gana sobre el .env
 RUTA.parent.mkdir(exist_ok=True)
 RUTA.unlink(missing_ok=True)
 
@@ -62,8 +62,8 @@ c = TestClient(app)
 clave = "clave-test-1"
 
 # --- alta desde el panel ---
-c.post("/admin/login", data={"usuario": "test", "password": clave})
-check("login con usuario en minusculas", c.get("/admin", follow_redirects=False).status_code == 200)
+c.post("/admin/login", data={"password": clave})
+check("login solo con la contraseña", c.get("/admin", follow_redirects=False).status_code == 200)
 r = c.post("/admin/invitaciones/nueva",
            data={"nombre_grupo": "Familia Prueba", "cupo_adultos": "2", "cupo_ninos": "1",
                  "telefono": "5492611234567", "tarjeta_fisica": "1"}, follow_redirects=False)
@@ -157,12 +157,11 @@ check("QR viejo /pase redirige al link unico",
       r.status_code == 301 and r.headers["location"] == "/i/" + codigo)
 r = sin_sesion.get("/admin", follow_redirects=False)
 check("admin exige login", r.status_code == 303 and "/admin/login" in r.headers["location"])
-r = sin_sesion.post("/admin/login", data={"usuario": "Test", "password": "clave-mala"}, follow_redirects=False)
+r = sin_sesion.post("/admin/login", data={"password": "clave-mala"}, follow_redirects=False)
 check("clave incorrecta no entra", "error=1" in r.headers.get("location", ""))
-r = sin_sesion.post("/admin/login", data={"usuario": "Nadie", "password": clave}, follow_redirects=False)
-check("usuario inexistente no entra", "error=1" in r.headers.get("location", ""))
-r = sin_sesion.post("/admin/login", data={"usuario": "Sofía", "password": clave}, follow_redirects=False)
-check("la clave de otra cuenta no sirve", "error=1" in r.headers.get("location", ""))
+formulario_login = sin_sesion.get("/admin/login").text
+check("el login pide solo la contraseña",
+      'name="usuario"' not in formulario_login and 'name="password"' in formulario_login)
 
 r = c.get("/i/" + codigo)
 check("staff tambien ve la invitacion por defecto", "Registrar ingreso" not in r.text)
@@ -180,7 +179,7 @@ login_url = r.headers["location"]
 check("sesion vencida: el ingreso no se registra y el login lo avisa",
       "vencida=1" in login_url and leer(inv_id)["ingresados"] == 0
       and "sesión se venció" in vencida.get(login_url).text)
-r = vencida.post("/admin/login", data={"usuario": "Test", "password": clave,
+r = vencida.post("/admin/login", data={"password": clave,
                                         "next": parse_qs(urlsplit(login_url).query)["next"][0]},
                  follow_redirects=False)
 check("sesion vencida: tras el login vuelve a la pantalla de puerta (no a un 405)",
@@ -195,7 +194,7 @@ r = c.post("/i/" + codigo + "/ingreso", data={"personas": "2"}, follow_redirects
 check("registrar ingreso redirige (PRG)", r.status_code == 303 and "hecho=1" in r.headers["location"])
 r = c.get(r.headers["location"])
 check("registra ingreso", r.status_code == 200 and "Ingreso registrado" in r.text)
-check("el ingreso queda a nombre de la cuenta", "2 pers. (Test)" in r.text)
+check("el ingreso queda registrado como staff", "2 pers. (staff)" in r.text)
 c.get("/i/" + codigo + "?puerta=1&hecho=1")                     # recargar la pantalla
 check("ingresados = 2 (recargar no duplica)", leer(inv_id)["ingresados"] == 2)
 r = c.post("/admin/invitaciones/" + str(inv_id),
@@ -354,7 +353,7 @@ config.FECHA_LIMITE_RSVP = limite_original
 for destino, esperado in [("https://evil.example", "/admin"), ("//evil.example", "/admin"),
                           ("/\\evil.example", "/admin"), ("/\t/evil.example", "/admin"),
                           ("/admin/escaner", "/admin/escaner")]:
-    r = TestClient(app).post("/admin/login", data={"usuario": "Test", "password": clave, "next": destino},
+    r = TestClient(app).post("/admin/login", data={"password": clave, "next": destino},
                              follow_redirects=False)
     check(f"login con next={destino!r} va a {esperado}", r.headers["location"] == esperado,
           r.headers["location"])
@@ -371,9 +370,9 @@ with engine.connect() as k:
 security._fallidos.clear()
 atacante = TestClient(app)
 for _ in range(security.MAX_INTENTOS):
-    r = atacante.post("/admin/login", data={"usuario": "Test", "password": "mala"}, follow_redirects=False)
+    r = atacante.post("/admin/login", data={"password": "mala"}, follow_redirects=False)
 check("5 claves incorrectas bloquean el login", "error=2" in r.headers["location"], r.headers["location"])
-r = atacante.post("/admin/login", data={"usuario": "Test", "password": clave}, follow_redirects=False)
+r = atacante.post("/admin/login", data={"password": clave}, follow_redirects=False)
 check("bloqueado: ni la clave correcta entra",
       "error=2" in r.headers["location"] and atacante.get("/admin", follow_redirects=False).status_code == 303)
 check("el login avisa el bloqueo", "Demasiados intentos" in atacante.get(r.headers["location"]).text)
@@ -382,12 +381,12 @@ security._fallidos.clear()
 config.DETRAS_DE_PROXY = True
 uno = TestClient(app, headers={"X-Forwarded-For": "9.9.9.9, 1.1.1.1"})
 for _ in range(security.MAX_INTENTOS):
-    uno.post("/admin/login", data={"usuario": "Test", "password": "mala"})
+    uno.post("/admin/login", data={"password": "mala"})
 r = TestClient(app, headers={"X-Forwarded-For": "2.2.2.2"}).post(
-    "/admin/login", data={"usuario": "Test", "password": clave}, follow_redirects=False)
+    "/admin/login", data={"password": clave}, follow_redirects=False)
 check("detras de proxy: el bloqueo es por la IP real de cada uno", r.headers["location"] == "/admin")
 r = TestClient(app, headers={"X-Forwarded-For": "5.5.5.5, 1.1.1.1"}).post(
-    "/admin/login", data={"usuario": "Test", "password": clave}, follow_redirects=False)
+    "/admin/login", data={"password": clave}, follow_redirects=False)
 check("detras de proxy: inventar X-Forwarded-For no esquiva el bloqueo", "error=2" in r.headers["location"])
 config.DETRAS_DE_PROXY = False
 security._fallidos.clear()
@@ -406,24 +405,19 @@ with Session(engine) as s:
 check("respaldo: copia completa de la base", en_copia == en_base, (en_copia, en_base))
 copia.close()
 
-sofia = TestClient(app)
-sofia.post("/admin/login", data={"usuario": "Sofía", "password": "clave-test-2"})
-check("segunda cuenta entra y se ve su nombre", "Salir (Sofía)" in sofia.get("/admin").text)
-config.ADMIN_USUARIOS["Sofía"] = "clave-nueva"
-check("cambiar la clave cierra la sesion abierta", sofia.get("/admin", follow_redirects=False).status_code == 303)
-check("las otras cuentas siguen adentro", c.get("/admin", follow_redirects=False).status_code == 200)
-config.ADMIN_USUARIOS["Sofía"] = "clave-test-2"
-check("ADMIN_USUARIOS: formato y cuenta admin por defecto",
-      config._leer_usuarios(" Ana:1 , Beto:x:y ", "z") == {"Ana": "1", "Beto": "x:y"}
-      and config._leer_usuarios("", "z") == {"admin": "z"})
-for crudo in ("Matias secreta123", "Ana:1,ana:2"):
-    try:
-        config._leer_usuarios(crudo, "z")
-        mensaje = None
-    except ValueError as e:
-        mensaje = str(e)
-    check(f"ADMIN_USUARIOS invalido se rechaza: {crudo.split(' ')[0]}",
-          mensaje is not None and "secreta123" not in mensaje, mensaje)
+otro = TestClient(app)
+otro.post("/admin/login", data={"password": clave})
+check("otra persona entra con la misma contraseña", otro.get("/admin", follow_redirects=False).status_code == 200)
+config.ADMIN_PASSWORD = "clave-nueva"
+check("cambiar la contraseña cierra todas las sesiones abiertas",
+      otro.get("/admin", follow_redirects=False).status_code == 303
+      and c.get("/admin", follow_redirects=False).status_code == 303)
+config.ADMIN_PASSWORD = ""
+r = TestClient(app).post("/admin/login", data={"password": ""}, follow_redirects=False)
+check("sin ADMIN_PASSWORD configurada nadie entra", "error=1" in r.headers["location"])
+config.ADMIN_PASSWORD = clave
+security._fallidos.clear()
+check("con la contraseña de antes la sesion vuelve a valer", c.get("/admin", follow_redirects=False).status_code == 200)
 
 # --- borrado ---
 c.post("/admin/invitaciones/" + str(inv_id) + "/eliminar", follow_redirects=False)

@@ -4,7 +4,7 @@ import secrets
 import threading
 import time
 from collections import deque
-from typing import Deque, Dict, Optional, Tuple
+from typing import Deque, Dict
 from urllib.parse import quote, urlsplit
 
 from fastapi import Request
@@ -26,27 +26,19 @@ class NoAutorizado(HTTPException):
         self.destino = destino
 
 
-def _cuenta(nombre: str) -> Optional[Tuple[str, str]]:
-    """(usuario, clave) de config.ADMIN_USUARIOS, sin distinguir mayusculas."""
-    buscado = " ".join((nombre or "").split()).casefold()
-    for usuario, clave in config.ADMIN_USUARIOS.items():
-        if usuario.casefold() == buscado:
-            return usuario, clave
-    return None
-
-
-def _huella(usuario: str, clave: str) -> str:
-    """Firma de la cuenta guardada en la sesion: si cambia la clave, la sesion deja de valer."""
-    datos = (usuario + "\0" + clave).encode("utf-8")
+def _huella() -> str:
+    """Firma de la contraseña guardada en la sesion: si se cambia, todas las sesiones dejan de valer."""
+    datos = config.ADMIN_PASSWORD.encode("utf-8")
     return hmac.new(config.SECRET_KEY.encode("utf-8"), datos, hashlib.sha256).hexdigest()[:32]
 
 
 def es_staff(request: Request) -> bool:
     sesion = request.session
-    if not sesion.get("staff"):
-        return False
-    cuenta = _cuenta(sesion.get("usuario", ""))
-    return cuenta is not None and hmac.compare_digest(sesion.get("huella", ""), _huella(*cuenta))
+    return (
+        bool(sesion.get("staff"))
+        and bool(config.ADMIN_PASSWORD)
+        and hmac.compare_digest(sesion.get("huella", ""), _huella())
+    )
 
 
 def _volver_a(request: Request) -> str:
@@ -109,11 +101,10 @@ def bloqueado(request: Request) -> bool:
         return len(_recientes(_ip(request), time.monotonic())) >= MAX_INTENTOS
 
 
-def login(request: Request, usuario: str, password: str) -> bool:
-    cuenta = _cuenta(usuario)
-    # Con un usuario inexistente se compara igual contra algo, para no delatarlo por el tiempo.
-    esperada = cuenta[1] if cuenta else secrets.token_hex(16)
-    ok = secrets.compare_digest(password.encode("utf-8"), esperada.encode("utf-8")) and cuenta is not None
+def login(request: Request, password: str) -> bool:
+    esperada = config.ADMIN_PASSWORD
+    # Sin contraseña configurada nadie entra (ni siquiera enviando una vacia).
+    ok = bool(esperada) and secrets.compare_digest(password.encode("utf-8"), esperada.encode("utf-8"))
     ip, ahora = _ip(request), time.monotonic()
     with _candado:
         if ok:
@@ -127,12 +118,9 @@ def login(request: Request, usuario: str, password: str) -> bool:
                     _recientes(otra, ahora)
     if not ok:
         return False
-    nombre, clave = cuenta
     request.session.clear()  # no arrastrar nada de una sesion anterior
     request.session["staff"] = True
-    request.session["usuario"] = nombre
-    request.session["huella"] = _huella(nombre, clave)
-    request.session["operador"] = nombre  # queda registrado en cada ingreso de la puerta
+    request.session["huella"] = _huella()
     return True
 
 

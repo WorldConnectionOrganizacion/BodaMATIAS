@@ -42,13 +42,10 @@ def _startup() -> None:
     init_db()
     print(f"BASE_URL en uso: {config.BASE_URL}  (los QR codifican {config.BASE_URL}/i/CODIGO)")
     publico = not any(x in config.BASE_URL for x in ("localhost", "127.0.0.1", "192.168.", "10.0."))
-    if not config.ADMIN_USUARIOS_DEFINIDOS:
-        print("AVISO: falta ADMIN_USUARIOS en .env: queda una sola cuenta 'admin' con ADMIN_PASSWORD.")
-    if len(config.ADMIN_USUARIOS) > 4:
-        print(f"AVISO: hay {len(config.ADMIN_USUARIOS)} cuentas de staff; el panel esta pensado para 3-4.")
-    for usuario, clave in config.ADMIN_USUARIOS.items():
-        if publico and (len(clave) < 8 or clave == "boda2026"):
-            print(f"AVISO: la app esta publicada y la clave de '{usuario}' es corta o de ejemplo. Cambiala.")
+    if not config.ADMIN_PASSWORD:
+        print("AVISO: falta ADMIN_PASSWORD en .env: nadie puede entrar al panel.")
+    elif publico and len(config.ADMIN_PASSWORD) < 8:
+        print("AVISO: la app esta publicada y ADMIN_PASSWORD es muy corta. Cambiala.")
     if publico and config.SECRET_KEY == "cambiar-esta-clave-en-produccion":
         print("AVISO: SECRET_KEY es la de ejemplo: las sesiones del panel se pueden falsificar.")
     if config.BASE_URL.startswith("http://") and publico:
@@ -270,7 +267,7 @@ def registrar_ingreso(
         Checkin(
             invitacion_id=inv.id,
             personas=cantidad,
-            operador=request.session.get("operador", "staff"),
+            operador="staff",  # el panel no pide usuario: no hay nombre de quien registra
         )
     )
     session.commit()
