@@ -27,8 +27,14 @@
     <div class="envelope-ambient-bg"></div>
 
     <div class="envelope-seq-system" id="envelope-system">
-      <!-- Lienzo Canvas de alta definición acelerado por GPU con los 116 fotogramas del sobre verde -->
-      <canvas class="envelope-canvas" id="envelope-canvas" width="720" height="1280" aria-label="Apertura de sobre de boda"></canvas>
+      <!-- Video de alta definición de apertura del sobre optimizado para móviles (cero trabas) -->
+      <video class="envelope-video" id="envelope-video"
+             playsinline webkit-playsinline muted preload="auto"
+             poster="{{ estatico('static/img/seq/frame_001.jpg') }}"
+             aria-label="Apertura de sobre de boda">
+        <source src="{{ estatico('static/video/sobre-apertura.mp4') }}" type="video/mp4">
+        <source src="{{ estatico('static/video/sobre-apertura.webm') }}" type="video/webm">
+      </video>
 
       <!-- Tarjeta de Invitación que emerge desde adentro del sobre verde durante los 116 frames -->
       <div class="envelope-card-container" id="envelope-card-container">

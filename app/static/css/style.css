@@ -105,6 +105,7 @@ a {
 .envelope-stage,
 .envelope-seq-system,
 .envelope-canvas,
+.envelope-video,
 .envelope-card-container,
 .tarjeta-troquelada--inside,
 .wax-seal,
@@ -121,6 +122,7 @@ a {
 .envelope-stage:focus,
 .envelope-seq-system:focus,
 .envelope-canvas:focus,
+.envelope-video:focus,
 .wax-seal:focus,
 .envelope-scroll-hint:focus {
   outline: none !important;
@@ -178,14 +180,28 @@ body.envelope-locked {
   }
 }
 
-.envelope-canvas {
+.envelope-canvas,
+.envelope-video {
   position: relative;
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 4px;
   will-change: transform, opacity;
+  pointer-events: none;
+  background-color: transparent;
+  transform: translateZ(0);
+}
+
+.envelope-video::-webkit-media-controls,
+.envelope-video::-webkit-media-controls-enclosure,
+.envelope-video::-webkit-media-controls-panel,
+.envelope-video::-webkit-media-controls-play-button,
+.envelope-video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
 }
 
 /* Texto de la Invitación impreso directamente en el interior del sobre ocre */

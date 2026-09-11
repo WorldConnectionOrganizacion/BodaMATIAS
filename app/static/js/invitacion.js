@@ -17,7 +17,7 @@
   window.addEventListener("error", revelarTodo);
 
   /* ------------------------------------------------ GSAP Envelope 25-Frame Canvas Sequence & Green Flash Filter */
-  /* ------------------------------------------------ Sobre Interactivo: Apertura al Tocar */
+  /* ------------------------------------------------ Sobre Interactivo: Apertura con Video y Revelado de Tarjeta */
   (function initEnvelope() {
     var wrapper = document.getElementById("envelope-pin-wrapper");
     var stage = document.getElementById("envelope-stage");
@@ -25,15 +25,13 @@
     var seal = document.getElementById("wax-seal");
     var flash = document.getElementById("flash-verde");
     var system = document.getElementById("envelope-system");
-    var canvas = document.getElementById("envelope-canvas");
+    var video = document.getElementById("envelope-video");
     var cardContainer = document.getElementById("envelope-card-container");
 
-    if (!wrapper || !stage || !system || !canvas) {
+    if (!wrapper || !stage || !system || !video) {
       arrancarRevelados();
       return;
     }
-
-    var ctx = canvas.getContext("2d");
 
     function finalizarApertura() {
       wrapper.style.transition = "opacity 0.75s ease, visibility 0.75s ease";
@@ -58,67 +56,7 @@
     document.body.classList.add("envelope-locked");
     document.body.style.overflow = "hidden";
 
-    // 83 Fotogramas progresivos con movimiento continuo real
-    var FRAME_NUMBERS = [
-      1, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 27, 28, 29, 30,
-      31, 34, 35, 36, 37, 39, 40, 41, 42, 43, 45, 46, 47, 48, 49, 51,
-      52, 53, 54, 55, 57, 58, 59, 60, 61, 64, 65, 66, 67, 69, 70, 71,
-      72, 73, 75, 76, 77, 78, 79, 81, 82, 83, 84, 85, 87, 88, 89, 90,
-      91, 94, 95, 96, 97, 99, 100, 101, 102, 103, 105, 106, 107, 108,
-      109, 111, 113, 114, 115
-    ];
-    var TOTAL_FRAMES = FRAME_NUMBERS.length;
-    var frameImages = [];
-    var loadedCount = 0;
-
-    function pad(n, width) {
-      var s = String(n);
-      while (s.length < width) s = "0" + s;
-      return s;
-    }
-
-    function renderCanvasFrame(virtualFrame) {
-      if (!canvas || !ctx) return;
-      var clamped = Math.max(0, Math.min(TOTAL_FRAMES - 1, virtualFrame));
-      var idxA = Math.floor(clamped);
-      var idxB = Math.min(TOTAL_FRAMES - 1, idxA + 1);
-      var frac = clamped - idxA;
-
-      var imgA = frameImages[idxA];
-      var imgB = frameImages[idxB];
-
-      if (imgA && imgA.complete && imgA.naturalWidth > 0) {
-        ctx.globalAlpha = 1.0;
-        ctx.drawImage(imgA, 0, 0, canvas.width, canvas.height);
-
-        // Mezcla suave continua entre fotogramas para 60fps
-        if (frac > 0.02 && imgB && imgB.complete && imgB.naturalWidth > 0) {
-          ctx.globalAlpha = frac;
-          ctx.drawImage(imgB, 0, 0, canvas.width, canvas.height);
-        }
-      }
-    }
-
-    for (var i = 0; i < TOTAL_FRAMES; i++) {
-      (function (index) {
-        var num = FRAME_NUMBERS[index];
-        var img = new Image();
-        img.src = "/static/img/seq/frame_" + pad(num, 3) + ".jpg";
-        img.onload = function () {
-          loadedCount++;
-          if (index === 0) {
-            renderCanvasFrame(0);
-          }
-        };
-        frameImages.push(img);
-      })(i);
-    }
-
-    if (frameImages[0] && frameImages[0].complete && frameImages[0].naturalWidth > 0) {
-      renderCanvasFrame(0);
-    }
-
-    // Inicializar estado de la tarjeta interior
+    // Inicializar estado de la tarjeta interior con el texto de la boda
     if (cardContainer) {
       if (window.gsap) {
         gsap.set(cardContainer, {
@@ -135,6 +73,12 @@
       }
     }
 
+    // Fallback de seguridad si el video no pudiera cargarse
+    video.addEventListener("error", function () {
+      console.warn("No se pudo cargar el video del sobre, pasando a modo fallback");
+      if (cardContainer) cardContainer.style.opacity = "1";
+    });
+
     var abriendo = false;
     var abierto = false;
     var allowSkip = false;
@@ -145,7 +89,7 @@
       abriendo = true;
       allowSkip = false;
 
-      // Habilitar salto sólo después de 700ms para evitar falsos toques durante la interacción inicial
+      // Habilitar salto después de 700ms para evitar toques accidentales
       setTimeout(function () {
         allowSkip = true;
       }, 700);
@@ -156,12 +100,24 @@
         seal.style.cursor = "default";
       }
 
-      if (!window.gsap) {
-        finalizarApertura();
-        return;
+      // Reproducción inmediata del video con aceleración por hardware
+      try {
+        video.currentTime = 0;
+        var playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(function (err) {
+            console.warn("Reproducción de video diferida:", err);
+          });
+        }
+      } catch (e) {
+        console.warn("Excepción al iniciar video:", e);
       }
 
-      var frameState = { frame: 0 };
+      if (!window.gsap) {
+        if (cardContainer) cardContainer.style.opacity = "1";
+        setTimeout(finalizarApertura, 3500);
+        return;
+      }
 
       tl = gsap.timeline({
         onComplete: function () {
@@ -194,21 +150,11 @@
         tl.set(seal, { pointerEvents: "none", display: "none" }, 0.45);
       }
 
-      // 3. Secuencia continua de apertura del sobre verde (2.3 segundos cinematográficos)
-      tl.to(frameState, {
-        frame: TOTAL_FRAMES - 1,
-        duration: 2.3,
-        ease: "power1.inOut",
-        onUpdate: function () {
-          renderCanvasFrame(frameState.frame);
-        }
-      }, 0.15);
-
-      // 4. Revelado natural de la carta en el interior
+      // 3. Revelado del texto de la invitación a partir de 1.5s (cuando el sobre ya abrió su interior)
       if (cardContainer) {
         tl.fromTo(cardContainer, {
           opacity: 0,
-          scale: 0.94,
+          scale: 0.95,
           xPercent: -50,
           yPercent: -50,
           x: 0,
@@ -220,28 +166,35 @@
           yPercent: -50,
           x: 0,
           y: 0,
-          duration: 0.7,
+          duration: 0.65,
           ease: "power2.out"
-        }, 1.35);
+        }, 1.72);
       }
 
-      // 5. Destello verde etéreo al completarse la apertura
+      // 4. Destello etéreo dorado al completarse la apertura (2.05s a 2.35s)
       if (flash) {
         tl.fromTo(flash, { opacity: 0, scale: 0.98 }, {
           opacity: 0.55,
           scale: 1.02,
           duration: 0.25,
           ease: "power2.in"
-        }, 1.95);
+        }, 2.05);
         tl.to(flash, {
           opacity: 0,
           scale: 1,
           duration: 0.35,
           ease: "power2.out"
-        }, 2.2);
+        }, 2.3);
       }
 
-      // Pausa prolongada para que los invitados puedan leer la tarjeta con calma antes de pasar a la invitación (+2s)
+      // 5. Al terminar el video (~2.4s), pausar en el último fotograma
+      tl.add(function () {
+        if (video) {
+          try { video.pause(); } catch (err) { }
+        }
+      }, 2.4);
+
+      // Pausa para que los invitados lean con calma el texto de la invitación (+2.7s)
       tl.to({}, { duration: 2.7 });
     }
 
@@ -253,10 +206,16 @@
         if (window.getSelection) {
           window.getSelection().removeAllRanges();
         }
-      } catch (err) {}
+      } catch (err) { }
       if (!abriendo) {
         abrirSobre();
       } else if (!abierto && allowSkip && tl) {
+        if (video) {
+          try {
+            video.currentTime = video.duration || 2.4;
+            video.pause();
+          } catch (err) { }
+        }
         tl.progress(1);
       }
     }
@@ -275,10 +234,6 @@
     if (system) system.addEventListener("click", alTocar);
     if (stage) stage.addEventListener("click", alTocar);
     wrapper.addEventListener("click", alTocar);
-
-    window.addEventListener("load", function () {
-      renderCanvasFrame(0);
-    });
   })();
 
   /* ------------------------------------------------ Reproductor de Música ("DALE PLAY...") */
@@ -471,13 +426,13 @@
         setTimeout(function () { aviso.classList.remove("visible"); }, 1800);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(texto).then(mostrar, function () {});
+        navigator.clipboard.writeText(texto).then(mostrar, function () { });
       } else {
         var tmp = document.createElement("textarea");
         tmp.value = texto;
         document.body.appendChild(tmp);
         tmp.select();
-        try { document.execCommand("copy"); mostrar(); } catch (e) {}
+        try { document.execCommand("copy"); mostrar(); } catch (e) { }
         document.body.removeChild(tmp);
       }
     }
