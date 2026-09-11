@@ -1,7 +1,9 @@
 {% extends "admin/base.html" %}
-{% block titulo %}Escáner de puerta{% endblock %}
+{% block titulo %}Escáner de códigos{% endblock %}
 {% block contenido %}
-<h1 class="titulo">Escáner de puerta</h1>
+<h1 class="titulo">Escáner de códigos</h1>
+<p class="tenue">Para armar las tarjetas físicas: escaneá el QR ya impreso y te lleva directo a la
+  ficha de esa invitación, para confirmar a qué familia corresponde antes de guardarlo en su sobre.</p>
 
 <div class="panel panel--angosto">
   <div id="camara-caja">
@@ -15,7 +17,6 @@
     <input type="text" id="codigo-manual" placeholder="Ej: K7M2QX" maxlength="10" autocomplete="off">
     <button class="btn" type="submit">Buscar</button>
   </form>
-  <p class="tenue">El invitado que escanea su QR ve la invitación; vos, con sesión abierta, llegás al control de ingreso.</p>
 </div>
 {% endblock %}
 
@@ -39,7 +40,7 @@
     var m = codigo.match(/\/pase\/([A-Za-z0-9]+)/) || codigo.match(/\/i\/([A-Za-z0-9]+)/);
     if(m) codigo = m[1];
     codigo = codigo.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-    if(codigo) location.href = "/i/" + codigo + "?puerta=1";
+    if(codigo) location.href = "/admin/buscar/" + codigo;
   }
 
   document.getElementById("form-manual").addEventListener("submit", function(e){
@@ -97,7 +98,7 @@
       await video.play();
       corriendo = true;
       boton.style.display = "none";
-      estado.textContent = "Apuntá al QR del invitado.";
+      estado.textContent = "Apuntá al QR de la tarjeta.";
       requestAnimationFrame(buscarCuadro);
     }catch(err){
       estado.textContent = "No se pudo abrir la cámara: " + err.message;

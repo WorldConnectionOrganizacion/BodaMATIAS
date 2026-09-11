@@ -59,24 +59,12 @@
       <p class="tenue enlace-copia">{{ cfg.BASE_URL }}/i/{{ inv.codigo }}</p>
       <p class="acciones">
         <a class="btn" href="/i/{{ inv.codigo }}" target="_blank">Ver invitación</a>
-        <a class="btn" href="/i/{{ inv.codigo }}?puerta=1" target="_blank">Control de puerta</a>
         <a class="btn" href="/admin/invitaciones/{{ inv.id }}/tarjeta" target="_blank">Imprimir QR</a>
         {% if wa %}<a class="btn" href="{{ wa }}" target="_blank" rel="noopener">Enviar por WhatsApp</a>{% endif %}
       </p>
     </section>
 
     <section class="ficha__extra">
-      <h2 class="subtitulo">Ingresos</h2>
-      <p>{{ inv.ingresados }} de {{ inv.confirmados }} confirmados</p>
-      {% if inv.checkins %}
-      <ul class="lista-simple">
-        {% for c in inv.checkins %}<li>{{ c.personas }} pers. · {{ c.operador or 'staff' }} · {{ c.at|hora_local }}</li>{% endfor %}
-      </ul>
-      <form method="post" action="/admin/invitaciones/{{ inv.id }}/deshacer-ingreso">
-        <button class="btn btn--peligro" type="submit">Deshacer último ingreso</button>
-      </form>
-      {% endif %}
-
       {% if inv.mensaje %}
       <h2 class="subtitulo">Mensaje</h2>
       <blockquote class="cita">{{ inv.mensaje }}</blockquote>

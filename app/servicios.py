@@ -1,4 +1,4 @@
-"""Reglas de negocio de las invitaciones: validaciones, cupo, estado, RSVP, ingreso e importacion.
+"""Reglas de negocio de las invitaciones: validaciones, cupo, estado, RSVP e importacion.
 
 Ninguna funcion de este modulo hace commit: el endpoint que las usa confirma una sola vez al
 final, asi cada pedido se guarda completo o no se guarda nada.
@@ -96,13 +96,8 @@ def sincronizar_slots(inv: Invitacion) -> None:
     """Deja tantas filas de Invitado como cupo declarado (adultos + ninos).
 
     Nunca borra a alguien confirmado: si el cupo nuevo queda por debajo de los confirmados
-    de ese tipo, o del total que ya ingreso al salon, corta con ErrorValidacion.
+    de ese tipo, corta con ErrorValidacion.
     """
-    if inv.cupo_total < inv.ingresados:
-        raise ErrorValidacion(
-            f"No se puede bajar el cupo a {inv.cupo_total}: ya ingresaron {inv.ingresados} personas. "
-            "Si fue un error, deshacé primero el ingreso."
-        )
     for tipo, cupo, rotulo in (
         (Tipo.adulto, inv.cupo_adultos, "adultos"),
         (Tipo.nino, inv.cupo_ninos, "niños"),
@@ -187,26 +182,6 @@ def aplicar_rsvp(
         g.nombre = nombre
         g.asiste = asiste
         g.restriccion = restriccion
-
-
-# --- Control de ingreso -----------------------------------------------------
-def validar_ingreso(inv: Invitacion, texto: str) -> int:
-    crudo = (texto or "").strip()
-    if not crudo.isdecimal() or int(crudo) < 1:
-        raise ErrorValidacion("Indicá cuántas personas ingresan (un número mayor a 0).")
-    cantidad = int(crudo)
-    libres = inv.cupo_total - inv.ingresados
-    if libres <= 0:
-        raise ErrorValidacion(
-            f"Ya ingresaron las {inv.ingresados} personas del cupo de {inv.nombre_grupo}. "
-            "Si fue un error, deshacé el último ingreso."
-        )
-    if cantidad > libres:
-        raise ErrorValidacion(
-            f"Solo quedan {libres} de {inv.cupo_total} lugares en esta invitación: "
-            f"no se pueden registrar {cantidad} personas."
-        )
-    return cantidad
 
 
 # --- Importacion CSV --------------------------------------------------------

@@ -1,7 +1,8 @@
 # Boda Sofía & Matías — invitación + gestión de invitados
 
-Invitación web personalizada por grupo familiar, con confirmación de asistencia (RSVP),
-base de datos SQLite y control de ingreso por código QR en la puerta del salón.
+Invitación web personalizada por grupo familiar, con confirmación de asistencia (RSVP)
+y base de datos SQLite. La lista para la puerta del salón se maneja aparte, en papel:
+se descarga desde el panel (Excel o CSV), no hay control de ingreso dentro de la app.
 
 ## Instalación
 
@@ -23,7 +24,7 @@ Se lee al importar `app.config`; una variable ya definida en el sistema tiene pr
 |---|---|---|
 | `BASE_URL` | `http://localhost:8000` | URL pública. **Es lo que queda grabado dentro de cada QR**: definirla antes de generar los QR definitivos. |
 | `PUERTO` | `8000` | Puerto local donde escucha uvicorn (lo lee `run.ps1`). |
-| `ADMIN_PASSWORD` | — | Contraseña del panel y del control de puerta (no se pide usuario). Sin ella nadie puede entrar. No se escribe en el repo: solo en `.env` o en las variables de Railway. |
+| `ADMIN_PASSWORD` | — | Contraseña del panel (no se pide usuario). Sin ella nadie puede entrar. No se escribe en el repo: solo en `.env` o en las variables de Railway. |
 | `SECRET_KEY` | valor de ejemplo | Firma de la cookie de sesión. Cambiala. |
 | `DB_URL` | `sqlite:///data/boda.db` | Base de datos. |
 
@@ -42,9 +43,6 @@ lo que queda grabado dentro de cada QR. Con la app expuesta:
 - Definí `ADMIN_PASSWORD` y `SECRET_KEY` propias: `/admin` queda accesible desde cualquier lado y, sobre HTTP
   plano, la clave y la cookie de sesión viajan sin cifrar. El servidor avisa por consola si quedaron
   los valores de ejemplo.
-- El escáner por cámara necesita HTTPS (los navegadores solo lo permiten en contexto seguro o
-  `localhost`). Sobre HTTP funciona la carga manual del código. Para tener cámara: poner un dominio
-  con certificado adelante (Caddy, Nginx + Let's Encrypt, o un túnel tipo Cloudflare).
 - La IP pública es dinámica en la mayoría de las conexiones hogareñas: si cambia, los QR ya impresos
   dejan de funcionar. Conviene un dominio (o DNS dinámico) antes de repartir QR.
 
@@ -118,38 +116,38 @@ persona y no uno solo para todos.
 **Público**
 
 - `/` — invitación general, sin datos personales.
-- `/i/{codigo}` — **link único del grupo**: RSVP + QR de ingreso. Es el mismo link que se manda por
-  WhatsApp y el que codifica el QR.
+- `/i/{codigo}` — **link único del grupo**: la invitación y su formulario de RSVP. Es el mismo link
+  que se manda por WhatsApp y el que codifica el QR.
 - `/i/{codigo}/qr.png` — imagen del QR de ese grupo.
 
 **Staff** (requieren login en `/admin/login`)
 
-- `/admin` — tablero: confirmados, pendientes, ingresos, restricciones alimentarias, mensajes.
+- `/admin` — tablero: confirmados, pendientes, restricciones alimentarias, mensajes.
 - `/admin/invitaciones` — listado con búsqueda y filtro por estado.
 - `/admin/invitaciones/nueva` — alta de grupo con cupo de adultos y niños.
-- `/admin/invitaciones/{id}` — ficha: editar datos, invitados, estado, ver ingresos, link de WhatsApp.
-- `/admin/invitaciones/{id}/tarjeta` — tarjeta imprimible con QR.
-- `/admin/escaner` — escáner de cámara (Chrome/Android) o carga manual del código.
+- `/admin/invitaciones/{id}` — ficha: editar datos, invitados, estado, link de WhatsApp.
+- `/admin/invitaciones/{id}/tarjeta` — imprime el QR (solo el código, sin texto).
+- `/admin/escaner` — escanea el QR de una tarjeta ya impresa (o carga el código a mano) y lleva
+  directo a su ficha; es para armar las tarjetas antes de repartirlas, no control de puerta.
 - `/admin/export.xlsx` — Excel con la lista de seguridad (una fila por persona confirmada, lista para
   imprimir) y el detalle de las invitaciones. `/admin/export.csv` — lo mismo en CSV, una fila por grupo.
 - `/admin/respaldo.db` — copia consistente de la base, se puede bajar con el servidor andando.
 - `/admin/importar` — carga masiva desde CSV.
 - `/salud` — healthcheck (responde si la base contesta).
-- `/i/{codigo}` con sesión staff — el mismo link muestra el control de puerta.
-  Con `?vista=invitacion` el staff previsualiza lo que ve el invitado.
 - `/pase/{codigo}` — redirección permanente al link único (compatibilidad con QR viejos).
 
 ## Cómo funciona el QR
 
 **Un solo link por grupo.** Cada invitación tiene un `codigo` de 6 caracteres (sin I/O/0/1 para evitar
 confusiones) y el QR codifica exactamente el mismo link que se manda por WhatsApp: `BASE_URL/i/{codigo}`.
-La página se adapta a quién la abre:
+Al escanearlo (o al abrir el link) se ve la invitación de ese grupo, con su formulario de RSVP.
 
-- Un invitado que lo escanea ve su invitación.
-- El staff logueado ve nombre del grupo, cupo, confirmados, restricciones alimentarias y el botón
-  **Registrar ingreso**, que guarda un `Checkin` con cuántas personas entraron y quién lo registró.
-- Si el grupo ya entró completo, la pantalla lo avisa antes de registrar de nuevo.
-- El último ingreso se puede deshacer desde la ficha o desde la pantalla de puerta.
+**En la puerta del salón no se escanea nada**: el control de acceso es con la lista impresa
+(`/admin/export.xlsx`), no hay una pantalla de check-in dentro de la app.
+
+**El escáner del panel (`/admin/escaner`) es para armar las tarjetas físicas antes de la boda**:
+escanea el QR ya impreso y lleva directo a la ficha de esa invitación, para confirmar a qué familia
+corresponde antes de guardarlo en su sobre. También se puede cargar el código a mano.
 
 ## La presentación (front)
 
@@ -172,7 +170,6 @@ La página se adapta a quién la abre:
   `tarjeta_fisica` (se entrega impresa o es solo link), estado
   (`pendiente` / `confirmada` / `parcial` / `rechazada`), mensaje, notas.
 - `Invitado` — nombre, tipo (`adulto` / `nino`), asiste (sí / no / sin respuesta), restricción alimentaria.
-- `Checkin` — personas, fecha/hora, operador.
 
 ## Importar la lista de invitados
 
@@ -198,7 +195,6 @@ para tenerlas identificadas: quién recibe la tarjeta impresa en mano y quién s
 ## Notas de despliegue
 
 - Antes de mandar las invitaciones: definir `BASE_URL` real, `ADMIN_PASSWORD` y `SECRET_KEY`.
-- La cámara del escáner necesita HTTPS (salvo en `localhost`).
 - La base es un archivo en `data/boda.db` en modo WAL: con el servidor andando, los últimos cambios
   pueden estar todavía en `data/boda.db-wal`. Backup en caliente:
   `.venv\Scripts\python -c "import sqlite3; sqlite3.connect('data/boda.db').backup(sqlite3.connect('data/copia.db'))"`,

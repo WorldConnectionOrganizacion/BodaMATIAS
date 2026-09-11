@@ -16,8 +16,8 @@ from starlette.middleware.sessions import SessionMiddleware
 from app import config, qrgen, security, servicios
 from app.admin import router as admin_router
 from app.db import get_session, init_db
-from app.models import Checkin, Invitacion
-from app.security import NoAutorizado, requiere_staff
+from app.models import Invitacion
+from app.security import NoAutorizado
 from app.servicios import ErrorValidacion
 from app.templating import avisar, templates
 
@@ -48,8 +48,6 @@ def _startup() -> None:
         print("AVISO: la app esta publicada y ADMIN_PASSWORD es muy corta. Cambiala.")
     if publico and config.SECRET_KEY == "cambiar-esta-clave-en-produccion":
         print("AVISO: SECRET_KEY es la de ejemplo: las sesiones del panel se pueden falsificar.")
-    if config.BASE_URL.startswith("http://") and publico:
-        print("AVISO: sin HTTPS el escaner por camara no funciona (usar carga manual del codigo).")
     if config.EN_RAILWAY and config.DB_URL.startswith("sqlite"):
         base = Path(make_url(config.DB_URL).database or "").resolve()
         volumen = Path(config.RAILWAY_VOLUMEN).resolve() if config.RAILWAY_VOLUMEN else None
@@ -63,8 +61,7 @@ def _startup() -> None:
 # --- Manejo de errores ------------------------------------------------------
 def _pagina_error(request: Request, status: int, titulo: str, mensaje: str,
                   detalles: Optional[List[str]] = None, headers: Optional[dict] = None):
-    ruta = request.url.path
-    admin = "session" in request.scope and (ruta.startswith("/admin") or ruta.endswith("/ingreso"))
+    admin = "session" in request.scope and request.url.path.startswith("/admin")
     return templates.TemplateResponse(
         "error.html",
         {"request": request, "admin": admin, "titulo": titulo, "mensaje": mensaje,
@@ -147,8 +144,7 @@ def home(request: Request):
     """Invitación general, sin datos personales ni RSVP."""
     return templates.TemplateResponse(
         "invitacion.html",
-        {"request": request, "inv": None, "url_qr": None, "enviado": False,
-         "editar": False, "staff": security.es_staff(request)},
+        {"request": request, "inv": None, "url_qr": None, "enviado": False, "editar": False},
     )
 
 
@@ -157,28 +153,14 @@ def invitacion(
     request: Request,
     codigo: str,
     ok: int = 0,
-    puerta: int = 0,
     editar: int = 0,
-    hecho: int = 0,
     session: Session = Depends(get_session),
 ):
-    """Link unico por grupo.
-
-    Por defecto SIEMPRE muestra la invitacion, tambien para el staff: asi nadie
-    se cruza por accidente con la pantalla de puerta. El control de ingreso solo
-    aparece con `?puerta=1` y sesion de staff (es a donde manda el escaner).
-    """
+    """Link unico por grupo: muestra la invitacion y el formulario de RSVP."""
     inv = _buscar(session, codigo)
     if not inv:
         return templates.TemplateResponse(
             "no_encontrada.html", {"request": request, "codigo": codigo}, status_code=404
-        )
-    if puerta:
-        # Viene del escaner. Sin sesion (p. ej. vencida) se pide login y se vuelve aca, en vez de
-        # mostrar la invitacion y que el de la puerta no se de cuenta.
-        security.requiere_staff(request)
-        return templates.TemplateResponse(
-            "puerta.html", {"request": request, "inv": inv, "hecho": bool(hecho)}
         )
     return templates.TemplateResponse(
         "invitacion.html",
@@ -188,7 +170,6 @@ def invitacion(
             "url_qr": f"/i/{inv.codigo}/qr.png",
             "enviado": bool(ok),
             "editar": bool(editar),
-            "staff": security.es_staff(request),
         },
     )
 
@@ -238,38 +219,8 @@ def qr_png(codigo: str, session: Session = Depends(get_session)):
     return Response(qrgen.png_pase(inv.codigo), media_type="image/png")
 
 
-# --- Control de ingreso ------------------------------------------------------
+# --- Compatibilidad ----------------------------------------------------------
 @app.get("/pase/{codigo}")
 def pase_viejo(codigo: str):
     """Compatibilidad: los QR viejos apuntaban a /pase/{codigo}."""
     return RedirectResponse(f"/i/{codigo}", status_code=301)
-
-
-@app.post("/i/{codigo}/ingreso")
-def registrar_ingreso(
-    request: Request,
-    codigo: str,
-    personas: str = Form(default=""),
-    _: bool = Depends(requiere_staff),
-    session: Session = Depends(get_session),
-):
-    inv = _buscar(session, codigo)
-    if not inv:
-        avisar(request, f"No existe una invitación con el código {codigo}.")
-        return RedirectResponse("/admin/escaner", status_code=303)
-    destino = f"/i/{inv.codigo}?puerta=1"
-    try:
-        cantidad = servicios.validar_ingreso(inv, personas)
-    except ErrorValidacion as e:
-        avisar(request, e.mensaje)
-        return RedirectResponse(destino, status_code=303)
-    session.add(
-        Checkin(
-            invitacion_id=inv.id,
-            personas=cantidad,
-            operador="staff",  # el panel no pide usuario: no hay nombre de quien registra
-        )
-    )
-    session.commit()
-    # Redirect (PRG): recargar la pantalla de puerta no vuelve a registrar el ingreso.
-    return RedirectResponse(destino + "&hecho=1", status_code=303)

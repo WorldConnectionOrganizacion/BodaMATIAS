@@ -415,6 +415,8 @@
   (function scroll() {
     var barraProgreso = document.getElementById("progreso");
     var mini = document.getElementById("mini-barra");
+    var pistaAbajo = document.getElementById("scroll-abajo");
+    var pistaAbajoOculta = false;
     var hero = document.querySelector(".hero");
     var marco = document.querySelector("[data-parallax]");
     var factor = marco ? parseFloat(marco.dataset.parallax) : 0;
@@ -430,6 +432,12 @@
       }
       if (mini && hero) {
         mini.classList.toggle("visible", hero.getBoundingClientRect().bottom < 80);
+      }
+      // El cartel de "seguí bajando" se muestra al entrar (el sobre lo tapa mientras esta
+      // cerrado) y desaparece en cuanto la persona empieza a scrollear, sin volver a mostrarse.
+      if (pistaAbajo && !pistaAbajoOculta && y > 24) {
+        pistaAbajoOculta = true;
+        pistaAbajo.classList.add("oculto");
       }
       if (marco && !quieto && hero) {
         var rect = hero.getBoundingClientRect();

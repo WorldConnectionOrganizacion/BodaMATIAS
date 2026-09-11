@@ -1722,6 +1722,62 @@ body.envelope-locked {
   color: var(--papel)
 }
 
+/* --- cartel ocre "seguí bajando": aparece al entrar y desaparece al primer scroll --- */
+.scroll-abajo {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(18px, 4vh, 34px);
+  z-index: 35;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--ocre-dorado), var(--ocre));
+  color: var(--papel);
+  font-family: var(--sans);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: var(--sombra-card);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.scroll-abajo.oculto {
+  opacity: 0;
+  transform: translateX(-50%) translateY(14px);
+}
+
+.scroll-abajo__flecha {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  animation: scroll-abajo-rebote 1.6s ease-in-out infinite;
+}
+
+@keyframes scroll-abajo-rebote {
+  0%, 100% { transform: rotate(45deg) translateY(0) }
+  50% { transform: rotate(45deg) translateY(4px) }
+}
+
+@media (max-width:360px) {
+  .scroll-abajo {
+    max-width: calc(100vw - 32px);
+    white-space: normal;
+    font-size: .62rem;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+}
+
 /* --- ornamento vegetal que se dibuja solo --- */
 .ornamento {
   width: 118px;
@@ -2260,37 +2316,6 @@ body.envelope-locked {
   border: 1px solid var(--dorado);
   padding: 2px 8px;
   margin-left: auto;
-}
-
-/* --- barra de staff: solo con sesión de admin abierta --- */
-.barra-staff {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 45;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-  background: var(--sage-osc);
-  color: var(--papel);
-  font-size: .66rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-}
-
-.barra-staff a {
-  color: var(--papel);
-  border: 1px solid rgba(255, 255, 255, .6);
-  padding: 7px 12px;
-  text-decoration: none
-}
-
-.barra-staff a:hover {
-  background: rgba(255, 255, 255, .15)
 }
 
 /* el ancla #rsvp no debe quedar tapada por la barra flotante */

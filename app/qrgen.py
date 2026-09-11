@@ -7,10 +7,8 @@ from app import config
 
 
 def url_invitacion(codigo: str) -> str:
-    """Link unico del grupo. Es lo que codifica el QR y lo que se manda por WhatsApp.
-
-    Invitado -> ve su invitacion. Staff logueado -> ve el control de puerta.
-    """
+    """Link unico del grupo. Es lo que codifica el QR y lo que se manda por WhatsApp:
+    abre la invitacion de ese grupo, con su formulario de RSVP."""
     return f"{config.BASE_URL}/i/{codigo}"
 
 
