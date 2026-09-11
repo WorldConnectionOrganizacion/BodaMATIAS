@@ -27,25 +27,26 @@
   </thead>
   <tbody>
   {% for i in invitaciones %}
+    {# data-label: en pantallas angostas la fila se muestra como tarjeta con estos rotulos #}
     <tr>
-      <td><a href="/admin/invitaciones/{{ i.id }}">{{ i.nombre_grupo }}</a></td>
-      <td><code>{{ i.codigo }}</code></td>
-      <td>
+      <td class="celda-grupo"><a href="/admin/invitaciones/{{ i.id }}">{{ i.nombre_grupo }}</a></td>
+      <td data-label="Código"><code>{{ i.codigo }}</code></td>
+      <td data-label="Formato">
         <span class="estado estado--{{ 'fisica' if i.tarjeta_fisica else 'virtual' }}">
           {{ 'física' if i.tarjeta_fisica else 'virtual' }}
         </span>
       </td>
-      <td>{{ i.cupo_adultos }}A{% if i.cupo_ninos %} + {{ i.cupo_ninos }}N{% endif %}</td>
-      <td>{{ i.confirmados }}</td>
-      <td>{{ i.ingresados }}</td>
-      <td><span class="estado estado--{{ i.estado.value }}">{{ i.estado.value }}</span></td>
+      <td data-label="Cupo">{{ i.cupo_adultos }}A{% if i.cupo_ninos %} + {{ i.cupo_ninos }}N{% endif %}</td>
+      <td data-label="Confirmados">{{ i.confirmados }}</td>
+      <td data-label="Ingresaron">{{ i.ingresados }}</td>
+      <td data-label="Estado"><span class="estado estado--{{ i.estado.value }}">{{ i.estado.value }}</span></td>
       <td class="acciones-fila">
-        <a href="/i/{{ i.codigo }}" target="_blank">link</a>
-        <a href="/admin/invitaciones/{{ i.id }}/tarjeta" target="_blank">QR</a>
+        <a href="/i/{{ i.codigo }}" target="_blank">Invitación</a>
+        <a href="/admin/invitaciones/{{ i.id }}/tarjeta" target="_blank">Tarjeta QR</a>
       </td>
     </tr>
   {% else %}
-    <tr><td colspan="8" class="tenue">Sin invitaciones todavía.</td></tr>
+    <tr><td colspan="8" class="tenue celda-vacia">Sin invitaciones todavía.</td></tr>
   {% endfor %}
   </tbody>
 </table>
