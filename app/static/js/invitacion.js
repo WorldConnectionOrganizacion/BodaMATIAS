@@ -214,12 +214,10 @@
         }, 2.3);
       }
 
-      // 5. Al terminar el video (~2.4s), pausar en el último fotograma
-      tl.add(function () {
-        if (video) {
-          try { video.pause(); } catch (err) { }
-        }
-      }, 2.4);
+      // El video no tiene loop: al llegar a su final se detiene solo en el último fotograma.
+      // (Antes se forzaba video.pause() a los 2.4s fijos del timeline, pero en celulares lentos
+      // el video puede ir atrasado respecto al reloj del timeline, y esa pausa lo cortaba a mitad
+      // de reproducción, dando el efecto de que "se traba". Dejarlo terminar solo evita eso.)
 
       // Pausa para que los invitados lean con calma el texto de la invitación (+2.7s)
       tl.to({}, { duration: 2.7 });
