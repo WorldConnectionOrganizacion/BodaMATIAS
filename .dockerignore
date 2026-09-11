@@ -1,0 +1,18 @@
+# Solo entra a la imagen lo que usa la app (app/, iniciar.py, requirements.txt)
+.git
+.venv
+.env
+data
+respaldos
+scripts
+__pycache__
+*.pyc
+*.db
+*.md
+test_smoke.py
+requirements-dev.txt
+seed.py
+run.sh
+run.ps1
+railway.json
+docker-compose.yml

@@ -1,0 +1,11 @@
+# Solo para desarrollo y pruebas: el servidor (Railway) instala unicamente requirements.txt
+-r requirements.txt
+
+# TestClient de test_smoke.py
+httpx==0.28.1
+
+# Herramientas de diseño (secuencia de video del sobre, capturas); la app no las importa
+playwright==1.62.0
+opencv-python==5.0.0.93
+numpy==2.5.3
+python-dotenv==1.2.3

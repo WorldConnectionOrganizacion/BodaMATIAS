@@ -23,7 +23,7 @@ Se lee al importar `app.config`; una variable ya definida en el sistema tiene pr
 |---|---|---|
 | `BASE_URL` | `http://localhost:8000` | URL pública. **Es lo que queda grabado dentro de cada QR**: definirla antes de generar los QR definitivos. |
 | `PUERTO` | `8000` | Puerto local donde escucha uvicorn (lo lee `run.ps1`). |
-| `ADMIN_PASSWORD` | `boda2026` | Contraseña del panel y del control de puerta. Cambiala. |
+| `ADMIN_PASSWORD` | — | Contraseña del panel y del control de puerta (no se pide usuario). Sin ella nadie puede entrar. No se escribe en el repo: solo en `.env` o en las variables de Railway. |
 | `SECRET_KEY` | valor de ejemplo | Firma de la cookie de sesión. Cambiala. |
 | `DB_URL` | `sqlite:///data/boda.db` | Base de datos. |
 
@@ -39,7 +39,7 @@ En PowerShell: `$env:BASE_URL="https://boda.midominio.com"` antes de levantar el
 el 9000 de afuera al 8000 de esta máquina, y `BASE_URL` siempre lleva el puerto público porque es
 lo que queda grabado dentro de cada QR. Con la app expuesta:
 
-- Cambiá `ADMIN_PASSWORD` y `SECRET_KEY`: `/admin` queda accesible desde cualquier lado y, sobre HTTP
+- Definí `ADMIN_PASSWORD` y `SECRET_KEY` propias: `/admin` queda accesible desde cualquier lado y, sobre HTTP
   plano, la clave y la cookie de sesión viajan sin cifrar. El servidor avisa por consola si quedaron
   los valores de ejemplo.
 - El escáner por cámara necesita HTTPS (los navegadores solo lo permiten en contexto seguro o
@@ -47,6 +47,71 @@ lo que queda grabado dentro de cada QR. Con la app expuesta:
   con certificado adelante (Caddy, Nginx + Let's Encrypt, o un túnel tipo Cloudflare).
 - La IP pública es dinámica en la mayoría de las conexiones hogareñas: si cambia, los QR ya impresos
   dejan de funcionar. Conviene un dominio (o DNS dinámico) antes de repartir QR.
+
+## Deploy en la PC de la empresa (Docker + Cloudflare Tunnel)
+
+La app corre en Docker y el dominio llega por un túnel de Cloudflare: no hace falta abrir puertos en
+el router ni tener IP fija, y el HTTPS lo pone Cloudflare. La app no queda expuesta en la red local;
+solo la alcanza el túnel.
+
+**Requisitos:** Ubuntu/Debian con [Docker Engine y el plugin compose](https://docs.docker.com/engine/install/ubuntu/)
+(`sudo systemctl enable --now docker` para que arranque solo con la PC) y el dominio gestionado en
+Cloudflare (alcanza el plan gratis).
+
+1. **Túnel:** en Cloudflare, Zero Trust → Networks → Tunnels → *Create a tunnel* (tipo Cloudflared).
+   Copiar el token que muestra. En *Public Hostname* cargar el subdominio (ej. `boda.tuempresa.com`)
+   con servicio `HTTP` y URL `app:8000`.
+2. **Configuración:** clonar el repo, `cp .env.example .env` y completar:
+   - `BASE_URL=https://boda.tuempresa.com` — la URL final, queda grabada en cada QR.
+   - `ADMIN_PASSWORD` y `SECRET_KEY` (generarla con `python3 -c "import secrets; print(secrets.token_urlsafe(48))"`).
+   - `CLOUDFLARE_TUNNEL_TOKEN` con el token del paso 1.
+3. **Levantar:** `docker compose up -d --build`. `docker compose ps` tiene que mostrar `app` como
+   *healthy*, y `docker compose logs app` muestra `BASE_URL en uso`.
+4. **Actualizar:** `git pull && docker compose up -d --build`. La base no se toca.
+
+La base (`/app/data/boda.db`) vive en el volumen `datos` de Docker y sobrevive a reinicios y
+actualizaciones. **`docker compose down -v` la borra**: nunca usar `-v`.
+
+La IP real de cada visitante llega en `CF-Connecting-IP` (`DETRAS_DE_PROXY=cloudflare`, ya definido en
+`docker-compose.yml`), así el bloqueo del login es por persona y no uno para todos.
+
+**Respaldos:** `scripts/respaldo.sh` guarda una copia consistente en `respaldos/` con la app andando y
+conserva las últimas 30. Para uno diario a las 4 AM: `crontab -e` y agregar
+`0 4 * * * /ruta/al/repo/scripts/respaldo.sh` (el usuario del cron tiene que estar en el grupo `docker`).
+Conviene copiar `respaldos/` a otro disco o a la nube. Para volver a un respaldo:
+`scripts/restaurar.sh respaldos/boda-AAAAMMDD-HHMMSS.db` (pide confirmación y antes respalda lo actual).
+
+**Probar sin el túnel**, en la misma PC: `docker compose run --rm -p 127.0.0.1:8000:8000 -e DETRAS_DE_PROXY=0 app`
+y abrir `http://localhost:8000`.
+
+## Deploy en Railway
+
+Un solo servicio con la base SQLite en un **Volume**. El disco del contenedor se borra en cada
+deploy: sin Volume se pierden todas las confirmaciones.
+
+1. New Project → Deploy from GitHub repo. Railway construye con el `Dockerfile` del repo y
+   `railway.json` define el arranque (`python iniciar.py`), el healthcheck (`/salud`) y el reinicio ante
+   fallas. La imagen corre con un usuario sin privilegios: agregar la variable `RAILWAY_RUN_UID=0`
+   para que pueda escribir en el Volume.
+2. En el servicio: **Add Volume**, con mount path `/app/data`. Cualquier ruta sirve porque la app usa
+   la que informa Railway (`RAILWAY_VOLUME_MOUNT_PATH`). **No definir `DB_URL`.**
+3. Variables del servicio (el `.env` no se sube):
+   - `ADMIN_PASSWORD` — la contraseña del panel.
+   - `SECRET_KEY` — generarla con `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
+   - `BASE_URL` — la URL pública final, con `https://`.
+   - `PORT` lo pone Railway solo.
+4. Settings → Networking → Generate Domain (o Custom Domain). **Definir el dominio antes de mandar
+   links o imprimir QR**: quedan grabados con `BASE_URL` y los que ya se repartieron no cambian.
+5. Una sola réplica: la base SQLite y el bloqueo del login viven en esa instancia.
+6. Al arrancar, los logs muestran `BASE_URL en uso` y un `AVISO GRAVE` si la base no quedó en el Volume.
+
+Detrás del proxy de Railway la IP real de cada cliente llega en `X-Forwarded-For`. La app la toma de
+ahí sola (`DETRAS_DE_PROXY`, automático en Railway), así el bloqueo del login es por la IP de cada
+persona y no uno solo para todos.
+
+**Backup:** Tablero → *Respaldo de la base* descarga una copia de `boda.db`.
+
+**Pruebas:** `pip install -r requirements-dev.txt` y después `python test_smoke.py`.
 
 ## Rutas
 
@@ -65,7 +130,11 @@ lo que queda grabado dentro de cada QR. Con la app expuesta:
 - `/admin/invitaciones/{id}` — ficha: editar datos, invitados, estado, ver ingresos, link de WhatsApp.
 - `/admin/invitaciones/{id}/tarjeta` — tarjeta imprimible con QR.
 - `/admin/escaner` — escáner de cámara (Chrome/Android) o carga manual del código.
-- `/admin/export.csv` — exporta todo. `/admin/importar` — carga masiva desde CSV.
+- `/admin/export.xlsx` — Excel con la lista de seguridad (una fila por persona confirmada, lista para
+  imprimir) y el detalle de las invitaciones. `/admin/export.csv` — lo mismo en CSV, una fila por grupo.
+- `/admin/respaldo.db` — copia consistente de la base, se puede bajar con el servidor andando.
+- `/admin/importar` — carga masiva desde CSV.
+- `/salud` — healthcheck (responde si la base contesta).
 - `/i/{codigo}` con sesión staff — el mismo link muestra el control de puerta.
   Con `?vista=invitacion` el staff previsualiza lo que ve el invitado.
 - `/pase/{codigo}` — redirección permanente al link único (compatibilidad con QR viejos).
@@ -130,4 +199,15 @@ para tenerlas identificadas: quién recibe la tarjeta impresa en mano y quién s
 
 - Antes de mandar las invitaciones: definir `BASE_URL` real, `ADMIN_PASSWORD` y `SECRET_KEY`.
 - La cámara del escáner necesita HTTPS (salvo en `localhost`).
-- La base es un archivo en `data/boda.db`: copiarlo es todo el backup.
+- La base es un archivo en `data/boda.db` en modo WAL: con el servidor andando, los últimos cambios
+  pueden estar todavía en `data/boda.db-wal`. Backup en caliente:
+  `.venv\Scripts\python -c "import sqlite3; sqlite3.connect('data/boda.db').backup(sqlite3.connect('data/copia.db'))"`,
+  o frenar el servidor y copiar `data/boda.db`.
+- La confirmación (RSVP) cierra al terminar el día `FECHA_LIMITE_RSVP` (hora de Mendoza, en
+  `app/config.py`). Después el invitado ya no puede modificar su respuesta; los cambios se hacen desde
+  la ficha del panel.
+- El login bloquea una IP por 5 minutos después de 5 contraseñas incorrectas. Si se pone un proxy
+  adelante (Caddy, Nginx, túnel), uvicorn tiene que recibir la IP real (`--proxy-headers` y
+  `--forwarded-allow-ips`); si no, todos comparten el mismo contador y un ataque bloquea también al staff.
+- Con `BASE_URL` en `https://` la cookie del panel se marca `Secure` (solo viaja cifrada).
+- Cambiar `ADMIN_PASSWORD` y reiniciar el servidor cierra en el acto todas las sesiones abiertas del panel.

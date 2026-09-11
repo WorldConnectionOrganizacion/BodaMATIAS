@@ -482,6 +482,15 @@
   (function formulario() {
     var form = document.querySelector(".formulario");
     if (!form) return;
+    // El nombre es obligatorio solo para quien asiste (el backend valida lo mismo).
+    form.querySelectorAll("select[data-asistencia]").forEach(function (select) {
+      var caja = select.closest("fieldset");
+      var nombre = caja && caja.querySelector("input[data-nombre-invitado]");
+      if (!nombre) return;
+      function sincronizar() { nombre.required = select.value === "si"; }
+      select.addEventListener("change", sincronizar);
+      sincronizar();
+    });
     form.addEventListener("submit", function () {
       var boton = form.querySelector('button[type="submit"]');
       if (!boton) return;

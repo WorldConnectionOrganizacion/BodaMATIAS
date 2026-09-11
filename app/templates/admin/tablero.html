@@ -38,6 +38,17 @@
   </form>
 </div>
 
+<div class="panel">
+  <h2 class="subtitulo">Descargas</h2>
+  <p class="tenue">El Excel trae la <strong>lista de seguridad</strong> (una fila por persona confirmada,
+    en orden alfabético y lista para imprimir) y el detalle de todas las invitaciones.</p>
+  <p class="acciones">
+    <a class="btn" href="/admin/export.xlsx">Excel</a>
+    <a class="btn" href="/admin/export.csv">CSV</a>
+    <a class="btn" href="/admin/respaldo.db">Respaldo de la base</a>
+  </p>
+</div>
+
 {% if stats.restricciones %}
 <div class="panel">
   <h2 class="subtitulo">Restricciones alimentarias ({{ stats.restricciones|length }})</h2>

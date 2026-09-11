@@ -1,3 +1,6 @@
+# Dependencias de la app: es lo que instala Railway.
+# Lo de desarrollo y pruebas esta en requirements-dev.txt
+
 # Framework & Servidor Web
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
@@ -5,18 +8,12 @@ jinja2==3.1.5
 python-multipart==0.0.20
 itsdangerous==2.2.0
 tzdata==2024.2
-python-dotenv==1.2.3
 
 # Base de datos y ORM
 sqlmodel==0.0.42
 SQLAlchemy==2.0.52
 
-# Generación y procesamiento de imágenes, QR y secuencias de video
+# QR y planilla Excel
 qrcode[pil]==8.0
 pillow==12.3.0
-opencv-python==5.0.0.93
-numpy==2.5.3
-
-# Testing & Automatización de navegador
-httpx==0.28.1
-playwright==1.62.0
+openpyxl==3.1.5

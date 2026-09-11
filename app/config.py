@@ -59,7 +59,20 @@ REGALOS_URL = "https://link.mercadopago.com.ar/bodasofimati"
 # --- Configuración técnica --------------------------------------------------
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000").rstrip("/")
 PUERTO = int(os.getenv("PUERTO", "8000"))
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "boda2026")
+# Contraseña unica del panel (no se pide usuario). Vive solo en .env o en las variables de
+# Railway, nunca en el repo: si falta, nadie puede entrar al panel.
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 SECRET_KEY = os.getenv("SECRET_KEY", "cambiar-esta-clave-en-produccion")
-DB_URL = os.getenv("DB_URL", "sqlite:///data/boda.db")
+EN_RAILWAY = any(os.getenv(v) for v in (
+    "RAILWAY_ENVIRONMENT", "RAILWAY_ENVIRONMENT_NAME", "RAILWAY_PROJECT_ID", "RAILWAY_SERVICE_ID"))
+RAILWAY_VOLUMEN = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "")
+# En Railway el disco del contenedor se borra en cada deploy: si hay un Volume montado, la base va ahi.
+CARPETA_DATOS = Path(RAILWAY_VOLUMEN) if RAILWAY_VOLUMEN else RAIZ / "data"
+DB_URL = os.getenv("DB_URL", "sqlite:///" + (CARPETA_DATOS / "boda.db").as_posix())
+# Detras de un proxy la IP real del cliente llega en un encabezado (la usa el bloqueo del login):
+#   1          -> ultimo valor de X-Forwarded-For (Railway, Caddy, Nginx)
+#   cloudflare -> CF-Connecting-IP (Cloudflare Tunnel; la app no puede quedar expuesta por otro lado)
+_PROXY = os.getenv("DETRAS_DE_PROXY", "1" if EN_RAILWAY else "0").strip().lower()
+DETRAS_DE_PROXY = _PROXY in ("1", "cloudflare")
+IP_DE_CLOUDFLARE = _PROXY == "cloudflare"
 FECHA_LIMITE_RSVP = "2026-11-20"
