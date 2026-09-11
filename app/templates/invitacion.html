@@ -15,36 +15,66 @@
 <noscript>
   <style>
     [data-reveal],[data-reveal-grupo] > *{opacity:1!important;transform:none!important}
-    .sobre{display:none!important}
+    .envelope-pin-wrapper{display:none!important}
     .petalos{display:none}
   </style>
 </noscript>
 {% endblock %}
 
 {% block contenido %}
-{% if inv %}
-<div class="sobre" id="sobre">
-  <div class="sobre__escena">
+<div class="envelope-pin-wrapper" id="envelope-pin-wrapper">
+  <section class="envelope-stage" id="envelope-stage" aria-label="Apertura de sobre de boda">
+    <div class="envelope-ambient-bg"></div>
 
-    <div class="sobre__papel">
-      <p class="papel__eyebrow">Nos casamos</p>
-      <h1 class="papel__nombres">{{ cfg.NOVIA }}<em>&amp;</em>{{ cfg.NOVIO }}</h1>
-      <div class="papel__linea"></div>
-      <p class="papel__fecha">{{ cfg.FECHA_TEXTO }}</p>
-      <p class="papel__para">Invitación para<br><strong>{{ inv.nombre_grupo }}</strong></p>
+    <div class="envelope-seq-system" id="envelope-system">
+      <!-- Lienzo Canvas de alta definición acelerado por GPU con los 116 fotogramas del sobre verde -->
+      <canvas class="envelope-canvas" id="envelope-canvas" width="720" height="1280" aria-label="Apertura de sobre de boda"></canvas>
+
+      <!-- Tarjeta de Invitación que emerge desde adentro del sobre verde durante los 116 frames -->
+      <div class="envelope-card-container" id="envelope-card-container">
+        <article class="tarjeta-troquelada tarjeta-troquelada--inside" id="tarjeta-invitacion">
+          <div class="troquel-borde-decorativo" aria-hidden="true"></div>
+          
+          <div class="tarjeta-troquelada__contenido">
+            <p class="troquel-eyebrow">TENEMOS EL HONOR DE INVITARTE A LA BODA DE</p>
+            <h1 class="troquel-nombres">
+              <span class="troquel-nombre">{{ cfg.NOVIA }}</span>
+              <span class="troquel-amp">&amp;</span>
+              <span class="troquel-nombre">{{ cfg.NOVIO }}</span>
+            </h1>
+            
+            <div class="troquel-ornamento" aria-hidden="true">
+              <span class="troquel-linea"></span>
+              <span class="troquel-rombo"></span>
+              <span class="troquel-linea"></span>
+            </div>
+
+            <p class="troquel-ciudad">{{ cfg.LUGAR_CIUDAD or 'Mendoza, Argentina' }}</p>
+            <p class="troquel-fecha">{{ cfg.FECHA_TEXTO }}</p>
+
+            <p class="troquel-mensaje">Queremos compartir este día tan especial con ustedes.</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- Sello circular crema pastel con iniciales S&M ubicado en el centro exacto del sobre -->
+      <div class="wax-seal" id="wax-seal" role="button" aria-label="Abrir sobre de boda">
+        <img src="{{ estatico('static/img/sello-crema.png') }}" alt="Sello S&M" class="wax-seal__img" draggable="false">
+      </div>
     </div>
 
-    <div class="sobre__frente"></div>
-    <div class="sobre__solapa"></div>
+    <!-- Destello verde etéreo (Flash verde) al completarse la apertura -->
+    <div class="flash-verde" id="flash-verde" aria-hidden="true"></div>
 
-    <button class="sobre__sello" id="abrir-sobre" aria-label="Abrir la invitación">
-      <span>{{ cfg.NOVIA[0] }}<i>&amp;</i>{{ cfg.NOVIO[0] }}</span>
-    </button>
-  </div>
-
-  <p class="sobre__pista" id="pista-sobre">Tocá el sello para abrir</p>
+    <!-- Pista interactiva de toque -->
+    <div class="envelope-scroll-hint" id="envelope-scroll-hint" role="button" aria-label="Abrir invitación">
+      <span class="scroll-hint-text">Tocá para abrir la invitación</span>
+      <div class="scroll-hint-chevrons" aria-hidden="true">
+        <span class="scroll-hint-dot"></span>
+      </div>
+    </div>
+  </section>
 </div>
-{% endif %}
 
 <div class="progreso" id="progreso" aria-hidden="true"></div>
 
@@ -62,53 +92,122 @@
 
 <main class="pagina" id="pagina">
 
-  <header class="hero">
-    <div class="petalos" aria-hidden="true">
-      {% for n in range(9) %}<span class="petalo petalo--{{ n % 3 }}"></span>{% endfor %}
-    </div>
+  <!-- Portada Editorial: Tarjeta Troquelada Barroca con Sobre Ocre y Flores -->
+  <header class="hero hero--editorial">
+    <div class="editorial-card-wrapper" data-reveal>
+      <!-- Composición Editorial Fiel a la Referencia Amorea -->
+      <div class="editorial-composition-base">
+        <img src="{{ estatico('static/img/amorea-hero-composition.png') }}" alt="Invitación de Boda Sofía y Matías" class="composition-img">
+      </div>
 
-    <div class="hero__marco" data-parallax="0.12">
-      <p class="hero__eyebrow" data-reveal>Nos casamos</p>
-      <h1 class="hero__nombres">
-        <span class="hero__nombre" data-reveal data-delay="80">{{ cfg.NOVIA }}</span>
-        <span class="amp" data-reveal data-delay="220">&amp;</span>
-        <span class="hero__nombre" data-reveal data-delay="360">{{ cfg.NOVIO }}</span>
-      </h1>
-      <div data-reveal data-delay="480">{{ ramita() }}</div>
-      <p class="hero__fecha" data-reveal data-delay="560">{{ cfg.FECHA_TEXTO }}</p>
-      <p class="hero__lugar" data-reveal data-delay="640">Mendoza, Argentina</p>
+      <!-- Tipografía Formal Copperplate sobre la Tarjeta -->
+      <div class="tarjeta-texto-overlay">
+        <p class="barroca-eyebrow">TENEMOS EL HONOR DE<br>INVITARTE A LA BODA DE</p>
+        
+        <h1 class="barroca-nombres">
+          <span class="barroca-nombre">{{ cfg.NOVIA }}</span>
+          <span class="barroca-amp">&amp;</span>
+          <span class="barroca-nombre">{{ cfg.NOVIO }}</span>
+        </h1>
+        
+        <div class="barroca-pie">
+          <p class="barroca-ciudad">{{ cfg.LUGAR_CIUDAD or 'Mendoza, Argentina' }}</p>
+          <p class="barroca-fecha">20.12.2026</p>
+        </div>
+      </div>
     </div>
-    <div class="hero__scroll" aria-hidden="true"><span></span></div>
   </header>
 
-  <section class="seccion cuenta" aria-label="Cuenta regresiva">
-    <p class="seccion__kicker" data-reveal>Falta poco</p>
-    <div class="cuenta__grilla" id="cuenta" data-fecha="{{ cfg.FECHA_ISO }}" data-reveal-grupo>
-      <div><strong data-u="dias">--</strong><span>días</span></div>
-      <div><strong data-u="horas">--</strong><span>horas</span></div>
-      <div><strong data-u="min">--</strong><span>minutos</span></div>
-      <div><strong data-u="seg">--</strong><span>segundos</span></div>
+  <!-- Reproductor Interactivo de Música Minimalista ("DALE PLAY PARA ESCUCHAR NUESTRA CANCIÓN") -->
+  <section class="seccion seccion--musica" aria-label="Reproductor de música">
+    <div class="music-card-minimal" data-reveal>
+      <p class="music-kicker-text">DALE PLAY PARA ESCUCHAR NUESTRA CANCIÓN</p>
+      
+      <div class="music-divider-bar" aria-hidden="true">
+        <span class="music-bar-line"></span>
+        <span class="music-bar-dot"></span>
+        <span class="music-bar-line"></span>
+      </div>
+      
+      <div class="music-player-minimal" id="music-player">
+        <audio id="audio-cancion" preload="metadata" loop>
+          <source src="{{ estatico('static/audio/cancion.wav') }}" type="audio/wav">
+        </audio>
+
+        <button class="music-ctrl-btn music-ctrl--skip" id="btn-prev" aria-label="Reiniciar canción">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+        </button>
+
+        <button class="music-ctrl-btn music-ctrl--play" id="btn-play" aria-label="Reproducir o pausar canción">
+          <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <button class="music-ctrl-btn music-ctrl--skip" id="btn-next" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="m6 18 8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+
+      <div class="music-equalizer" id="music-equalizer" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
     </div>
   </section>
 
-  <section class="seccion lugares">
-    <h2 class="seccion__titulo" data-reveal>Dónde y cuándo</h2>
-    <div data-reveal>{{ ramita() }}</div>
-    <div class="lugares__grilla" data-reveal-grupo>
-      {% for l in [cfg.CEREMONIA, cfg.RECEPCION] %}
-      <article class="tarjeta">
-        <p class="tarjeta__hora">{{ l.hora }}</p>
-        <h3 class="tarjeta__titulo">{{ l.titulo }}</h3>
-        <p class="tarjeta__lugar">{{ l.lugar }}</p>
-        <p class="tarjeta__dir">{{ l.direccion }}</p>
-        <a class="btn btn--linea" href="{{ l.maps }}" target="_blank" rel="noopener">Cómo llegar</a>
+  <!-- Dónde y Cuándo: Réplica Exacta de Papelería Flotante con Polaroid en Abanico y Tarjeta Vellum Inclinada estilo Frame 12 -->
+  <section class="seccion seccion--lugares" aria-label="Dónde y cuándo">
+    <div class="lugares-frame12-wrapper" data-reveal>
+      
+      <!-- Abanico de Fotos Polaroid Inclinadas a la Izquierda (-6.4deg) -->
+      <div class="polaroid-fan-stack" aria-hidden="true">
+        <div class="polaroid-leaf polaroid-leaf--back"></div>
+        <div class="polaroid-leaf polaroid-leaf--mid"></div>
+        <div class="polaroid-print-card">
+          <img src="{{ estatico('static/img/pareja-polaroid.jpg') }}" alt="Sofía y Matías en los viñedos" class="polaroid-print-img">
+        </div>
+      </div>
+
+      <!-- Tarjeta de Papel Vegetal / Vellum Inclinada a la Derecha (+8.4deg) -->
+      <article class="tarjeta-vellum-frame12">
+        
+        <!-- Bloque Ceremonia -->
+        <div class="vellum-lugar-bloque">
+          <h2 class="vellum-title">
+            <span class="vellum-script-c">C</span><span class="vellum-title-caps">EREMONIA</span>
+          </h2>
+          <p class="vellum-venue">{{ cfg.CEREMONIA.lugar }}</p>
+          <p class="vellum-address">{{ cfg.CEREMONIA.direccion }}</p>
+          <div class="vellum-btn-wrap">
+            <a class="vellum-pill-btn" href="{{ cfg.CEREMONIA.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
+          </div>
+          <p class="vellum-time">HORA: {{ cfg.CEREMONIA.hora }}</p>
+        </div>
+
+        <!-- Espacio de separación editorial entre bloques (sin línea pesada) -->
+        <div class="vellum-space-sep" aria-hidden="true"></div>
+
+        <!-- Bloque Recepción -->
+        <div class="vellum-lugar-bloque">
+          <h2 class="vellum-title">
+            <span class="vellum-script-r">R</span><span class="vellum-title-caps">ECEPCIÓN</span>
+          </h2>
+          <p class="vellum-venue">{{ cfg.RECEPCION.lugar }}</p>
+          <p class="vellum-address">{{ cfg.RECEPCION.direccion }}</p>
+          <div class="vellum-btn-wrap">
+            <a class="vellum-pill-btn" href="{{ cfg.RECEPCION.maps }}" target="_blank" rel="noopener">UBICACIÓN</a>
+          </div>
+          <p class="vellum-time">HORA: {{ cfg.RECEPCION.hora }}</p>
+        </div>
+
       </article>
-      {% endfor %}
+
     </div>
   </section>
 
-  <section class="seccion itinerario">
+  <!-- Itinerario de la Boda -->
+  <section class="seccion itinerario" aria-label="Itinerario">
     <h2 class="seccion__titulo" data-reveal>Itinerario</h2>
+    <div data-reveal>{{ ramita() }}</div>
     <ol class="linea-tiempo" data-reveal-grupo>
       {% for hora, texto in cfg.ITINERARIO %}
       <li>
@@ -120,20 +219,101 @@
     </ol>
   </section>
 
-  <section class="seccion dos-col">
-    <article data-reveal>
-      <h2 class="seccion__titulo">Dress code</h2>
-      <p class="parrafo">{{ cfg.DRESS_CODE }}</p>
-    </article>
-    <article data-reveal data-delay="140">
-      <h2 class="seccion__titulo">Regalos</h2>
-      <p class="parrafo">Su presencia es nuestro mejor regalo. Si además quieren colaborar con nuestra luna de miel:</p>
-      <p class="alias">Alias Mercado Pago<br>
-        <strong class="alias__valor" id="alias" data-copiar="{{ cfg.REGALOS_ALIAS }}">{{ cfg.REGALOS_ALIAS }}</strong>
-        <span class="alias__aviso" id="alias-aviso">copiado</span>
-      </p>
-      <a class="btn btn--linea" href="{{ cfg.REGALOS_URL }}" target="_blank" rel="noopener">Ir a Mercado Pago</a>
-    </article>
+  <!-- Dress Code Estilo Editorial Amorea: Flatlay con Insignia Ocre + Boceto + Tarjeta -->
+  <section class="seccion seccion--dresscode-amorea" aria-label="Dress code">
+    <div class="dresscode-composicion" data-reveal>
+      
+      <!-- Tarjeta Pequeña Inclinada de Especificación -->
+      <div class="dresscode-tarjeta-flotante">
+        <p class="dresscode-tarjeta__titulo">FORMAL DE NOCHE.</p>
+        <p class="dresscode-tarjeta__sub">Caballeros con traje, damas<br>con vestido largo</p>
+      </div>
+
+      <!-- Insignia Troquelada Ocre y Oro festoneada -->
+      <div class="insignia-festoneada" aria-hidden="true">
+        <img src="{{ estatico('static/img/amorea-badge-dresscode.png') }}" alt="Dress Code" class="insignia-badge-img">
+      </div>
+
+      <!-- Tarjeta de Boceto de Moda con Ramillete Floral prendido -->
+      <div class="dresscode-sketch-card">
+        <img src="{{ estatico('static/img/amorea-sketch-card.png') }}" alt="Código de vestimenta" class="sketch-card-img">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Regalos y Luna de Miel: Cita con Sello de Cera + Medallón Regalos + Alias -->
+  <section class="seccion seccion--regalos-amorea" aria-label="Regalos">
+    <div class="regalos-composicion" data-reveal>
+
+      <!-- Composición Integrada: Tarjeta, Calas y Medallón Overlap -->
+      <div class="regalo-flatlay-bloque">
+        
+        <!-- Flores Calas que nacen detrás de la tarjeta -->
+        <div class="regalo-calas-tucked" aria-hidden="true">
+          <img src="{{ estatico('static/img/amorea-calas-flatlay.png') }}" alt="Calas decorativas" class="calas-flatlay-img">
+        </div>
+
+        <!-- Tarjeta Introductoria con Sello de Cera -->
+        <article class="tarjeta-regalo-intro">
+          <div class="regalo-sello-wrap">
+            <img src="{{ estatico('static/img/sello-crema.png') }}" alt="Sello de boda" class="regalo-sello-img">
+          </div>
+          
+          <blockquote class="regalo-cita">
+            <span class="regalo-cita__inicial">S</span>U COMPAÑÍA ES LO MÁS IMPORTANTE. SI DESEAN HACERNOS UN OBSEQUIO, LO RECIBIREMOS CON MUCHO CARIÑO.
+          </blockquote>
+        </article>
+
+        <!-- Medallón Circular Ocre superpuesto sobre el borde inferior -->
+        <div class="regalo-medallon-overlap" aria-hidden="true">
+          <img src="{{ estatico('static/img/amorea-medallon-solo.png') }}" alt="Regalos" class="medallon-solo-img">
+        </div>
+
+      </div>
+
+      <!-- Tarjeta de Transferencia y Mercado Pago -->
+      <div class="alias-tarjeta-box">
+        <p class="alias-kicker">TRANSFERENCIA BANCARIA</p>
+        <div class="alias-fila">
+          <span class="alias-label">Alias:</span>
+          <strong class="alias-valor" id="alias" data-copiar="{{ cfg.REGALOS_ALIAS }}">{{ cfg.REGALOS_ALIAS }}</strong>
+        </div>
+        <button class="btn-copiar-amorea" id="btn-copiar-alias" aria-label="Copiar alias bancario">Copiar Alias</button>
+        <span class="alias__aviso" id="alias-aviso">¡Copiado con éxito!</span>
+        
+        <a class="btn-mercadopago" href="{{ cfg.REGALOS_URL }}" target="_blank" rel="noopener">Ir a Mercado Pago</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Cuenta Regresiva Editorial ("Faltan ... para nuestro gran día") -->
+  <section class="seccion seccion--cuenta-amorea" aria-label="Cuenta regresiva">
+    <div class="cuenta-composicion" data-reveal>
+      <h2 class="cuenta-faltan">Faltan</h2>
+      
+      <div class="cuenta__grilla-editorial" id="cuenta" data-fecha="{{ cfg.FECHA_ISO }}" data-reveal-grupo>
+        <div class="cuenta-col">
+          <strong class="cuenta-num" data-u="dias">--</strong>
+          <span class="cuenta-rotulo">DÍAS</span>
+        </div>
+        <div class="cuenta-col">
+          <strong class="cuenta-num" data-u="horas">--</strong>
+          <span class="cuenta-rotulo">HORAS</span>
+        </div>
+        <div class="cuenta-col">
+          <strong class="cuenta-num" data-u="min">--</strong>
+          <span class="cuenta-rotulo">MINUTOS</span>
+        </div>
+      </div>
+
+      <p class="cuenta-kicker-bottom">PARA NUESTRO GRAN DÍA</p>
+
+      <div class="calas-adorno calas-adorno--centro" aria-hidden="true">
+        <img src="{{ estatico('static/img/amorea-calas-trio.png') }}" alt="Calas blancas" class="calas-img calas-img--trio">
+      </div>
+    </div>
   </section>
 
   {% if inv %}
