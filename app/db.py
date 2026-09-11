@@ -2,12 +2,24 @@ import secrets
 import string
 from pathlib import Path
 
+from sqlalchemy import event
+from sqlalchemy.engine import make_url
 from sqlmodel import SQLModel, Session, create_engine
 
 from app import config
 
-Path("data").mkdir(exist_ok=True)
-engine = create_engine(config.DB_URL, connect_args={"check_same_thread": False})
+_archivo_base = make_url(config.DB_URL).database
+if _archivo_base and _archivo_base != ":memory:":
+    Path(_archivo_base).parent.mkdir(parents=True, exist_ok=True)
+engine = create_engine(config.DB_URL, connect_args={"check_same_thread": False, "timeout": 15})
+
+
+@event.listens_for(engine, "connect")
+def _pragmas_sqlite(conexion, _registro) -> None:
+    cursor = conexion.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")   # SQLite no valida claves foraneas si no se pide
+    cursor.execute("PRAGMA journal_mode=WAL")  # leer no bloquea al que escribe (RSVP simultaneos)
+    cursor.close()
 
 ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # sin I, O, 0, 1
 

@@ -2096,6 +2096,11 @@ body.envelope-locked {
 }
 
 /* --- aviso de RSVP enviado --- */
+.aviso--error {
+  border-color: #B4736A;
+  background: rgba(180, 115, 106, .1)
+}
+
 .aviso--ok {
   animation: entra-aviso .7s cubic-bezier(.22, .61, .36, 1) both
 }

@@ -1,17 +1,24 @@
 import csv
 import io
+import sqlite3
+import tempfile
+from datetime import datetime
+from pathlib import Path
 from typing import List, Optional
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
+from sqlalchemy.engine import make_url
 from sqlmodel import Session, select
+from starlette.exceptions import HTTPException
 
-from app import config, security
-from app.db import get_session, nuevo_codigo
-from app.models import Estado, Invitacion, Invitado, Tipo
+from app import config, excel, security, servicios
+from app.db import get_session
+from app.models import Estado, Invitacion
 from app.security import requiere_staff
-from app.templating import templates
+from app.servicios import ErrorValidacion
+from app.templating import avisar, templates
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -20,38 +27,28 @@ def _inv(session: Session, inv_id: int) -> Optional[Invitacion]:
     return session.get(Invitacion, inv_id)
 
 
-def _sincronizar_slots(session: Session, inv: Invitacion) -> None:
-    """Deja tantas filas de Invitado como cupo declarado (adultos + ninos)."""
-    adultos = [i for i in inv.invitados if i.tipo == Tipo.adulto]
-    ninos = [i for i in inv.invitados if i.tipo == Tipo.nino]
-    pares = ((adultos, Tipo.adulto, inv.cupo_adultos), (ninos, Tipo.nino, inv.cupo_ninos))
-    for lista, tipo, cupo in pares:
-        while len(lista) < cupo:
-            nuevo = Invitado(invitacion_id=inv.id, tipo=tipo, nombre="")
-            session.add(nuevo)
-            lista.append(nuevo)
-        while len(lista) > cupo:
-            session.delete(lista.pop())
-
-
 # --- Sesion -----------------------------------------------------------------
 @router.get("/login", response_class=HTMLResponse)
-def login_form(request: Request, next: str = "/admin", error: int = 0):
+def login_form(request: Request, next: str = "/admin", error: int = 0, vencida: int = 0):
     return templates.TemplateResponse(
-        "admin/login.html", {"request": request, "next": next, "error": bool(error)}
+        "admin/login.html",
+        {"request": request, "next": security.destino_seguro(next), "error": error,
+         "vencida": bool(vencida), "minutos": security.BLOQUEO_SEG // 60},
     )
 
 
 @router.post("/login")
 def login_post(
     request: Request,
-    password: str = Form(...),
-    operador: str = Form(default=""),
+    usuario: str = Form(default=""),
+    password: str = Form(default=""),
     next: str = Form(default="/admin"),
 ):
-    if security.login(request, password, operador):
-        return RedirectResponse(next or "/admin", status_code=303)
-    return RedirectResponse("/admin/login?error=1&next=" + quote(next), status_code=303)
+    destino = security.destino_seguro(next)
+    if not security.bloqueado(request) and security.login(request, usuario, password):
+        return RedirectResponse(destino, status_code=303)
+    error = 2 if security.bloqueado(request) else 1
+    return RedirectResponse(f"/admin/login?error={error}&next=" + quote(destino), status_code=303)
 
 
 @router.get("/logout")
@@ -100,7 +97,7 @@ def listado(
         consulta = consulta.where(
             (Invitacion.nombre_grupo.ilike(patron)) | (Invitacion.codigo.ilike(patron))
         )
-    if estado:
+    if estado in {e.value for e in Estado}:
         consulta = consulta.where(Invitacion.estado == Estado(estado))
     if formato == "fisica":
         consulta = consulta.where(Invitacion.tarjeta_fisica == True)  # noqa: E712
@@ -123,8 +120,8 @@ def nueva_form(request: Request, _: bool = Depends(requiere_staff)):
 def nueva_post(
     request: Request,
     nombre_grupo: str = Form(...),
-    cupo_adultos: int = Form(2),
-    cupo_ninos: int = Form(0),
+    cupo_adultos: str = Form(default="2"),
+    cupo_ninos: str = Form(default="0"),
     telefono: str = Form(default=""),
     email: str = Form(default=""),
     notas: str = Form(default=""),
@@ -132,21 +129,22 @@ def nueva_post(
     _: bool = Depends(requiere_staff),
     session: Session = Depends(get_session),
 ):
-    inv = Invitacion(
-        codigo=nuevo_codigo(session),
-        nombre_grupo=nombre_grupo.strip(),
-        cupo_adultos=max(0, cupo_adultos),
-        cupo_ninos=max(0, cupo_ninos),
-        telefono=telefono.strip() or None,
-        email=email.strip() or None,
-        notas=notas.strip() or None,
-        tarjeta_fisica=bool(tarjeta_fisica),
-    )
-    session.add(inv)
-    session.commit()
-    session.refresh(inv)
-    _sincronizar_slots(session, inv)
-    session.commit()
+    try:
+        adultos, ninos = servicios.validar_cupos(cupo_adultos, cupo_ninos)
+        inv = servicios.crear_invitacion(
+            session,
+            nombre_grupo=servicios.validar_nombre_grupo(nombre_grupo),
+            cupo_adultos=adultos,
+            cupo_ninos=ninos,
+            telefono=servicios.texto_opcional(telefono, "telefono", "Teléfono"),
+            email=servicios.texto_opcional(email, "email", "Email"),
+            notas=servicios.texto_opcional(notas, "notas", "Notas internas"),
+            tarjeta_fisica=bool(tarjeta_fisica),
+        )
+    except ErrorValidacion as e:
+        avisar(request, e.mensaje)
+        return RedirectResponse("/admin/invitaciones/nueva", status_code=303)
+    session.commit()  # invitacion y lugares en una sola transaccion
     return RedirectResponse("/admin/invitaciones/" + str(inv.id), status_code=303)
 
 
@@ -178,12 +176,11 @@ def editar(
     request: Request,
     inv_id: int,
     nombre_grupo: str = Form(...),
-    cupo_adultos: int = Form(0),
-    cupo_ninos: int = Form(0),
+    cupo_adultos: str = Form(default="0"),
+    cupo_ninos: str = Form(default="0"),
     telefono: str = Form(default=""),
     email: str = Form(default=""),
     notas: str = Form(default=""),
-    estado: str = Form(default=""),
     tarjeta_fisica: str = Form(default=""),
     invitado_id: List[str] = Form(default=[]),
     nombre: List[str] = Form(default=[]),
@@ -194,34 +191,41 @@ def editar(
 ):
     inv = _inv(session, inv_id)
     if not inv:
+        avisar(request, "Esa invitación ya no existe.")
         return RedirectResponse("/admin/invitaciones", status_code=303)
+    destino = "/admin/invitaciones/" + str(inv.id)
 
-    inv.nombre_grupo = nombre_grupo.strip()
-    inv.cupo_adultos = max(0, cupo_adultos)
-    inv.cupo_ninos = max(0, cupo_ninos)
-    inv.telefono = telefono.strip() or None
-    inv.email = email.strip() or None
-    inv.notas = notas.strip() or None
-    inv.tarjeta_fisica = bool(tarjeta_fisica)
-    if estado:
-        inv.estado = Estado(estado)
+    try:
+        inv.nombre_grupo = servicios.validar_nombre_grupo(nombre_grupo)
+        inv.cupo_adultos, inv.cupo_ninos = servicios.validar_cupos(cupo_adultos, cupo_ninos)
+        inv.telefono = servicios.texto_opcional(telefono, "telefono", "Teléfono")
+        inv.email = servicios.texto_opcional(email, "email", "Email")
+        inv.notas = servicios.texto_opcional(notas, "notas", "Notas internas")
+        inv.tarjeta_fisica = bool(tarjeta_fisica)
 
-    for pos, ident in enumerate(invitado_id):
-        g = session.get(Invitado, int(ident)) if ident.isdigit() else None
-        if not g or g.invitacion_id != inv.id:
-            continue
-        g.nombre = (nombre[pos] if pos < len(nombre) else "").strip()
-        g.restriccion = (restriccion[pos].strip() or None) if pos < len(restriccion) else None
-        marca = asiste[pos] if pos < len(asiste) else "sin"
-        g.asiste = True if marca == "si" else (False if marca == "no" else None)
-        session.add(g)
+        propios = {str(g.id): g for g in inv.invitados}
+        for pos, ident in enumerate(invitado_id):
+            g = propios.get(ident)
+            if not g:  # fila que ya no existe (p. ej. el invitado respondio mientras tanto)
+                continue
+            g.nombre = servicios.texto_opcional(
+                nombre[pos] if pos < len(nombre) else "", "nombre", "Nombre") or ""
+            g.restriccion = servicios.texto_opcional(
+                restriccion[pos] if pos < len(restriccion) else "", "restriccion", "Restricción")
+            marca = asiste[pos] if pos < len(asiste) else "sin"
+            g.asiste = True if marca == "si" else (False if marca == "no" else None)
+            if g.asiste and not g.nombre:  # la lista de seguridad se arma con estos nombres
+                raise ErrorValidacion(f"Invitado {pos + 1}: para marcar que asiste hay que completar el nombre.")
 
-    session.add(inv)
-    session.commit()
-    session.refresh(inv)
-    _sincronizar_slots(session, inv)
-    session.commit()
-    return RedirectResponse("/admin/invitaciones/" + str(inv.id), status_code=303)
+        servicios.sincronizar_slots(inv)
+        servicios.recalcular_estado(inv)
+    except ErrorValidacion as e:
+        session.rollback()  # descarta lo que ya se habia modificado
+        avisar(request, e.mensaje)
+        return RedirectResponse(destino, status_code=303)
+
+    session.commit()  # datos, invitados, cupo y estado en una sola transaccion
+    return RedirectResponse(destino, status_code=303)
 
 
 @router.post("/invitaciones/{inv_id}/eliminar")
@@ -268,6 +272,16 @@ def escaner(request: Request, _: bool = Depends(requiere_staff)):
 
 
 # --- CSV --------------------------------------------------------------------
+def _celda_segura(valor):
+    """Excel y LibreOffice ejecutan como formula un texto que empieza con = + - @.
+
+    Nombres, restricciones y mensajes los escribe el invitado: se les antepone un apostrofe.
+    """
+    if isinstance(valor, str) and valor[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + valor
+    return valor
+
+
 @router.get("/export.csv")
 def exportar(_: bool = Depends(requiere_staff), session: Session = Depends(get_session)):
     invs = session.exec(select(Invitacion).order_by(Invitacion.nombre_grupo)).all()
@@ -283,14 +297,14 @@ def exportar(_: bool = Depends(requiere_staff), session: Session = Depends(get_s
             marca = "si" if g.asiste else ("no" if g.asiste is False else "-")
             detalle_invitados.append((g.nombre or "(sin nombre)") + ":" + marca)
         restricciones = [g.nombre + ": " + g.restriccion for g in i.invitados if g.restriccion]
-        w.writerow([
+        w.writerow([_celda_segura(v) for v in (
             i.codigo, i.nombre_grupo, "fisica" if i.tarjeta_fisica else "virtual",
             i.cupo_adultos, i.cupo_ninos, i.estado.value,
             i.confirmados, i.ingresados, i.telefono or "", i.email or "",
             " | ".join(detalle_invitados), " | ".join(restricciones),
             (i.mensaje or "").replace("\n", " "),
             config.BASE_URL + "/i/" + i.codigo,
-        ])
+        )])
     datos = buf.getvalue().encode("utf-8-sig")
     return StreamingResponse(
         io.BytesIO(datos),
@@ -299,36 +313,72 @@ def exportar(_: bool = Depends(requiere_staff), session: Session = Depends(get_s
     )
 
 
+@router.get("/export.xlsx")
+def exportar_excel(_: bool = Depends(requiere_staff), session: Session = Depends(get_session)):
+    invs = session.exec(select(Invitacion).order_by(Invitacion.nombre_grupo)).all()
+    fecha = datetime.now(config.TZ).strftime("%Y-%m-%d")
+    return Response(
+        excel.generar(invs),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="invitados-boda-{fecha}.xlsx"'},
+    )
+
+
+@router.get("/respaldo.db")
+def respaldo(_: bool = Depends(requiere_staff)):
+    """Copia consistente de la base SQLite aunque haya escrituras en curso (API de backup).
+
+    En Railway el archivo vive en un Volume: esta es la forma simple de bajarlo.
+    """
+    archivo = make_url(config.DB_URL).database
+    if not config.DB_URL.startswith("sqlite") or not archivo or not Path(archivo).is_file():
+        raise HTTPException(status_code=404)
+    with tempfile.TemporaryDirectory() as carpeta:
+        ruta_copia = Path(carpeta) / "respaldo.db"
+        origen = sqlite3.connect(archivo)
+        copia = sqlite3.connect(ruta_copia)
+        try:
+            origen.backup(copia)
+            # La base anda en modo WAL y la copia heredaria esa marca: se pasa a modo normal para
+            # que el archivo descargado se abra solo, sin necesitar un -wal al lado.
+            copia.execute("PRAGMA journal_mode=DELETE")
+        finally:
+            origen.close()
+            copia.close()
+        datos = ruta_copia.read_bytes()
+    fecha = datetime.now(config.TZ).strftime("%Y-%m-%d-%H%M")
+    return Response(
+        datos,
+        media_type="application/vnd.sqlite3",
+        headers={"Content-Disposition": f'attachment; filename="boda-respaldo-{fecha}.db"'},
+    )
+
+
 @router.post("/importar")
-async def importar(
+def importar(
+    request: Request,
     archivo: UploadFile = File(...),
     _: bool = Depends(requiere_staff),
     session: Session = Depends(get_session),
 ):
     """CSV con columnas: grupo;adultos;ninos;telefono;email;fisica (separador ; o ,).
 
-    En `fisica` vale si / 1 / x / fisica para marcar la tarjeta impresa.
+    En `fisica` vale si / 1 / x / fisica para marcar la tarjeta impresa. Se valida todo el
+    archivo antes de guardar: si una fila esta mal no se importa ninguna.
     """
-    crudo = (await archivo.read()).decode("utf-8-sig", errors="replace")
-    separador = ";" if crudo.count(";") >= crudo.count(",") else ","
-    lector = csv.DictReader(io.StringIO(crudo), delimiter=separador)
-    for fila in lector:
-        grupo = (fila.get("grupo") or fila.get("nombre_grupo") or "").strip()
-        if not grupo:
-            continue
-        inv = Invitacion(
-            codigo=nuevo_codigo(session),
-            nombre_grupo=grupo,
-            cupo_adultos=int(fila.get("adultos") or fila.get("cupo_adultos") or 0),
-            cupo_ninos=int(fila.get("ninos") or fila.get("cupo_ninos") or 0),
-            telefono=(fila.get("telefono") or "").strip() or None,
-            email=(fila.get("email") or "").strip() or None,
-            tarjeta_fisica=(fila.get("fisica") or fila.get("formato") or "").strip().lower()
-            in ("si", "sí", "1", "x", "true", "fisica", "física"),
-        )
-        session.add(inv)
-        session.commit()
-        session.refresh(inv)
-        _sincronizar_slots(session, inv)
-        session.commit()
+    try:
+        texto = servicios.decodificar_csv(archivo.file.read(servicios.CSV_MAX_BYTES + 1))
+        filas = servicios.leer_csv(texto)
+        creadas, omitidas = servicios.importar_filas(session, filas)
+    except ErrorValidacion as e:
+        session.rollback()
+        avisar(request, e.mensaje, detalles=e.detalles)
+        return RedirectResponse("/admin", status_code=303)
+
+    session.commit()  # todas las filas en una sola transaccion
+    texto = f"Se importaron {len(creadas)} invitaciones."
+    if omitidas:
+        avisar(request, texto + f" Se omitieron {len(omitidas)}:", tipo="ok", detalles=omitidas)
+    else:
+        avisar(request, texto, tipo="ok")
     return RedirectResponse("/admin/invitaciones", status_code=303)

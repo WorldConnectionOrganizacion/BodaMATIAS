@@ -12,34 +12,29 @@
   <div>
     <h2 class="subtitulo">Datos</h2>
     <form method="post" action="/admin/invitaciones/{{ inv.id }}" class="formulario">
-      <label>Grupo / familia <input type="text" name="nombre_grupo" value="{{ inv.nombre_grupo }}" required></label>
+      <label>Grupo / familia <input type="text" name="nombre_grupo" value="{{ inv.nombre_grupo }}" maxlength="{{ largo.grupo }}" required></label>
       <div class="fila">
         <label>Adultos <input type="number" name="cupo_adultos" value="{{ inv.cupo_adultos }}" min="0" max="20"></label>
         <label>Niños <input type="number" name="cupo_ninos" value="{{ inv.cupo_ninos }}" min="0" max="20"></label>
       </div>
-      <label>Teléfono <input type="tel" name="telefono" value="{{ inv.telefono or '' }}"></label>
-      <label>Email <input type="email" name="email" value="{{ inv.email or '' }}"></label>
+      <label>Teléfono <input type="tel" name="telefono" value="{{ inv.telefono or '' }}" maxlength="{{ largo.telefono }}"></label>
+      <label>Email <input type="email" name="email" value="{{ inv.email or '' }}" maxlength="{{ largo.email }}"></label>
 
       <label class="check">
         <input type="checkbox" name="tarjeta_fisica" value="1" {{ 'checked' if inv.tarjeta_fisica }}>
         <span>Tarjeta física <em>— se entrega impresa en mano</em></span>
       </label>
 
-      <label>Estado
-        <select name="estado">
-          {% for e in ['pendiente','confirmada','parcial','rechazada'] %}
-          <option value="{{ e }}" {{ 'selected' if inv.estado.value == e }}>{{ e }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <label>Notas internas <textarea name="notas" rows="2">{{ inv.notas or '' }}</textarea></label>
+      <p class="tenue">Estado: <strong>{{ inv.estado.value }}</strong> — se calcula solo según la
+        asistencia de cada invitado (todos “no asiste” = rechazada, todos “sin respuesta” = pendiente).</p>
+      <label>Notas internas <textarea name="notas" rows="2" maxlength="{{ largo.notas }}">{{ inv.notas or '' }}</textarea></label>
 
       <h2 class="subtitulo">Invitados ({{ inv.invitados|length }})</h2>
       {% for g in inv.invitados %}
       <fieldset class="invitado">
         <legend>{{ 'Adulto' if g.tipo.value == 'adulto' else 'Niño/a' }} {{ loop.index }}</legend>
         <input type="hidden" name="invitado_id" value="{{ g.id }}">
-        <label>Nombre <input type="text" name="nombre" value="{{ g.nombre }}"></label>
+        <label>Nombre <input type="text" name="nombre" value="{{ g.nombre }}" maxlength="{{ largo.nombre }}"></label>
         <label>Asistencia
           <select name="asiste">
             <option value="sin" {{ 'selected' if g.asiste is none }}>sin respuesta</option>
@@ -47,7 +42,7 @@
             <option value="no" {{ 'selected' if g.asiste == False }}>no asiste</option>
           </select>
         </label>
-        <label>Restricción <input type="text" name="restriccion" value="{{ g.restriccion or '' }}"></label>
+        <label>Restricción <input type="text" name="restriccion" value="{{ g.restriccion or '' }}" maxlength="{{ largo.restriccion }}"></label>
       </fieldset>
       {% endfor %}
 
@@ -71,7 +66,7 @@
     <p>{{ inv.ingresados }} de {{ inv.confirmados }} confirmados</p>
     {% if inv.checkins %}
     <ul class="lista-simple">
-      {% for c in inv.checkins %}<li>{{ c.personas }} pers. · {{ c.operador or 'staff' }} · {{ c.at.strftime('%d/%m %H:%M') }} UTC</li>{% endfor %}
+      {% for c in inv.checkins %}<li>{{ c.personas }} pers. · {{ c.operador or 'staff' }} · {{ c.at|hora_local }}</li>{% endfor %}
     </ul>
     <form method="post" action="/admin/invitaciones/{{ inv.id }}/deshacer-ingreso">
       <button class="btn btn--peligro" type="submit">Deshacer último ingreso</button>
@@ -84,8 +79,9 @@
     {% endif %}
 
     <h2 class="subtitulo">Zona peligrosa</h2>
-    <form method="post" action="/admin/invitaciones/{{ inv.id }}/eliminar"
-          onsubmit="return confirm('Eliminar la invitación de {{ inv.nombre_grupo }} y todos sus datos. Esta acción no se puede deshacer. ¿Continuar?')">
+    {# el nombre va en data-grupo (escapado como atributo) y no dentro del JS: un apostrofe lo romperia #}
+    <form method="post" action="/admin/invitaciones/{{ inv.id }}/eliminar" data-grupo="{{ inv.nombre_grupo }}"
+          onsubmit="return confirm('Eliminar la invitación de ' + this.dataset.grupo + ' y todos sus datos. Esta acción no se puede deshacer. ¿Continuar?')">
       <button class="btn btn--peligro" type="submit">Eliminar invitación</button>
     </form>
   </aside>

@@ -319,9 +319,23 @@
   {% if inv %}
   {% set respondio = inv.estado.value != 'pendiente' %}
   {% set viene = inv.confirmados > 0 %}
+  {% set abierto = rsvp_abierto() %}
 
   <section class="seccion rsvp" id="rsvp">
-    {% if respondio and not editar %}
+    {% for aviso in avisos(request) %}
+    <p class="aviso aviso--{{ aviso.tipo }}" role="alert">{{ aviso.texto }}</p>
+    {% endfor %}
+    {% if not respondio and not abierto %}
+
+      {# --- no respondieron y la confirmacion ya cerro --- #}
+      <h2 class="seccion__titulo" data-reveal>Confirmación cerrada</h2>
+      <div data-reveal>{{ ramita() }}</div>
+      <p class="parrafo centro" data-reveal>
+        La confirmación de asistencia cerró el {{ fecha_limite_rsvp() }}.<br>
+        Si todavía querés avisarnos algo, escribinos.
+      </p>
+
+    {% elif respondio and (not editar or not abierto) %}
 
       {# --- ya respondieron: agradecimiento --- #}
       <h2 class="seccion__titulo" data-reveal>{{ '¡Gracias por confirmar!' if viene else 'Gracias por avisarnos' }}</h2>
@@ -353,9 +367,11 @@
         </p>
       {% endif %}
 
+      {% if abierto %}
       <p class="centro" data-reveal>
         <a class="btn btn--linea" href="/i/{{ inv.codigo }}?editar=1#rsvp">Modificar mi respuesta</a>
       </p>
+      {% endif %}
 
     {% else %}
 
@@ -366,34 +382,37 @@
       <p class="parrafo centro" data-reveal>
         Invitación para <strong>{{ inv.nombre_grupo }}</strong> ·
         {{ inv.cupo_adultos }} adulto{{ 's' if inv.cupo_adultos != 1 }}{% if inv.cupo_ninos %} y {{ inv.cupo_ninos }} niño{{ 's' if inv.cupo_ninos != 1 }}{% endif %}<br>
-        <span class="tenue">Confirmar antes del {{ cfg.FECHA_LIMITE_RSVP }}</span>
+        <span class="tenue">Confirmar hasta el {{ fecha_limite_rsvp() }}</span>
       </p>
 
       <form class="formulario" method="post" action="/i/{{ inv.codigo }}/rsvp" data-reveal-grupo>
         {% for g in inv.invitados %}
         <fieldset class="invitado">
           <legend>{{ 'Adulto' if g.tipo.value == 'adulto' else 'Niño/a' }} {{ loop.index }}</legend>
-          <input type="hidden" name="tipo" value="{{ g.tipo.value }}">
+          <input type="hidden" name="invitado_id" value="{{ g.id }}">
           <label>Nombre y apellido
-            <input type="text" name="nombre" value="{{ g.nombre }}" placeholder="Nombre completo" required>
+            {# obligatorio solo para quien asiste: invitacion.js lo activa segun la opcion elegida #}
+            <input type="text" name="nombre" value="{{ g.nombre }}" placeholder="Nombre completo" maxlength="{{ largo.nombre }}" data-nombre-invitado {{ 'required' if g.asiste }}>
           </label>
           <label>Asistencia
-            <select name="asiste">
-              <option value="si" {{ 'selected' if g.asiste != False }}>Sí, asiste</option>
+            {# sin respuesta previa no se preselecciona nada: cada persona se confirma a conciencia #}
+            <select name="asiste" required data-asistencia>
+              <option value="" {{ 'selected' if g.asiste is none }}>Elegí una opción</option>
+              <option value="si" {{ 'selected' if g.asiste == True }}>Sí, asiste</option>
               <option value="no" {{ 'selected' if g.asiste == False }}>No puede asistir</option>
             </select>
           </label>
           <label>Restricción alimentaria (opcional)
-            <input type="text" name="restriccion" value="{{ g.restriccion or '' }}" placeholder="Celíaco, vegetariano, alergias...">
+            <input type="text" name="restriccion" value="{{ g.restriccion or '' }}" placeholder="Celíaco, vegetariano, alergias..." maxlength="{{ largo.restriccion }}">
           </label>
         </fieldset>
         {% endfor %}
 
         <label>Teléfono de contacto
-          <input type="tel" name="telefono" value="{{ inv.telefono or '' }}" placeholder="+54 9 261 ...">
+          <input type="tel" name="telefono" value="{{ inv.telefono or '' }}" placeholder="+54 9 261 ..." maxlength="{{ largo.telefono }}">
         </label>
         <label>Dejanos un mensaje (opcional)
-          <textarea name="mensaje" rows="3" placeholder="Un saludo para los novios">{{ inv.mensaje or '' }}</textarea>
+          <textarea name="mensaje" rows="3" placeholder="Un saludo para los novios" maxlength="{{ largo.mensaje }}">{{ inv.mensaje or '' }}</textarea>
         </label>
 
         <button class="btn btn--solido" type="submit" data-enviando="Enviando…">Enviar respuesta</button>

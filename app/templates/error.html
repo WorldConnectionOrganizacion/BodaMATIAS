@@ -1,0 +1,24 @@
+{% extends "admin/base.html" if admin else "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block contenido %}
+{% if admin %}
+<div class="panel panel--angosto">
+  <h1 class="titulo">{{ titulo }}</h1>
+  <p>{{ mensaje }}</p>
+  {% if detalles %}<ul class="lista-simple">{% for d in detalles %}<li>{{ d }}</li>{% endfor %}</ul>{% endif %}
+  <p class="acciones">
+    <a class="btn" href="javascript:history.back()">Volver</a>
+    <a class="btn" href="/admin">Ir al tablero</a>
+  </p>
+</div>
+{% else %}
+<main class="pagina">
+  <section class="seccion" style="padding-top:22vh">
+    <h1 class="seccion__titulo">{{ titulo }}</h1>
+    <p class="parrafo">{{ mensaje }}</p>
+    {% if detalles %}<ul class="parrafo">{% for d in detalles %}<li>{{ d }}</li>{% endfor %}</ul>{% endif %}
+    <a class="btn btn--linea" href="/">Ver la invitación general</a>
+  </section>
+</main>
+{% endif %}
+{% endblock %}
