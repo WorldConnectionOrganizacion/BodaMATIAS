@@ -53,7 +53,7 @@ ITINERARIO = [
     ("02:30", "Fin de fiesta"),
 ]
 DRESS_CODE = "Formal elegante, fresco y cómodo para festejar al aire libre."
-REGALOS_ALIAS = "Bodasofi.mati"
+REGALOS_ALIAS = "sofi.mati.20"
 REGALOS_URL = "https://link.mercadopago.com.ar/bodasofimati"
 
 # --- Configuración técnica --------------------------------------------------
