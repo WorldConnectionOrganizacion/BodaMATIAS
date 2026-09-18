@@ -89,8 +89,8 @@ deploy: sin Volume se pierden todas las confirmaciones.
 
 1. New Project → Deploy from GitHub repo. Railway construye con el `Dockerfile` del repo y
    `railway.json` define el arranque (`python iniciar.py`), el healthcheck (`/salud`) y el reinicio ante
-   fallas. La imagen corre con un usuario sin privilegios: agregar la variable `RAILWAY_RUN_UID=0`
-   para que pueda escribir en el Volume.
+    fallas. Al iniciar, la imagen prepara los permisos del Volume y ejecuta la app con un usuario sin
+    privilegios.
 2. En el servicio: **Add Volume**, con mount path `/app/data`. Cualquier ruta sirve porque la app usa
    la que informa Railway (`RAILWAY_VOLUME_MOUNT_PATH`). **No definir `DB_URL`.**
 3. Variables del servicio (el `.env` no se sube):

@@ -27,8 +27,10 @@
     var system = document.getElementById("envelope-system");
     var video = document.getElementById("envelope-video");
     var cardContainer = document.getElementById("envelope-card-container");
+    var cargando = document.getElementById("envelope-cargando");
 
     if (!wrapper || !stage || !system || !video) {
+      if (wrapper) wrapper.style.display = "none";  // que no quede tapando la pagina sin poder abrirse
       arrancarRevelados();
       return;
     }
@@ -77,7 +79,32 @@
     video.addEventListener("error", function () {
       console.warn("No se pudo cargar el video del sobre, pasando a modo fallback");
       if (cardContainer) cardContainer.style.opacity = "1";
+      marcarListo();  // que igual se pueda seguir: sin esto quedaria "Cargando…" para siempre
     });
+
+    // El video tiene que estar cargado ANTES de dejar tocar el sobre (para que nunca se vea
+    // trabado en telefonos de gama baja o con poca señal): mientras carga se ve "Cargando…" en
+    // vez de "Tocá para abrir", y como resguardo nunca se espera mas de CARGA_MAXIMA_MS (una
+    // conexion muy mala no tiene por que dejar a alguien mirando un cartel para siempre).
+    var CARGA_MAXIMA_MS = 8000;
+    var listo = false;
+
+    function marcarListo() {
+      if (listo) return;
+      listo = true;
+      if (cargando) cargando.classList.add("oculto");
+      if (hint) hint.classList.remove("oculto");
+      if (seal) seal.style.cursor = "";
+    }
+
+    if (seal) seal.style.cursor = "wait";
+    if (video.readyState >= video.HAVE_ENOUGH_DATA) {
+      marcarListo();
+    } else {
+      video.addEventListener("canplaythrough", marcarListo, { once: true });
+      setTimeout(marcarListo, CARGA_MAXIMA_MS);
+      try { video.load(); } catch (e) { }
+    }
 
     var abriendo = false;
     var abierto = false;
@@ -187,18 +214,17 @@
         }, 2.3);
       }
 
-      // 5. Al terminar el video (~2.4s), pausar en el último fotograma
-      tl.add(function () {
-        if (video) {
-          try { video.pause(); } catch (err) { }
-        }
-      }, 2.4);
+      // El video no tiene loop: al llegar a su final se detiene solo en el último fotograma.
+      // (Antes se forzaba video.pause() a los 2.4s fijos del timeline, pero en celulares lentos
+      // el video puede ir atrasado respecto al reloj del timeline, y esa pausa lo cortaba a mitad
+      // de reproducción, dando el efecto de que "se traba". Dejarlo terminar solo evita eso.)
 
       // Pausa para que los invitados lean con calma el texto de la invitación (+2.7s)
       tl.to({}, { duration: 2.7 });
     }
 
     function alTocar(e) {
+      if (!listo) return;  // el video todavia esta cargando: no dejar abrir a los tirones
       if (e && e.stopPropagation) {
         e.stopPropagation();
       }

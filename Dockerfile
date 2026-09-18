@@ -14,12 +14,15 @@ RUN pip install -r requirements.txt
 
 COPY app ./app
 COPY iniciar.py .
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Usuario sin privilegios. La base vive en /app/data, que docker-compose monta como volumen.
 RUN useradd --create-home --uid 1000 boda \
     && mkdir -p /app/data \
-    && chown boda:boda /app/data
-USER boda
+    && chown boda:boda /app/data \
+    && chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 ENV PORT=8000
 EXPOSE 8000

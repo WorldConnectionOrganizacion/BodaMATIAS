@@ -701,6 +701,61 @@ body.envelope-locked {
   transform: translateX(-50%) translateY(-2px);
 }
 
+/* Mientras el video no esta listo para reproducirse sin cortes, la pista de toque queda oculta
+   (invitacion.js la revela) y en su lugar, en el mismo lugar, se ve "Cargando…". */
+.envelope-scroll-hint.oculto {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.envelope-cargando {
+  position: absolute;
+  bottom: clamp(16px, 3.5vh, 32px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(44, 49, 43, .12);
+  border: 1px solid rgba(217, 207, 192, .8);
+  transition: opacity .3s ease;
+}
+
+.envelope-cargando.oculto {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.envelope-cargando__texto {
+  font-size: .72rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--tinta);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.envelope-cargando__spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--dorado);
+  border-top-color: transparent;
+  animation: envelope-cargando-girar .8s linear infinite;
+}
+
+@keyframes envelope-cargando-girar {
+  to {
+    transform: rotate(360deg)
+  }
+}
+
 .scroll-hint-text {
   font-size: .72rem;
   letter-spacing: .2em;

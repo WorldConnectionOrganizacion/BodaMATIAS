@@ -72,12 +72,19 @@
     <!-- Destello verde etéreo (Flash verde) al completarse la apertura -->
     <div class="flash-verde" id="flash-verde" aria-hidden="true"></div>
 
-    <!-- Pista interactiva de toque -->
-    <div class="envelope-scroll-hint" id="envelope-scroll-hint" role="button" aria-label="Abrir invitación">
+    <!-- Pista interactiva de toque: aparece recien cuando el video termino de cargar,
+         para que abrir el sobre nunca se vea trabado (invitacion.js la habilita) -->
+    <div class="envelope-scroll-hint oculto" id="envelope-scroll-hint" role="button" aria-label="Abrir invitación">
       <span class="scroll-hint-text">Tocá para abrir la invitación</span>
       <div class="scroll-hint-chevrons" aria-hidden="true">
         <span class="scroll-hint-dot"></span>
       </div>
+    </div>
+
+    <!-- Mientras el video carga: se saca sola apenas esta lista para reproducirse sin cortes -->
+    <div class="envelope-cargando" id="envelope-cargando" aria-hidden="true">
+      <span class="envelope-cargando__spinner" aria-hidden="true"></span>
+      <span class="envelope-cargando__texto">Cargando…</span>
     </div>
   </section>
 </div>
