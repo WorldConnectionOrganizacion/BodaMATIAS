@@ -367,6 +367,9 @@ def importar(
 
     En `fisica` vale si / 1 / x / fisica para marcar la tarjeta impresa. Se valida todo el
     archivo antes de guardar: si una fila esta mal no se importa ninguna.
+
+    Columnas opcionales (para reimportar un export/respaldo tal cual, con codigo fijo y
+    respuestas ya cargadas): codigo, estado, mensaje, notas, creada_at, respondida_at.
     """
     try:
         texto = servicios.decodificar_csv(archivo.file.read(servicios.CSV_MAX_BYTES + 1))

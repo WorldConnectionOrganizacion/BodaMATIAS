@@ -31,6 +31,8 @@
   <h2 class="subtitulo">Importar lista (CSV)</h2>
   <p class="tenue">Columnas: <code>grupo;adultos;ninos;telefono;email;fisica</code>
     (en <code>fisica</code>: <code>si</code> o vacío)</p>
+  <p class="tenue">Para reimportar un export/respaldo tal cual (con código fijo y respuestas ya
+    cargadas), agregá también: <code>codigo;estado;mensaje;notas;creada_at;respondida_at</code></p>
   <form method="post" action="/admin/importar" enctype="multipart/form-data" class="fila">
     <input type="file" name="archivo" accept=".csv" required>
     <button class="btn" type="submit">Importar</button>

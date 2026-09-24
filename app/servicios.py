@@ -34,7 +34,14 @@ COLUMNAS_CSV = {
     "ninos": ("ninos", "cupo_ninos"),
     "telefono": ("telefono",),
     "email": ("email",),
-    "fisica": ("fisica", "formato"),
+    "fisica": ("fisica", "formato", "tarjeta_fisica"),
+    # Opcionales: solo presentes en un CSV exportado (respaldo o migracion), no en carga manual.
+    "codigo": ("codigo",),
+    "estado": ("estado",),
+    "mensaje": ("mensaje",),
+    "notas": ("notas",),
+    "creada_at": ("creada_at",),
+    "respondida_at": ("respondida_at",),
 }
 FORM_DESACTUALIZADO = (
     "La invitación cambió mientras la completabas. Recargá la página y volvé a enviar tu respuesta."
@@ -129,9 +136,27 @@ def recalcular_estado(inv: Invitacion) -> None:
 
 
 def crear_invitacion(session: Session, **datos) -> Invitacion:
-    inv = Invitacion(codigo=nuevo_codigo(session), **datos)
+    """Crea una invitacion nueva.
+
+    `estado` y `respondida_at`, si vienen (import con datos ya respondidos), no se asignan
+    tal cual: `sincronizar_slots` crea los lugares y despues se marca `asiste` acorde para que
+    `recalcular_estado` llegue al mismo estado por el camino normal, sin romper la regla de que
+    el estado siempre sale de la asistencia cargada.
+    """
+    datos.setdefault("codigo", nuevo_codigo(session))
+    estado_previo = datos.pop("estado", None)
+    respondida_at = datos.pop("respondida_at", None)
+    inv = Invitacion(**datos)
     sincronizar_slots(inv)
+    if estado_previo == Estado.confirmada:
+        for g in inv.invitados:
+            g.asiste = True
+    elif estado_previo == Estado.rechazada:
+        for g in inv.invitados:
+            g.asiste = False
     recalcular_estado(inv)
+    if respondida_at:
+        inv.respondida_at = respondida_at
     session.add(inv)
     return inv
 
@@ -201,6 +226,16 @@ def _normalizar_encabezado(texto: str) -> str:
     return sin_tildes.strip().lower().replace(" ", "_")
 
 
+def _fecha_opcional(texto: str, rotulo: str):
+    texto = (texto or "").strip()
+    if not texto:
+        return None
+    try:
+        return datetime.fromisoformat(texto)
+    except ValueError:
+        raise ErrorValidacion(f"{rotulo}: fecha inválida '{texto[:30]}' (formato esperado AAAA-MM-DD HH:MM:SS).")
+
+
 def leer_csv(texto: str) -> List[dict]:
     """Valida todas las filas. Si alguna esta mal no devuelve nada: la carga es todo o nada."""
     primera = texto.split("\n", 1)[0]
@@ -230,17 +265,38 @@ def leer_csv(texto: str) -> List[dict]:
                 adultos, ninos = validar_cupos(celda("adultos"), celda("ninos"))
                 telefono = texto_opcional(celda("telefono"), "telefono", "Teléfono")
                 email = texto_opcional(celda("email"), "email", "Email")
+                codigo = celda("codigo").strip().upper() or None
+                estado_txt = celda("estado").strip()
+                if estado_txt and estado_txt not in Estado.__members__:
+                    raise ErrorValidacion(f"estado: valor desconocido '{estado_txt}'.")
+                mensaje = texto_opcional(celda("mensaje"), "mensaje", "Mensaje")
+                notas = texto_opcional(celda("notas"), "notas", "Notas")
+                creada_at = _fecha_opcional(celda("creada_at"), "creada_at")
+                respondida_at = _fecha_opcional(celda("respondida_at"), "respondida_at")
             except ErrorValidacion as e:
                 errores.append(f"Línea {lector.line_num}: {e.mensaje}")
                 continue
-            filas.append({
+            fila = {
                 "nombre_grupo": grupo,
                 "cupo_adultos": adultos,
                 "cupo_ninos": ninos,
                 "telefono": telefono,
                 "email": email,
                 "tarjeta_fisica": celda("fisica").lower() in VALORES_FISICA,
-            })
+            }
+            if codigo:
+                fila["codigo"] = codigo
+            if estado_txt:
+                fila["estado"] = Estado[estado_txt]
+            if mensaje:
+                fila["mensaje"] = mensaje
+            if notas:
+                fila["notas"] = notas
+            if creada_at:
+                fila["creada_at"] = creada_at
+            if respondida_at:
+                fila["respondida_at"] = respondida_at
+            filas.append(fila)
     except csv.Error as e:
         raise ErrorValidacion(f"El archivo tiene un formato inválido cerca de la línea {lector.line_num}: {e}")
 
@@ -258,15 +314,24 @@ def importar_filas(session: Session, filas: List[dict]) -> Tuple[List[Invitacion
         return " ".join(nombre.split()).casefold()
 
     en_base = {clave(n) for n in session.exec(select(Invitacion.nombre_grupo)).all()}
+    codigos_en_base = {c for c in session.exec(select(Invitacion.codigo)).all()}
     en_archivo = set()
+    codigos_en_archivo = set()
     creadas, omitidas = [], []
     for datos in filas:
         grupo = datos["nombre_grupo"]
-        if clave(grupo) in en_base:
+        codigo = datos.get("codigo")
+        if codigo and codigo in codigos_en_base:
+            omitidas.append(f"{grupo} ({codigo}, ya existía)")
+        elif codigo and codigo in codigos_en_archivo:
+            omitidas.append(f"{grupo} ({codigo}, repetido en el archivo)")
+        elif not codigo and clave(grupo) in en_base:
             omitidas.append(f"{grupo} (ya existía)")
-        elif clave(grupo) in en_archivo:
+        elif not codigo and clave(grupo) in en_archivo:
             omitidas.append(f"{grupo} (repetido en el archivo)")
         else:
             en_archivo.add(clave(grupo))
+            if codigo:
+                codigos_en_archivo.add(codigo)
             creadas.append(crear_invitacion(session, **datos))
     return creadas, omitidas
