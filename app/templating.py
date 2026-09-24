@@ -51,3 +51,4 @@ templates.env.globals["largo"] = servicios.LARGO_MAX
 templates.env.globals["rsvp_abierto"] = servicios.rsvp_abierto
 templates.env.globals["fecha_limite_rsvp"] = servicios.fecha_limite_texto
 templates.env.globals["es_staff"] = security.es_staff
+templates.env.globals["link_whatsapp"] = servicios.link_whatsapp

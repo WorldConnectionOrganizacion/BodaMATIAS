@@ -8,6 +8,7 @@ import io
 import unicodedata
 from datetime import date, datetime
 from typing import Dict, List, Optional, Tuple
+from urllib.parse import quote
 
 from sqlmodel import Session, select
 
@@ -159,6 +160,18 @@ def crear_invitacion(session: Session, **datos) -> Invitacion:
         inv.respondida_at = respondida_at
     session.add(inv)
     return inv
+
+
+def link_whatsapp(inv: Invitacion) -> str:
+    """Link `wa.me` con la invitacion precargada para mandar por WhatsApp. Vacio sin telefono."""
+    tel = "".join(c for c in (inv.telefono or "") if c.isdigit())
+    if not tel:
+        return ""
+    texto = (
+        "Hola " + inv.nombre_grupo + "! Nos casamos y queremos que esten con nosotros. "
+        "Aca esta su invitacion: " + config.BASE_URL + "/i/" + inv.codigo
+    )
+    return "https://wa.me/" + tel + "?text=" + quote(texto)
 
 
 # --- RSVP del invitado ------------------------------------------------------

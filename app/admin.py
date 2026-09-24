@@ -156,16 +156,8 @@ def detalle(
     inv = _inv(session, inv_id)
     if not inv:
         return RedirectResponse("/admin/invitaciones", status_code=303)
-    wa = ""
-    if inv.telefono:
-        tel = "".join(c for c in inv.telefono if c.isdigit())
-        texto = (
-            "Hola " + inv.nombre_grupo + "! Nos casamos y queremos que esten con nosotros. "
-            "Aca esta su invitacion: " + config.BASE_URL + "/i/" + inv.codigo
-        )
-        wa = "https://wa.me/" + tel + "?text=" + quote(texto)
     return templates.TemplateResponse(
-        "admin/detalle.html", {"request": request, "inv": inv, "wa": wa}
+        "admin/detalle.html", {"request": request, "inv": inv, "wa": servicios.link_whatsapp(inv)}
     )
 
 

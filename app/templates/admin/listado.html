@@ -40,7 +40,12 @@
       <td data-label="Confirmados">{{ i.confirmados }}</td>
       <td data-label="Estado"><span class="estado estado--{{ i.estado.value }}">{{ i.estado.value }}</span></td>
       <td class="acciones-fila">
+        {% set wa = link_whatsapp(i) %}
+        {% if wa %}
+        <a href="{{ wa }}" target="_blank" rel="noopener">Enviar WhatsApp</a>
+        {% else %}
         <a href="/i/{{ i.codigo }}" target="_blank">Invitación</a>
+        {% endif %}
         <a href="/admin/invitaciones/{{ i.id }}/tarjeta" target="_blank">Imprimir QR</a>
       </td>
     </tr>
