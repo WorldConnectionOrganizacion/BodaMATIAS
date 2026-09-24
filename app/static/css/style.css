@@ -1345,7 +1345,7 @@ body.envelope-locked {
   align-items: baseline;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .alias-label {
