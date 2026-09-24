@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% block titulo %}QR · Exportar todos{% endblock %}
+{% block head %}
+<style>
+  /* Sin margen de pagina el navegador no imprime fecha, titulo ni URL: solo sale el QR. */
+  @page{size:auto;margin:0}
+  @media print{
+    .barra,.no-imprimir,.aviso{display:none!important}
+    body,body.admin{background:#fff}
+    .contenido{padding:0;max-width:none}
+    .tarjeta-print{box-shadow:none;border:0;max-width:none;margin:0;padding:25mm 15mm 0;page-break-after:always}
+    .tarjeta-print:last-child{page-break-after:auto}
+    .tarjeta-print__qr{width:70mm}
+  }
+</style>
+{% endblock %}
+{% block contenido %}
+<p class="no-imprimir acciones">
+  <button class="btn" onclick="window.print()">Imprimir / Guardar como PDF</button>
+  <a class="btn" href="/admin/invitaciones">Volver</a>
+</p>
+
+<p class="no-imprimir tenue">{{ invitaciones|length }} QR para imprimir, uno por hoja.
+  "Guardar como PDF" en el dialogo de impresion junta todos en un solo archivo.</p>
+
+{% for inv in invitaciones %}
+<article class="tarjeta-print">
+  <p class="no-imprimir tenue"><strong>{{ inv.nombre_grupo }}</strong> · {{ inv.codigo }}</p>
+  <img class="tarjeta-print__qr" src="/i/{{ inv.codigo }}/qr.png" alt="QR de {{ inv.nombre_grupo }}" width="240" height="240">
+</article>
+{% else %}
+<p class="no-imprimir tenue celda-vacia">Sin invitaciones para este filtro.</p>
+{% endfor %}
+{% endblock %}
