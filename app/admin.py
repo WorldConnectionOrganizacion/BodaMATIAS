@@ -108,6 +108,35 @@ def listado(
     )
 
 
+@router.get("/invitaciones/tarjetas", response_class=HTMLResponse)
+def tarjetas_masivo(
+    request: Request,
+    q: str = "",
+    estado: str = "",
+    formato: str = "",
+    _: bool = Depends(requiere_staff),
+    session: Session = Depends(get_session),
+):
+    """Todos los QR filtrados en una sola hoja, uno por pagina: un solo Imprimir/PDF
+    en vez de entrar tarjeta por tarjeta."""
+    consulta = select(Invitacion).order_by(Invitacion.nombre_grupo)
+    if q:
+        patron = "%" + q.strip() + "%"
+        consulta = consulta.where(
+            (Invitacion.nombre_grupo.ilike(patron)) | (Invitacion.codigo.ilike(patron))
+        )
+    if estado in {e.value for e in Estado}:
+        consulta = consulta.where(Invitacion.estado == Estado(estado))
+    if formato == "fisica":
+        consulta = consulta.where(Invitacion.tarjeta_fisica == True)  # noqa: E712
+    elif formato == "virtual":
+        consulta = consulta.where(Invitacion.tarjeta_fisica == False)  # noqa: E712
+    invs = session.exec(consulta).all()
+    return templates.TemplateResponse(
+        "admin/tarjetas_masivo.html", {"request": request, "invitaciones": invs},
+    )
+
+
 # --- Alta / edicion ---------------------------------------------------------
 @router.get("/invitaciones/nueva", response_class=HTMLResponse)
 def nueva_form(request: Request, _: bool = Depends(requiere_staff)):
@@ -241,35 +270,6 @@ def tarjeta(
     if not inv:
         return RedirectResponse("/admin/invitaciones", status_code=303)
     return templates.TemplateResponse("admin/tarjeta.html", {"request": request, "inv": inv})
-
-
-@router.get("/invitaciones/tarjetas", response_class=HTMLResponse)
-def tarjetas_masivo(
-    request: Request,
-    q: str = "",
-    estado: str = "",
-    formato: str = "",
-    _: bool = Depends(requiere_staff),
-    session: Session = Depends(get_session),
-):
-    """Todos los QR filtrados en una sola hoja, uno por pagina: un solo Imprimir/PDF
-    en vez de entrar tarjeta por tarjeta."""
-    consulta = select(Invitacion).order_by(Invitacion.nombre_grupo)
-    if q:
-        patron = "%" + q.strip() + "%"
-        consulta = consulta.where(
-            (Invitacion.nombre_grupo.ilike(patron)) | (Invitacion.codigo.ilike(patron))
-        )
-    if estado in {e.value for e in Estado}:
-        consulta = consulta.where(Invitacion.estado == Estado(estado))
-    if formato == "fisica":
-        consulta = consulta.where(Invitacion.tarjeta_fisica == True)  # noqa: E712
-    elif formato == "virtual":
-        consulta = consulta.where(Invitacion.tarjeta_fisica == False)  # noqa: E712
-    invs = session.exec(consulta).all()
-    return templates.TemplateResponse(
-        "admin/tarjetas_masivo.html", {"request": request, "invitaciones": invs},
-    )
 
 
 # --- Escaner de codigos ------------------------------------------------------
